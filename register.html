@@ -15,30 +15,60 @@
                 <p>Start your digital loyalty program</p>
             </div>
             
-            <form id="registerForm" class="auth-form">
+            <form id="registerForm" class="auth-form" autocomplete="on">
                 <div class="form-group">
                     <label for="shopName">Shop Name</label>
-                    <input type="text" id="shopName" required placeholder="e.g. Royal Bakes">
+                    <input 
+                        type="text" 
+                        id="shopName" 
+                        name="shopName"
+                        autocomplete="organization"
+                        required 
+                        placeholder="e.g. Royal Bakes">
                 </div>
                 
                 <div class="form-group">
                     <label for="ownerName">Owner Name</label>
-                    <input type="text" id="ownerName" required placeholder="Full name">
+                    <input 
+                        type="text" 
+                        id="ownerName" 
+                        name="ownerName"
+                        autocomplete="name"
+                        required 
+                        placeholder="Full name">
                 </div>
                 
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" required placeholder="shop@example.com">
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email"
+                        autocomplete="email"
+                        required 
+                        placeholder="shop@example.com">
                 </div>
                 
                 <div class="form-group">
                     <label for="phone">Phone</label>
-                    <input type="tel" id="phone" placeholder="+1 234 567 890">
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone"
+                        autocomplete="tel"
+                        placeholder="+1 234 567 890">
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" required minlength="6" placeholder="Min 6 characters">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password"
+                        autocomplete="new-password"
+                        required 
+                        minlength="6" 
+                        placeholder="Min 6 characters">
                 </div>
                 
                 <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
@@ -54,11 +84,15 @@
         </div>
     </div>
 
+    <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Your config -->
     <script src="js/supabase-config.js"></script>
+    
     <script>
         const form = document.getElementById('registerForm');
         const toast = document.getElementById('toast');
+        const submitBtn = document.getElementById('submitBtn');
         
         function showToast(message, type = 'error') {
             toast.textContent = message;
@@ -68,9 +102,8 @@
         
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.querySelector('.btn-text').textContent = 'Creating...';
+            submitBtn.disabled = true;
+            submitBtn.querySelector('.btn-text').textContent = 'Creating...';
             
             const shopName = document.getElementById('shopName').value;
             const ownerName = document.getElementById('ownerName').value;
@@ -93,15 +126,19 @@
                 
                 if (error) throw error;
                 
-                await supabase.from('shops').update({ phone }).eq('id', data.user.id);
+                // Update shop phone
+                if (data?.user?.id) {
+                    await supabase.from('shops').update({ phone }).eq('id', data.user.id);
+                }
                 
                 showToast('Account created! Check your email to verify.', 'success');
                 setTimeout(() => window.location.href = 'login.html', 2000);
                 
             } catch (err) {
-                showToast(err.message);
-                btn.disabled = false;
-                btn.querySelector('.btn-text').textContent = 'Create Account';
+                console.error('Register error:', err);
+                showToast(err.message || 'Registration failed');
+                submitBtn.disabled = false;
+                submitBtn.querySelector('.btn-text').textContent = 'Create Account';
             }
         });
     </script>

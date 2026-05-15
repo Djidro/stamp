@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Loyalty Card - LoyaltySip</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body class="customer-page">
+    <div class="customer-container">
+        <div class="loyalty-card">
+            <div class="card-header">
+                <h2 id="shopName">Loading...</h2>
+                <p>Digital Loyalty Card</p>
+            </div>
+            
+            <div class="card-body">
+                <div class="customer-info">
+                    <h3 id="customerName">...</h3>
+                    <p id="customerCode">...</p>
+                </div>
+                
+                <div class="qr-section">
+                    <canvas id="customerQR"></canvas>
+                    <p>Show this to staff</p>
+                </div>
+                
+                <div class="stamps-section">
+                    <h4>Stamps</h4>
+                    <div class="stamps-grid" id="stampsGrid"></div>
+                    <p class="stamps-text">
+                        <span id="stampCount">0</span> / <span id="stampTarget">6</span>
+                    </p>
+                </div>
+                
+                <div class="rewards-section">
+                    <h4>Available Rewards</h4>
+                    <div class="reward-count" id="rewardCount">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/customer.js"></script>
+</body>
+</html>

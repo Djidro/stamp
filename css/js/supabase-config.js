@@ -1,20 +1,21 @@
 // ============================================
-// YOUR SUPABASE CREDENTIALS
+// SUPABASE CONFIG - YOUR CREDENTIALS
 // ============================================
 const SUPABASE_URL = 'https://ooewanshekzpjfgtyyzx.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_laufif_03Bc66pEPcwPt-w_vboiTaN5';
 
 // ============================================
-// SAFE INITIALIZATION (checks if CDN loaded)
+// SAFE INITIALIZATION
 // ============================================
 let supabase;
 
 if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log('✅ Supabase connected');
+    console.log('✅ Supabase loaded');
 } else {
-    console.error('❌ Supabase CDN not loaded. Check your internet connection.');
-    // Create a dummy object to prevent crashes
+    console.error('❌ Supabase CDN failed. Check internet connection.');
+    alert('Error: Could not load Supabase. Please check your internet connection and reload.');
+    // Dummy object to prevent total crash
     supabase = {
         auth: {
             getSession: () => Promise.resolve({ data: { session: null } }),
@@ -24,7 +25,9 @@ if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
         },
         from: () => ({
             select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null }) }) }),
-            insert: () => Promise.resolve({ error: { message: 'Supabase not loaded' } })
+            insert: () => Promise.resolve({ error: { message: 'Supabase not loaded' } }),
+            update: () => Promise.resolve({ error: { message: 'Supabase not loaded' } }),
+            delete: () => Promise.resolve({ error: { message: 'Supabase not loaded' } })
         })
     };
 }

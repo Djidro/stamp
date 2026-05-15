@@ -3,7 +3,6 @@ let customers = [];
 let visitsChart = null;
 let currentQRData = null;
 
-// Auth guard
 supabase.auth.getSession().then(({ data: { session } }) => {
     if (!session) {
         window.location.href = 'login.html';
@@ -24,7 +23,6 @@ async function initDashboard() {
     loadCustomers();
     loadBroadcasts();
     
-    // Navigation
     document.querySelectorAll('.nav-item[data-section]').forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
@@ -35,7 +33,6 @@ async function initDashboard() {
         });
     });
     
-    // Broadcast preview
     document.getElementById('broadcastMessage').addEventListener('input', updatePreview);
     document.getElementById('broadcastTitle').addEventListener('input', updatePreview);
 }
@@ -54,9 +51,7 @@ function showToast(message, type = 'error') {
     setTimeout(() => toast.className = 'toast hidden', 4000);
 }
 
-// Overview
 async function loadOverview() {
-    // Stats
     const { count: customerCount } = await supabase
         .from('customers')
         .select('*', { count: 'exact', head: true })
@@ -64,25 +59,20 @@ async function loadOverview() {
     
     const { data: visitData } = await supabase
         .from('visits')
-        .select('action')
+        .select('action, created_at')
         .eq('shop_id', currentShop.id);
     
     const totalVisits = visitData?.filter(v => v.action === 'stamp').length || 0;
     const totalRedemptions = visitData?.filter(v => v.action === 'redeem').length || 0;
     
     const today = new Date().toISOString().split('T')[0];
-    const { data: todayVisits } = await supabase
-        .from('visits')
-        .select('*')
-        .eq('shop_id', currentShop.id)
-        .gte('created_at', today);
+    const todayVisits = visitData?.filter(v => v.created_at?.startsWith(today)).length || 0;
     
     document.getElementById('totalCustomers').textContent = customerCount || 0;
     document.getElementById('totalVisits').textContent = totalVisits;
     document.getElementById('totalRedemptions').textContent = totalRedemptions;
-    document.getElementById('todayVisits').textContent = todayVisits?.length || 0;
+    document.getElementById('todayVisits').textContent = todayVisits;
     
-    // Chart
     const last7Days = Array.from({length: 7}, (_, i) => {
         const d = new Date();
         d.setDate(d.getDate() - (6 - i));
@@ -116,7 +106,6 @@ async function loadOverview() {
         }
     });
     
-    // Recent activity
     const { data: recent } = await supabase
         .from('visits')
         .select('*, customers(name)')
@@ -140,7 +129,6 @@ async function loadOverview() {
     `).join('');
 }
 
-// Customers
 async function loadCustomers() {
     const { data, error } = await supabase
         .from('customers')
@@ -148,10 +136,7 @@ async function loadCustomers() {
         .eq('shop_id', currentShop.id)
         .order('created_at', { ascending: false });
     
-    if (error) {
-        showToast(error.message);
-        return;
-    }
+    if (error) { showToast(error.message); return; }
     
     customers = data || [];
     renderCustomers(customers);
@@ -173,9 +158,7 @@ function renderCustomers(list) {
             <td>${c.free_rewards}</td>
             <td>${c.total_visits}</td>
             <td><button onclick="showQR('${c.id}', '${c.name}')" class="btn btn-sm btn-outline">Show QR</button></td>
-            <td>
-                <button onclick="deleteCustomer('${c.id}')" class="btn btn-sm btn-danger">Delete</button>
-            </td>
+            <td><button onclick="deleteCustomer('${c.id}')" class="btn btn-sm btn-danger">Delete</button></td>
         </tr>
     `).join('');
 }
@@ -190,24 +173,15 @@ function searchCustomers() {
     renderCustomers(filtered);
 }
 
-function openAddCustomer() {
-    document.getElementById('customerModal').classList.remove('hidden');
-}
-
-function closeModal() {
-    document.getElementById('customerModal').classList.add('hidden');
-}
+function openAddCustomer() { document.getElementById('customerModal').classList.remove('hidden'); }
+function closeModal() { document.getElementById('customerModal').classList.add('hidden'); }
 
 async function addCustomer() {
     const name = document.getElementById('newCustomerName').value;
     const phone = document.getElementById('newCustomerPhone').value;
     
-    if (!name || !phone) {
-        showToast('Please fill all fields');
-        return;
-    }
+    if (!name || !phone) { showToast('Please fill all fields'); return; }
     
-    // Generate code: SHOP-XXX
     const prefix = currentShop.shop_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 3);
     const count = customers.length + 1;
     const code = `${prefix}-${String(count).padStart(3, '0')}`;
@@ -219,10 +193,7 @@ async function addCustomer() {
         phone
     });
     
-    if (error) {
-        showToast(error.message);
-        return;
-    }
+    if (error) { showToast(error.message); return; }
     
     showToast('Customer added!', 'success');
     closeModal();
@@ -231,22 +202,16 @@ async function addCustomer() {
 
 async function deleteCustomer(id) {
     if (!confirm('Delete this customer?')) return;
-    
     await supabase.from('customers').delete().eq('id', id);
     showToast('Customer deleted', 'success');
     loadCustomers();
 }
 
-// QR Code
 function showQR(customerId, name) {
     currentQRData = { id: customerId, name };
-    const modal = document.getElementById('qrModal');
-    modal.classList.remove('hidden');
+    document.getElementById('qrModal').classList.remove('hidden');
     
-    const qrData = JSON.stringify({
-        customer: customerId,
-        shop: currentShop.id
-    });
+    const qrData = JSON.stringify({ customer: customerId, shop: currentShop.id });
     
     QRCode.toCanvas(document.getElementById('qrCanvas'), qrData, {
         width: 250,
@@ -257,9 +222,7 @@ function showQR(customerId, name) {
     document.getElementById('qrCustomerName').textContent = name;
 }
 
-function closeQrModal() {
-    document.getElementById('qrModal').classList.add('hidden');
-}
+function closeQrModal() { document.getElementById('qrModal').classList.add('hidden'); }
 
 function downloadQR() {
     const canvas = document.getElementById('qrCanvas');
@@ -269,7 +232,6 @@ function downloadQR() {
     link.click();
 }
 
-// Broadcast
 function updatePreview() {
     const title = document.getElementById('broadcastTitle').value;
     const msg = document.getElementById('broadcastMessage').value;
@@ -283,10 +245,7 @@ async function sendBroadcast() {
     const title = document.getElementById('broadcastTitle').value;
     const message = document.getElementById('broadcastMessage').value;
     
-    if (!title || !message) {
-        showToast('Please fill title and message');
-        return;
-    }
+    if (!title || !message) { showToast('Please fill title and message'); return; }
     
     const { error } = await supabase.from('notifications').insert({
         shop_id: currentShop.id,
@@ -294,13 +253,8 @@ async function sendBroadcast() {
         message
     });
     
-    if (error) {
-        showToast(error.message);
-        return;
-    }
+    if (error) { showToast(error.message); return; }
     
-    // Here you would integrate Firebase Cloud Messaging
-    // For now, we store the notification for in-app display
     showToast('Broadcast sent to all customers!', 'success');
     document.getElementById('broadcastTitle').value = '';
     document.getElementById('broadcastMessage').value = '';
@@ -332,30 +286,17 @@ async function loadBroadcasts() {
     container.innerHTML = '<h4>Recent Broadcasts</h4>' + list;
 }
 
-// Settings
 async function saveSettings() {
     const stamps = parseInt(document.getElementById('stampsRequired').value);
     const reward = document.getElementById('rewardName').value;
     
     const { error } = await supabase
         .from('shops')
-        .update({ 
-            settings: { 
-                stamps_required: stamps, 
-                reward_type: reward 
-            } 
-        })
+        .update({ settings: { stamps_required: stamps, reward_type: reward } })
         .eq('id', currentShop.id);
     
-    if (error) {
-        showToast(error.message);
-        return;
-    }
-    
+    if (error) { showToast(error.message); return; }
     showToast('Settings saved!', 'success');
 }
 
-// Sidebar toggle
-function toggleSidebar() {
-    document.querySelector('.sidebar').classList.toggle('open');
-}
+function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('open'); }

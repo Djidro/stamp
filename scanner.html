@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Scanner - LoyaltySip</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body class="scanner-page">
+    <div class="scanner-container">
+        <div class="scanner-header">
+            <a href="dashboard.html" class="btn btn-outline btn-sm">← Back</a>
+            <h1>Scan Customer QR</h1>
+        </div>
+
+        <div class="scanner-wrapper">
+            <div id="reader"></div>
+            <div class="scanner-overlay">
+                <div class="scan-frame"></div>
+                <p>Point camera at customer QR code</p>
+            </div>
+        </div>
+
+        <div id="scanResult" class="scan-result hidden">
+            <div class="customer-found">
+                <h3>👤 <span id="scannedName">Customer</span></h3>
+                <div class="stamp-display">
+                    <span id="currentStamps">0</span> / <span id="requiredStamps">6</span> stamps
+                </div>
+                <div class="stamp-visual" id="stampVisual"></div>
+                <div class="reward-badge hidden" id="rewardBadge">🎁 Reward Available!</div>
+            </div>
+            
+            <div class="action-buttons">
+                <button onclick="addStamp()" class="btn btn-primary btn-large">
+                    ☕ Add Stamp
+                </button>
+                <button onclick="redeemReward()" class="btn btn-success btn-large" id="redeemBtn">
+                    🎁 Redeem Reward
+                </button>
+            </div>
+        </div>
+
+        <div id="manualEntry" class="manual-entry">
+            <p>Camera not working?</p>
+            <div class="form-group">
+                <input type="text" id="manualCode" placeholder="Enter customer code (e.g. RB-001)">
+                <button onclick="manualLookup()" class="btn btn-outline">Lookup</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/scanner.js"></script>
+</body>
+</html>

@@ -90,56 +90,68 @@
     <script src="js/supabase-config.js"></script>
     
     <script>
-        const form = document.getElementById('registerForm');
-        const toast = document.getElementById('toast');
-        const submitBtn = document.getElementById('submitBtn');
-        
-        function showToast(message, type = 'error') {
-            toast.textContent = message;
-            toast.className = `toast ${type}`;
-            setTimeout(() => toast.className = 'toast hidden', 4000);
-        }
-        
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            submitBtn.disabled = true;
-            submitBtn.querySelector('.btn-text').textContent = 'Creating...';
+        // ✅ Wait for everything to load
+        window.addEventListener('DOMContentLoaded', () => {
             
-            const shopName = document.getElementById('shopName').value;
-            const ownerName = document.getElementById('ownerName').value;
-            const email = document.getElementById('email').value;
-            const phone = document.getElementById('phone').value;
-            const password = document.getElementById('password').value;
+            const form = document.getElementById('registerForm');
+            const toast = document.getElementById('toast');
+            const submitBtn = document.getElementById('submitBtn');
             
-            try {
-                const { data, error } = await supabase.auth.signUp({
-                    email,
-                    password,
-                    options: {
-                        data: {
-                            shop_name: shopName,
-                            owner_name: ownerName,
-                            phone: phone
-                        }
-                    }
-                });
+            function showToast(message, type = 'error') {
+                toast.textContent = message;
+                toast.className = `toast ${type}`;
+                setTimeout(() => toast.className = 'toast hidden', 4000);
+            }
+            
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
                 
-                if (error) throw error;
-                
-                // Update shop phone
-                if (data?.user?.id) {
-                    await supabase.from('shops').update({ phone }).eq('id', data.user.id);
+                // ✅ SAFETY CHECK - Make sure supabase exists
+                if (typeof supabase === 'undefined' || !supabase.auth) {
+                    showToast('System is loading. Please wait a moment and try again.');
+                    return;
                 }
                 
-                showToast('Account created! Check your email to verify.', 'success');
-                setTimeout(() => window.location.href = 'login.html', 2000);
+                submitBtn.disabled = true;
+                submitBtn.querySelector('.btn-text').textContent = 'Creating...';
                 
-            } catch (err) {
-                console.error('Register error:', err);
-                showToast(err.message || 'Registration failed');
-                submitBtn.disabled = false;
-                submitBtn.querySelector('.btn-text').textContent = 'Create Account';
-            }
+                const shopName = document.getElementById('shopName').value;
+                const ownerName = document.getElementById('ownerName').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+                const password = document.getElementById('password').value;
+                
+                try {
+                    // ✅ Now safe to use supabase
+                    const { data, error } = await supabase.auth.signUp({
+                        email,
+                        password,
+                        options: {
+                            data: {
+                                shop_name: shopName,
+                                owner_name: ownerName,
+                                phone: phone
+                            }
+                        }
+                    });
+                    
+                    if (error) throw error;
+                    
+                    // Update shop phone
+                    if (data?.user?.id) {
+                        await supabase.from('shops').update({ phone }).eq('id', data.user.id);
+                    }
+                    
+                    showToast('Account created! Check your email to verify.', 'success');
+                    setTimeout(() => window.location.href = 'login.html', 2000);
+                    
+                } catch (err) {
+                    console.error('Register error:', err);
+                    showToast(err.message || 'Registration failed');
+                    submitBtn.disabled = false;
+                    submitBtn.querySelector('.btn-text').textContent = 'Create Account';
+                }
+            });
         });
     </script>
 </body>

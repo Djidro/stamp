@@ -3,106 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Shop - LoyaltySip</title>
+    <title>LoyaltySip - Café Loyalty Platform</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6F4E37">
 </head>
-<body class="auth-page">
-    <div class="auth-container">
-        <div class="auth-card">
-            <div class="auth-header">
-                <span class="logo-large">☕</span>
-                <h1>Create Your Shop</h1>
-                <p>Start your digital loyalty program</p>
-            </div>
-            
-            <form id="registerForm" class="auth-form">
-                <div class="form-group">
-                    <label for="shopName">Shop Name</label>
-                    <input type="text" id="shopName" required placeholder="e.g. Royal Bakes">
-                </div>
-                
-                <div class="form-group">
-                    <label for="ownerName">Owner Name</label>
-                    <input type="text" id="ownerName" required placeholder="Full name">
-                </div>
-                
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" required placeholder="shop@example.com">
-                </div>
-                
-                <div class="form-group">
-                    <label for="phone">Phone</label>
-                    <input type="tel" id="phone" placeholder="+1 234 567 890">
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" required minlength="6" placeholder="Min 6 characters">
-                </div>
-                
-                <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
-                    <span class="btn-text">Create Account</span>
-                </button>
-            </form>
-            
-            <div class="auth-footer">
-                <p>Already have an account? <a href="login.html">Sign in</a></p>
-            </div>
-            
-            <div id="toast" class="toast hidden"></div>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">☕</span>
+            <span>LoyaltySip</span>
         </div>
-    </div>
+        <div class="nav-links">
+            <a href="login.html" class="btn btn-outline">Shop Login</a>
+            <a href="register.html" class="btn btn-primary">Get Started</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Digital Loyalty Cards<br>for Every Café</h1>
+            <p class="subtitle">Multi-tenant SaaS platform. Each shop gets their own isolated dashboard, QR system, and customer management.</p>
+            <div class="hero-cta">
+                <a href="register.html" class="btn btn-large btn-primary">Create Your Shop</a>
+                <a href="#features" class="btn btn-large btn-outline">Learn More</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="phone-mockup">
+                <div class="phone-screen">
+                    <div class="mock-header">☕ Royal Bakes</div>
+                    <div class="mock-card">
+                        <div class="mock-stamps">
+                            <span class="stamp active">☕</span>
+                            <span class="stamp active">☕</span>
+                            <span class="stamp active">☕</span>
+                            <span class="stamp">☕</span>
+                            <span class="stamp">☕</span>
+                            <span class="stamp">☕</span>
+                        </div>
+                        <p>3 / 6 stamps</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="features" class="features">
+        <h2>Everything You Need</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🏪</div>
+                <h3>Multi-Shop</h3>
+                <p>Each café gets complete data isolation. Your customers are yours alone.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>QR Codes</h3>
+                <p>Every customer gets a unique QR code. Staff scan to add stamps instantly.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Analytics</h3>
+                <p>Track visits, redemptions, and customer growth in real-time.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📡</div>
+                <h3>Broadcasts</h3>
+                <p>Send push notifications to all your customers with one click.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>© 2026 LoyaltySip. Built for cafés, by cafés.</p>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script>
-        const form = document.getElementById('registerForm');
-        const toast = document.getElementById('toast');
-        
-        function showToast(message, type = 'error') {
-            toast.textContent = message;
-            toast.className = `toast ${type}`;
-            setTimeout(() => toast.className = 'toast hidden', 4000);
-        }
-        
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.querySelector('.btn-text').textContent = 'Creating...';
-            
-            const shopName = document.getElementById('shopName').value;
-            const ownerName = document.getElementById('ownerName').value;
-            const email = document.getElementById('email').value;
-            const phone = document.getElementById('phone').value;
-            const password = document.getElementById('password').value;
-            
-            try {
-                const { data, error } = await supabase.auth.signUp({
-                    email,
-                    password,
-                    options: {
-                        data: {
-                            shop_name: shopName,
-                            owner_name: ownerName,
-                            phone: phone
-                        }
-                    }
-                });
-                
-                if (error) throw error;
-                
-                await supabase.from('shops').update({ phone }).eq('id', data.user.id);
-                
-                showToast('Account created! Check your email to verify.', 'success');
-                setTimeout(() => window.location.href = 'login.html', 2000);
-                
-            } catch (err) {
-                showToast(err.message);
-                btn.disabled = false;
-                btn.querySelector('.btn-text').textContent = 'Create Account';
-            }
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) window.location.href = 'dashboard.html';
         });
     </script>
 </body>

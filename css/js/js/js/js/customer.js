@@ -1,6 +1,3 @@
-// Customer portal - can be accessed via URL params
-// ?customer=UUID&shop=UUID
-
 const params = new URLSearchParams(window.location.search);
 const customerId = params.get('customer');
 const shopId = params.get('shop');
@@ -15,7 +12,6 @@ if (!customerId || !shopId) {
 }
 
 async function loadCustomerCard() {
-    // Get shop info
     const { data: shop } = await supabase
         .from('shops')
         .select('shop_name, settings')
@@ -26,7 +22,6 @@ async function loadCustomerCard() {
         document.getElementById('shopName').textContent = shop.shop_name;
     }
     
-    // Get customer
     const { data: customer } = await supabase
         .from('customers')
         .select('*')
@@ -42,11 +37,7 @@ async function loadCustomerCard() {
     document.getElementById('customerName').textContent = customer.name;
     document.getElementById('customerCode').textContent = customer.customer_code;
     
-    // Generate QR
-    const qrData = JSON.stringify({
-        customer: customerId,
-        shop: shopId
-    });
+    const qrData = JSON.stringify({ customer: customerId, shop: shopId });
     
     QRCode.toCanvas(document.getElementById('customerQR'), qrData, {
         width: 200,
@@ -54,7 +45,6 @@ async function loadCustomerCard() {
         color: { dark: '#6F4E37', light: '#FFFFFF' }
     });
     
-    // Stamps
     const required = shop?.settings?.stamps_required || 6;
     document.getElementById('stampTarget').textContent = required;
     document.getElementById('stampCount').textContent = customer.stamps;
@@ -64,7 +54,6 @@ async function loadCustomerCard() {
         `<div class="stamp-slot ${i < customer.stamps ? 'filled' : ''}">☕</div>`
     ).join('');
     
-    // Rewards
     document.getElementById('rewardCount').textContent = customer.free_rewards;
 }
 

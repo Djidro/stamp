@@ -1,6 +1,6 @@
-// Replace with your Supabase credentials
-const SUPABASE_URL = 'https://your-project.supabase.co';
-const SUPABASE_ANON_KEY = 'your-anon-key';
+// ✅ YOUR SUPABASE CREDENTIALS - DO NOT SHARE PUBLICLY
+const SUPABASE_URL = 'https://ooewanshekzpjfgtyyzx.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_laufif_03Bc66pEPcwPt-w_vboiTaN5';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 

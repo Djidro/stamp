@@ -22,7 +22,7 @@
             <a href="#customers" class="nav-item" data-section="customers">
                 <span>👥</span> Customers
             </a>
-            <a href="#scanner" class="nav-item" onclick="window.location.href='scanner.html'">
+            <a href="scanner.html" class="nav-item">
                 <span>📷</span> QR Scanner
             </a>
             <a href="#broadcast" class="nav-item" data-section="broadcast">
@@ -49,7 +49,6 @@
             <button onclick="toggleDarkMode()" class="btn btn-icon">🌙</button>
         </header>
 
-        <!-- Overview Section -->
         <section id="overview" class="section active">
             <div class="stats-grid">
                 <div class="stat-card">
@@ -88,7 +87,6 @@
             </div>
         </section>
 
-        <!-- Customers Section -->
         <section id="customers" class="section">
             <div class="section-header">
                 <h3>Customer Management</h3>
@@ -119,7 +117,6 @@
             </div>
         </section>
 
-        <!-- Broadcast Section -->
         <section id="broadcast" class="section">
             <div class="broadcast-card">
                 <h3>📡 Send Broadcast</h3>
@@ -137,9 +134,7 @@
                 
                 <div class="broadcast-preview">
                     <strong>Preview:</strong>
-                    <div class="preview-box" id="previewBox">
-                        Your message will appear here...
-                    </div>
+                    <div class="preview-box" id="previewBox">Your message will appear here...</div>
                 </div>
                 
                 <button onclick="sendBroadcast()" class="btn btn-primary btn-block btn-large">
@@ -152,7 +147,6 @@
             </div>
         </section>
 
-        <!-- Settings Section -->
         <section id="settings" class="section">
             <div class="settings-card">
                 <h3>⚙️ Loyalty Settings</h3>
@@ -168,7 +162,6 @@
             </div>
         </section>
 
-        <!-- Add Customer Modal -->
         <div id="customerModal" class="modal hidden">
             <div class="modal-content">
                 <h3>Add New Customer</h3>
@@ -187,7 +180,6 @@
             </div>
         </div>
 
-        <!-- QR Modal -->
         <div id="qrModal" class="modal hidden">
             <div class="modal-content qr-modal">
                 <h3>Customer QR Code</h3>

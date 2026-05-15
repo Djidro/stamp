@@ -51,50 +51,61 @@
         </div>
     </div>
 
-    <!-- Supabase CDN -->
+     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Your config -->
     <script src="js/supabase-config.js"></script>
     
     <script>
-        const form = document.getElementById('loginForm');
-        const toast = document.getElementById('toast');
-        const submitBtn = document.getElementById('submitBtn');
-        
-        function showToast(message, type = 'error') {
-            toast.textContent = message;
-            toast.className = `toast ${type}`;
-            setTimeout(() => toast.className = 'toast hidden', 4000);
-        }
-        
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            submitBtn.disabled = true;
-            submitBtn.querySelector('.btn-text').textContent = 'Signing in...';
+        // ✅ Wait for page AND supabase to load
+        window.addEventListener('DOMContentLoaded', () => {
             
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: document.getElementById('email').value,
-                    password: document.getElementById('password').value
-                });
-                
-                if (error) throw error;
-                
-                // Success
-                showToast('Welcome back!', 'success');
-                setTimeout(() => window.location.href = 'dashboard.html', 500);
-                
-            } catch (err) {
-                console.error('Login error:', err);
-                showToast(err.message || 'Login failed. Check credentials.');
-                submitBtn.disabled = false;
-                submitBtn.querySelector('.btn-text').textContent = 'Sign In';
+            // ✅ Check if supabase exists
+            if (typeof supabase === 'undefined') {
+                console.error('❌ Supabase not loaded');
+                alert('Error loading app. Please refresh the page.');
+                return;
             }
-        });
-        
-        // Check if already logged in
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) window.location.href = 'dashboard.html';
+            
+            const form = document.getElementById('loginForm');
+            const toast = document.getElementById('toast');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            function showToast(message, type = 'error') {
+                toast.textContent = message;
+                toast.className = `toast ${type}`;
+                setTimeout(() => toast.className = 'toast hidden', 4000);
+            }
+            
+            // ✅ Check if already logged in
+            supabase.auth.getSession().then(({ data: { session } }) => {
+                if (session) window.location.href = 'dashboard.html';
+            }).catch(err => console.error('Session check error:', err));
+            
+            // ✅ Form submit handler
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                submitBtn.disabled = true;
+                submitBtn.querySelector('.btn-text').textContent = 'Signing in...';
+                
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value
+                    });
+                    
+                    if (error) throw error;
+                    
+                    showToast('Welcome back!', 'success');
+                    setTimeout(() => window.location.href = 'dashboard.html', 500);
+                    
+                } catch (err) {
+                    console.error('Login error:', err);
+                    showToast(err.message || 'Login failed. Check credentials.');
+                    submitBtn.disabled = false;
+                    submitBtn.querySelector('.btn-text').textContent = 'Sign In';
+                }
+            });
         });
     </script>
 </body>

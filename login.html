@@ -15,15 +15,27 @@
                 <p>Sign in to your shop dashboard</p>
             </div>
             
-            <form id="loginForm" class="auth-form">
+            <form id="loginForm" class="auth-form" autocomplete="on">
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" required placeholder="shop@example.com">
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email"
+                        autocomplete="email"
+                        required 
+                        placeholder="shop@example.com">
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" required placeholder="Your password">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password"
+                        autocomplete="current-password"
+                        required 
+                        placeholder="Your password">
                 </div>
                 
                 <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
@@ -39,11 +51,15 @@
         </div>
     </div>
 
+    <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Your config -->
     <script src="js/supabase-config.js"></script>
+    
     <script>
         const form = document.getElementById('loginForm');
         const toast = document.getElementById('toast');
+        const submitBtn = document.getElementById('submitBtn');
         
         function showToast(message, type = 'error') {
             toast.textContent = message;
@@ -53,8 +69,8 @@
         
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
+            submitBtn.disabled = true;
+            submitBtn.querySelector('.btn-text').textContent = 'Signing in...';
             
             try {
                 const { data, error } = await supabase.auth.signInWithPassword({
@@ -63,12 +79,22 @@
                 });
                 
                 if (error) throw error;
-                window.location.href = 'dashboard.html';
+                
+                // Success
+                showToast('Welcome back!', 'success');
+                setTimeout(() => window.location.href = 'dashboard.html', 500);
                 
             } catch (err) {
-                showToast(err.message);
-                btn.disabled = false;
+                console.error('Login error:', err);
+                showToast(err.message || 'Login failed. Check credentials.');
+                submitBtn.disabled = false;
+                submitBtn.querySelector('.btn-text').textContent = 'Sign In';
             }
+        });
+        
+        // Check if already logged in
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) window.location.href = 'dashboard.html';
         });
     </script>
 </body>

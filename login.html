@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop Login - LoyaltySip</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body class="auth-page">
     <div class="auth-container">
@@ -51,16 +51,14 @@
         </div>
     </div>
 
-     <!-- Supabase CDN -->
+    <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Your config -->
     <script src="supabase-config.js"></script>
     
     <script>
-        // ✅ Wait for page AND supabase to load
         window.addEventListener('DOMContentLoaded', () => {
             
-            // ✅ Check if supabase exists
             if (typeof supabase === 'undefined') {
                 console.error('❌ Supabase not loaded');
                 alert('Error loading app. Please refresh the page.');
@@ -77,12 +75,10 @@
                 setTimeout(() => toast.className = 'toast hidden', 4000);
             }
             
-            // ✅ Check if already logged in
             supabase.auth.getSession().then(({ data: { session } }) => {
                 if (session) window.location.href = 'dashboard.html';
             }).catch(err => console.error('Session check error:', err));
             
-            // ✅ Form submit handler
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 submitBtn.disabled = true;

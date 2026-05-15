@@ -78,13 +78,17 @@
     <footer class="footer">
         <p>© 2026 LoyaltySip. Built for cafés, by cafés.</p>
     </footer>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script>
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) window.location.href = 'dashboard.html';
-        });
+        // Safe check before using supabase
+        if (typeof supabase !== 'undefined') {
+            supabase.auth.getSession().then(({ data: { session } }) => {
+                if (session) window.location.href = 'dashboard.html';
+            }).catch(err => console.error('Session check error:', err));
+        } else {
+            console.error('Supabase not loaded');
+        }
     </script>
 </body>
 </html>

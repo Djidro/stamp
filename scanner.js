@@ -1,12 +1,13 @@
-// Make functions global for HTML onclick
-window.manualLookup = manualLookup;
-window.startScanner = startScanner;
-window.stopScanner = stopScanner;
-// Add any other functions used in onclick
+// ============================================
+// STATE
+// ============================================
 let html5QrCode = null;
 let currentCustomer = null;
 let shopSettings = { stamps_required: 6 };
 
+// ============================================
+// AUTH GUARD
+// ============================================
 supabase.auth.getSession().then(({ data: { session } }) => {
     if (!session) {
         window.location.href = 'login.html';
@@ -15,6 +16,9 @@ supabase.auth.getSession().then(({ data: { session } }) => {
     initScanner();
 });
 
+// ============================================
+// INIT
+// ============================================
 async function initScanner() {
     try {
         const shop = await getCurrentShop();
@@ -236,6 +240,16 @@ function showToast(message, type = 'error') {
     setTimeout(() => toast.className = 'toast hidden', 4000);
 }
 
+// ============================================
+// MAKE FUNCTIONS GLOBAL (MUST BE AT BOTTOM)
+// ============================================
+window.manualLookup = manualLookup;
+window.addStamp = addStamp;
+window.redeemReward = redeemReward;
+
+// ============================================
+// CLEANUP
+// ============================================
 window.addEventListener('beforeunload', () => {
     if (html5QrCode) {
         html5QrCode.stop().catch(() => {});

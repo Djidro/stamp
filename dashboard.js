@@ -1,3 +1,39 @@
+// Make all functions global for HTML onclick handlers
+window.toggleSidebar = function() {
+    document.querySelector('.sidebar')?.classList.toggle('open');
+};
+
+window.toggleDarkMode = function() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+};
+
+window.logout = async function() {
+    await supabase.auth.signOut();
+    window.location.href = 'login.html';
+};
+
+window.openAddCustomer = function() {
+    const modal = document.getElementById('customerModal');
+    if (modal) modal.classList.remove('hidden');
+};
+
+window.closeModal = function() {
+    const modal = document.getElementById('customerModal');
+    if (modal) modal.classList.add('hidden');
+};
+
+window.addCustomer = addCustomer;
+window.deleteCustomer = deleteCustomer;
+window.searchCustomers = searchCustomers;
+window.showQR = showQR;
+window.closeQrModal = closeQrModal;
+window.downloadQR = downloadQR;
+window.sendBroadcast = sendBroadcast;
+window.saveSettings = saveSettings;
+
 let currentShop = null;
 let customers = [];
 let visitsChart = null;
@@ -386,9 +422,4 @@ async function saveSettings() {
     } catch (err) {
         showToast(err.message);
     }
-}
-
-// Sidebar toggle
-function toggleSidebar() {
-    document.querySelector('.sidebar')?.classList.toggle('open');
 }

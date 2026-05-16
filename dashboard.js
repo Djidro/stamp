@@ -1,4 +1,6 @@
-// Make all functions global for HTML onclick handlers
+// ============================================
+// GLOBAL FUNCTIONS (for HTML onclick)
+// ============================================
 window.toggleSidebar = function() {
     document.querySelector('.sidebar')?.classList.toggle('open');
 };
@@ -25,6 +27,7 @@ window.closeModal = function() {
     if (modal) modal.classList.add('hidden');
 };
 
+// These will be assigned after functions are defined
 window.addCustomer = addCustomer;
 window.deleteCustomer = deleteCustomer;
 window.searchCustomers = searchCustomers;
@@ -34,12 +37,17 @@ window.downloadQR = downloadQR;
 window.sendBroadcast = sendBroadcast;
 window.saveSettings = saveSettings;
 
+// ============================================
+// STATE
+// ============================================
 let currentShop = null;
 let customers = [];
 let visitsChart = null;
 let currentQRData = null;
 
-// Auth guard
+// ============================================
+// AUTH GUARD
+// ============================================
 supabase.auth.getSession().then(({ data: { session } }) => {
     if (!session) {
         window.location.href = 'login.html';
@@ -49,7 +57,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 });
 
 async function initDashboard() {
-    currentShop = await getCurrentShop();
+    // ✅ FIX: Use window.getCurrentShop()
+    currentShop = await window.getCurrentShop();
     if (!currentShop) {
         showToast('Could not load shop data', 'error');
         return;

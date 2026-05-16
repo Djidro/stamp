@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Loyalty Card - LoyaltySip</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body class="customer-page">
+    <div class="customer-container">
+        <!-- Login Form (shown first) -->
+        <div id="loginSection" class="loyalty-card">
+            <div class="card-header">
+                <h2>☕ My Loyalty Card</h2>
+                <p>Enter your details to view your card</p>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Customer Code</label>
+                    <input type="text" id="loginCode" placeholder="e.g., RB-001">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="loginPhone" placeholder="Your phone number">
+                </div>
+                <button onclick="loginCustomer()" class="btn btn-primary btn-block">
+                    View My Card
+                </button>
+                <p style="text-align:center; margin-top:1rem;">
+                    <a href="customer-register.html">Not a member? Join now</a>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Loyalty Card (shown after login) -->
+        <div id="cardSection" class="loyalty-card hidden">
+            <div class="card-header">
+                <h2 id="shopName">Loading...</h2>
+                <p>Digital Loyalty Card</p>
+            </div>
+            <div class="card-body">
+                <div class="customer-info">
+                    <h3 id="customerName">...</h3>
+                    <p id="customerCode">...</p>
+                </div>
+                
+                <div class="qr-section">
+                    <canvas id="customerQR"></canvas>
+                    <p>Show this to staff</p>
+                </div>
+                
+                <div class="stamps-section">
+                    <h4>Stamps</h4>
+                    <div class="stamps-grid" id="stampsGrid"></div>
+                    <p class="stamps-text">
+                        <span id="stampCount">0</span> / <span id="stampTarget">6</span>
+                    </p>
+                </div>
+                
+                <div class="rewards-section">
+                    <h4>Available Rewards</h4>
+                    <div class="reward-count" id="rewardCount">0</div>
+                </div>
+                
+                <!-- Visit History -->
+                <div class="history-section">
+                    <h4>Recent Activity</h4>
+                    <div id="visitHistory">
+                        <p class="empty">Loading...</p>
+                    </div>
+                </div>
+                
+                <!-- Messages from Shop -->
+                <div class="messages-section">
+                    <h4>📡 Messages from Shop</h4>
+                    <div id="shopMessages">
+                        <p class="empty">Loading...</p>
+                    </div>
+                </div>
+                
+                <button onclick="logoutCustomer()" class="btn btn-outline btn-block" style="margin-top:1rem;">
+                    Switch Account
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+        // Check if already logged in
+        const savedCode = localStorage.getItem('customerCode');
+        const savedPhone = localStorage.getItem('customerPhone');
+        
+        if (savedCode && savedPhone) {
+            loadCustomerCard(savedCode, savedPhone);
+        }
+        
+        async function loginCustomer() {
+            const code = document.getElementById('loginCode').value.trim();
+            const phone = document.getElementById('loginPhone').value.trim();
+            
+            if (!code || !phone) {
+                showToast('Please enter code and phone');
+                return;
+            }
+            
+            await loadCustomerCard(code, phone);
+        }
+        
+        async function loadCustomerCard(code, phone) {
+            try {
+                const { data: customer, error } = await supabase
+                    .from('customers')
+                    .select('*, shops(shop_name, settings, id)')
+                    .eq('customer_code', code)
+                    .eq('phone', phone)
+                    .single();
+                
+                if (error || !customer) {
+                    showToast('Customer not found. Check your code and phone.');
+                    return;
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('customerCode', code);
+                localStorage.setItem('customerPhone', phone);
+                
+                // Show card, hide login
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('cardSection').classList.remove('hidden');
+                
+                // Display data
+                const shop = customer.shops;
+                document.getElementById('shopName').textContent = shop.shop_name;
+                document.getElementById('customerName').textContent = customer.name;
+                document.getElementById('customerCode').textContent = customer.customer_code;
+                
+                // QR Code
+                const qrData = JSON.stringify({
+                    customer: customer.id,
+                    shop: shop.id
+                });
+                
+                const canvas = document.getElementById('customerQR');
+                if (canvas && typeof QRCode !== 'undefined') {
+                    QRCode.toCanvas(canvas, qrData, {
+                        width: 200,
+                        margin: 1,
+                        color: { dark: '#6F4E37', light: '#FFFFFF' }
+                    });
+                }
+                
+                // Stamps
+                const required = shop.settings?.stamps_required || 6;
+                document.getElementById('stampTarget').textContent = required;
+                document.getElementById('stampCount').textContent = customer.stamps;
+                
+                document.getElementById('stampsGrid').innerHTML = 
+                    Array.from({length: required}, (_, i) => 
+                        `<span style="font-size:1.8rem; opacity:${i < customer.stamps ? '1' : '0.3'}">☕</span>`
+                    ).join('');
+                
+                document.getElementById('rewardCount').textContent = customer.free_rewards || 0;
+                
+                // Load history
+                loadVisitHistory(customer.id);
+                loadMessages(shop.id);
+                
+            } catch (err) {
+                console.error('Error:', err);
+                showToast('Could not load card');
+            }
+        }
+        
+        async function loadVisitHistory(customerId) {
+            const { data: visits } = await supabase
+                .from('visits')
+                .select('*')
+                .eq('customer_id', customerId)
+                .order('created_at', { ascending: false })
+                .limit(20);
+            
+            const container = document.getElementById('visitHistory');
+            
+            if (!visits?.length) {
+                container.innerHTML = '<p class="empty">No visits yet</p>';
+                return;
+            }
+            
+            container.innerHTML = visits.map(v => `
+                <div style="display:flex; justify-content:space-between; padding:0.5rem; border-bottom:1px solid #eee;">
+                    <span>${v.action === 'stamp' ? '☕ Stamp Added' : '🎁 Reward Redeemed'}</span>
+                    <span style="color:#888; font-size:0.85rem;">
+                        ${new Date(v.created_at).toLocaleDateString()}
+                    </span>
+                </div>
+            `).join('');
+        }
+        
+        async function loadMessages(shopId) {
+            const { data: messages } = await supabase
+                .from('notifications')
+                .select('*')
+                .eq('shop_id', shopId)
+                .order('sent_at', { ascending: false })
+                .limit(10);
+            
+            const container = document.getElementById('shopMessages');
+            
+            if (!messages?.length) {
+                container.innerHTML = '<p class="empty">No messages yet</p>';
+                return;
+            }
+            
+            container.innerHTML = messages.map(m => `
+                <div style="background:#f9f5f0; padding:0.75rem; margin-bottom:0.5rem; border-radius:8px;">
+                    <strong>${m.title}</strong>
+                    <p style="margin:0.25rem 0; font-size:0.9rem;">${m.message}</p>
+                    <small style="color:#888;">${new Date(m.sent_at).toLocaleDateString()}</small>
+                </div>
+            `).join('');
+        }
+        
+        function logoutCustomer() {
+            localStorage.removeItem('customerCode');
+            localStorage.removeItem('customerPhone');
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('cardSection').classList.add('hidden');
+        }
+        
+        function showToast(message, type = 'error') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            setTimeout(() => toast.className = 'toast hidden', 3000);
+        }
+    </script>
+</body>
+</html>

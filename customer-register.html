@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Loyalty Program - LoyaltySip</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <span class="logo-large">☕</span>
+                <h1>Join Loyalty Program</h1>
+                <p>Get stamps, earn rewards!</p>
+            </div>
+            
+            <form id="customerForm" class="auth-form">
+                <div class="form-group">
+                    <label>Select Shop</label>
+                    <select id="shopSelect" required>
+                        <option value="">Choose a shop...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="customerName" required placeholder="Full name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="customerPhone" required placeholder="Your phone number">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    Join Now ☕
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Already a member? <a href="customer-dashboard.html">View My Card</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+        // Load shops
+        async function loadShops() {
+            const { data: shops } = await supabase
+                .from('shops')
+                .select('id, shop_name');
+            
+            const select = document.getElementById('shopSelect');
+            if (shops) {
+                shops.forEach(shop => {
+                    select.innerHTML += `<option value="${shop.id}">${shop.shop_name}</option>`;
+                });
+            }
+        }
+        
+        loadShops();
+        
+        // Register customer
+        document.getElementById('customerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const shopId = document.getElementById('shopSelect').value;
+            const name = document.getElementById('customerName').value;
+            const phone = document.getElementById('customerPhone').value;
+            
+            if (!shopId) {
+                showToast('Please select a shop');
+                return;
+            }
+            
+            try {
+                // Count existing customers for this shop
+                const { count } = await supabase
+                    .from('customers')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('shop_id', shopId);
+                
+                // Get shop prefix
+                const { data: shop } = await supabase
+                    .from('shops')
+                    .select('shop_name')
+                    .eq('id', shopId)
+                    .single();
+                
+                const prefix = shop.shop_name
+                    .split(' ')
+                    .map(w => w[0])
+                    .join('')
+                    .toUpperCase()
+                    .slice(0, 3);
+                
+                const code = `${prefix}-${String((count || 0) + 1).padStart(3, '0')}`;
+                
+                // Insert customer
+                const { data: customer, error } = await supabase
+                    .from('customers')
+                    .insert({
+                        shop_id: shopId,
+                        customer_code: code,
+                        name,
+                        phone,
+                        stamps: 0,
+                        free_rewards: 0,
+                        total_visits: 0
+                    })
+                    .select()
+                    .single();
+                
+                if (error) throw error;
+                
+                // Save customer code to localStorage
+                localStorage.setItem('customerCode', code);
+                localStorage.setItem('customerPhone', phone);
+                
+                showToast('Welcome! Redirecting...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = `customer-dashboard.html`;
+                }, 1000);
+                
+            } catch (err) {
+                showToast(err.message || 'Registration failed');
+            }
+        });
+        
+        function showToast(message, type = 'error') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            setTimeout(() => toast.className = 'toast hidden', 3000);
+        }
+    </script>
+</body>
+</html>

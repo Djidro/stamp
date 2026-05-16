@@ -1,3 +1,8 @@
+// Make functions global for HTML onclick
+window.manualLookup = manualLookup;
+window.startScanner = startScanner;
+window.stopScanner = stopScanner;
+// Add any other functions used in onclick
 let html5QrCode = null;
 let currentCustomer = null;
 let shopSettings = { stamps_required: 6 };

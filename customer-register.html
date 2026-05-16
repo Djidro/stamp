@@ -46,124 +46,190 @@
 
     <div id="toast" class="toast hidden"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script>
-        // Wait for DOM and supabase to be ready
-        window.addEventListener('DOMContentLoaded', () => {
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+    let isSubmitting = false; // Prevent double submission
+
+    // Wait for everything to be ready
+    window.addEventListener('DOMContentLoaded', () => {
+        
+        if (typeof supabase === 'undefined') {
+            console.error('❌ Supabase not loaded');
+            return;
+        }
+        
+        console.log('✅ Supabase ready');
+        loadShops();
+        
+        const form = document.getElementById('customerForm');
+        
+        // Remove any existing listeners to prevent duplicates
+        const newForm = form.cloneNode(true);
+        form.parentNode.replaceChild(newForm, form);
+        
+        // Add fresh event listener
+        newForm.addEventListener('submit', handleSubmit);
+    });
+    
+    async function loadShops() {
+        const select = document.getElementById('shopSelect');
+        
+        try {
+            const { data: shops, error } = await supabase
+                .from('shops')
+                .select('id, shop_name')
+                .order('shop_name');
             
-            // Check if supabase is ready
-            if (typeof supabase === 'undefined') {
-                console.error('❌ Supabase not loaded');
+            if (error) throw error;
+            
+            if (!shops || shops.length === 0) {
+                select.innerHTML = '<option value="">No shops available yet</option>';
                 return;
             }
             
-            console.log('✅ Supabase ready');
-            loadShops();
-            
-            // Register customer form
-            document.getElementById('customerForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const shopId = document.getElementById('shopSelect').value;
-                const name = document.getElementById('customerName').value;
-                const phone = document.getElementById('customerPhone').value;
-                
-                if (!shopId) {
-                    showToast('Please select a shop');
-                    return;
-                }
-                
-                try {
-                    const { count } = await supabase
-                        .from('customers')
-                        .select('*', { count: 'exact', head: true })
-                        .eq('shop_id', shopId);
-                    
-                    const { data: shop } = await supabase
-                        .from('shops')
-                        .select('shop_name')
-                        .eq('id', shopId)
-                        .single();
-                    
-                    const prefix = shop.shop_name
-                        .split(' ')
-                        .map(w => w[0])
-                        .join('')
-                        .toUpperCase()
-                        .slice(0, 3);
-                    
-                    const code = `${prefix}-${String((count || 0) + 1).padStart(3, '0')}`;
-                    
-                    const { data: customer, error } = await supabase
-                        .from('customers')
-                        .insert({
-                            shop_id: shopId,
-                            customer_code: code,
-                            name,
-                            phone,
-                            stamps: 0,
-                            free_rewards: 0,
-                            total_visits: 0
-                        })
-                        .select()
-                        .single();
-                    
-                    if (error) throw error;
-                    
-                    localStorage.setItem('customerCode', code);
-                    localStorage.setItem('customerPhone', phone);
-                    
-                    showToast('Welcome! Redirecting...', 'success');
-                    
-                    setTimeout(() => {
-                        window.location.href = 'customer-dashboard.html';
-                    }, 1000);
-                    
-                } catch (err) {
-                    console.error('Registration error:', err);
-                    showToast(err.message || 'Registration failed');
-                }
+            select.innerHTML = '<option value="">Choose a shop...</option>';
+            shops.forEach(shop => {
+                select.innerHTML += `<option value="${shop.id}">${shop.shop_name}</option>`;
             });
-        });
-        
-        async function loadShops() {
-            const select = document.getElementById('shopSelect');
-            console.log('🔄 Loading shops...');
             
-            try {
-                const { data: shops, error } = await supabase
-                    .from('shops')
-                    .select('id, shop_name');
-                
-                console.log('📊 Shops result:', shops, error);
-                
-                if (error) throw error;
-                
-                if (!shops || shops.length === 0) {
-                    select.innerHTML = '<option value="">No shops available</option>';
-                    return;
-                }
-                
-                select.innerHTML = '<option value="">Choose a shop...</option>';
-                shops.forEach(shop => {
-                    select.innerHTML += `<option value="${shop.id}">${shop.shop_name}</option>`;
-                });
-                
-                console.log(`✅ Loaded ${shops.length} shops`);
-                
-            } catch (err) {
-                console.error('❌ Load shops error:', err);
-                select.innerHTML = '<option value="">Error loading shops</option>';
-            }
+            console.log(`✅ Loaded ${shops.length} shops`);
+            
+        } catch (err) {
+            console.error('❌ Error loading shops:', err);
+            select.innerHTML = '<option value="">Error loading shops</option>';
+        }
+    }
+    
+    async function handleSubmit(e) {
+        e.preventDefault();
+        
+        // Prevent double submission
+        if (isSubmitting) {
+            console.log('⏳ Already submitting...');
+            return;
         }
         
-        function showToast(message, type = 'error') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = `toast ${type}`;
-            setTimeout(() => toast.className = 'toast hidden', 3000);
+        isSubmitting = true;
+        
+        const shopId = document.getElementById('shopSelect').value;
+        const name = document.getElementById('customerName').value.trim();
+        const phone = document.getElementById('customerPhone').value.trim();
+        
+        if (!shopId) {
+            showToast('Please select a shop');
+            isSubmitting = false;
+            return;
         }
-    </script>
+        
+        if (!name || !phone) {
+            showToast('Please fill all fields');
+            isSubmitting = false;
+            return;
+        }
+        
+        try {
+            // Check if customer already exists with this phone for this shop
+            const { data: existing } = await supabase
+                .from('customers')
+                .select('id, customer_code')
+                .eq('shop_id', shopId)
+                .eq('phone', phone)
+                .maybeSingle();
+            
+            if (existing) {
+                // Customer already exists, redirect to dashboard
+                localStorage.setItem('customerCode', existing.customer_code);
+                localStorage.setItem('customerPhone', phone);
+                showToast('Welcome back! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'customer-dashboard.html';
+                }, 1000);
+                return;
+            }
+            
+            // Count existing customers for code generation
+            const { count } = await supabase
+                .from('customers')
+                .select('*', { count: 'exact', head: true })
+                .eq('shop_id', shopId);
+            
+            // Get shop name for prefix
+            const { data: shop } = await supabase
+                .from('shops')
+                .select('shop_name')
+                .eq('id', shopId)
+                .single();
+            
+            const prefix = shop.shop_name
+                .split(' ')
+                .map(w => w[0])
+                .join('')
+                .toUpperCase()
+                .slice(0, 3);
+            
+            const code = `${prefix}-${String((count || 0) + 1).padStart(3, '0')}`;
+            
+            console.log('📝 Creating customer:', { shopId, code, name, phone });
+            
+            // Insert ONE customer
+            const { data: customer, error } = await supabase
+                .from('customers')
+                .insert({
+                    shop_id: shopId,
+                    customer_code: code,
+                    name,
+                    phone,
+                    stamps: 0,
+                    free_rewards: 0,
+                    total_visits: 0
+                })
+                .select()
+                .single();
+            
+            if (error) {
+                if (error.code === '23505') {
+                    // Duplicate - already exists
+                    showToast('You are already registered!', 'success');
+                    const { data: existingCust } = await supabase
+                        .from('customers')
+                        .select('customer_code')
+                        .eq('shop_id', shopId)
+                        .eq('phone', phone)
+                        .single();
+                    
+                    localStorage.setItem('customerCode', existingCust.customer_code);
+                    localStorage.setItem('customerPhone', phone);
+                } else {
+                    throw error;
+                }
+            } else {
+                // Success
+                localStorage.setItem('customerCode', code);
+                localStorage.setItem('customerPhone', phone);
+            }
+            
+            showToast('Welcome! Redirecting...', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'customer-dashboard.html';
+            }, 1000);
+            
+        } catch (err) {
+            console.error('Registration error:', err);
+            showToast(err.message || 'Registration failed');
+        } finally {
+            isSubmitting = false;
+        }
+    }
+    
+    function showToast(message, type = 'error') {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.textContent = message;
+        toast.className = `toast ${type}`;
+        setTimeout(() => toast.className = 'toast hidden', 3000);
+    }
+</script>
 </body>
 </html>

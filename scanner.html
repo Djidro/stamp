@@ -171,31 +171,38 @@
         }
         document.getElementById('stampVisual').innerHTML = html;
         
-        // ✅ FIXED: Reward button logic
-        const badge = document.getElementById('rewardBadge');
-        const redeemBtn = document.getElementById('redeemBtn');
-        
-        console.log('🔍 Debug:', { stamps, required, freeRewards, stampsComplete: stamps >= required });
-        
-        if (freeRewards > 0) {
-            // Has free rewards
-            badge.classList.remove('hidden');
-            badge.textContent = `🎁 ${freeRewards} Reward(s) Available!`;
-            redeemBtn.disabled = false;
-            redeemBtn.textContent = '🎁 Redeem Reward';
-            redeemBtn.style.opacity = '1';
-        } else if (stamps >= required) {
-            // Stamps complete but no free rewards (shouldn't happen normally)
-            badge.classList.remove('hidden');
-            badge.textContent = '✅ Complete! Add stamp to claim reward';
-            redeemBtn.disabled = true;
-            redeemBtn.textContent = 'Add stamp first';
-        } else {
-            // Not enough stamps
-            badge.classList.add('hidden');
-            redeemBtn.disabled = true;
-            redeemBtn.textContent = `🔒 ${required - stamps} more stamps needed`;
-        }
+    // ✅ FIXED: Reward button logic
+const badge = document.getElementById('rewardBadge');
+const redeemBtn = document.getElementById('redeemBtn');
+
+console.log('🔍 Debug:', { 
+    stamps, 
+    required, 
+    freeRewards, 
+    stampsComplete: stamps >= required 
+});
+
+if (freeRewards > 0) {
+    // ✅ Has rewards to redeem
+    badge.classList.remove('hidden');
+    badge.textContent = `🎁 ${freeRewards} Reward(s) Available!`;
+    redeemBtn.disabled = false;
+    redeemBtn.textContent = '🎁 Redeem Reward';
+    redeemBtn.style.opacity = '1';
+    redeemBtn.style.cursor = 'pointer';
+} else if (stamps >= required) {
+    // Stamps complete - need to add stamp to convert to reward
+    badge.classList.remove('hidden');
+    badge.textContent = '✅ Complete! Add a stamp to earn reward';
+    redeemBtn.disabled = true;
+    redeemBtn.textContent = 'Add stamp first';
+} else {
+    // Not enough stamps
+    badge.classList.add('hidden');
+    redeemBtn.disabled = true;
+    redeemBtn.textContent = `🔒 ${required - stamps} more stamps needed`;
+    redeemBtn.style.opacity = '0.6';
+}
     }
 
     async function addStamp() {
@@ -251,52 +258,63 @@
         }
     }
 
-    async function redeemReward() {
-        if (!currentCustomer) return;
-        
-        const freeRewards = currentCustomer.free_rewards || 0;
-        
-        console.log('🎁 Redeem clicked:', { freeRewards });
-        
-        if (freeRewards < 1) {
-            showToast('No rewards available');
-            return;
-        }
-        
-        try {
-            const { error } = await supabase.from('customers').update({
-                free_rewards: freeRewards - 1
-            }).eq('id', currentCustomer.id);
-            
-            if (error) throw error;
-            
-            await supabase.from('visits').insert({
-                shop_id: currentShop.id,
-                customer_id: currentCustomer.id,
-                action: 'redeem',
-                notes: 'Reward redeemed',
-                created_at: new Date().toISOString()
-            });
-            
-            showToast('🎁 Reward redeemed! Enjoy!', 'success');
-            
-            // Refresh
-            const { data: updated } = await supabase
-                .from('customers')
-                .select('*')
-                .eq('id', currentCustomer.id)
-                .single();
-            
-            if (updated) {
-                currentCustomer = updated;
-                displayCustomer();
-            }
-        } catch (err) {
-            console.error('Redeem error:', err);
-            showToast(err.message);
-        }
+   async function redeemReward() {
+    if (!currentCustomer) return;
+    
+    const freeRewards = currentCustomer.free_rewards || 0;
+    
+    console.log('🎁 Redeem clicked:', { freeRewards });
+    
+    if (freeRewards < 1) {
+        showToast('No rewards available');
+        return;
     }
-
+    
+    // Disable button immediately to prevent double click
+    const redeemBtn = document.getElementById('redeemBtn');
+    redeemBtn.disabled = true;
+    redeemBtn.textContent = 'Processing...';
+    
+    try {
+        // Update database
+        const { error } = await supabase.from('customers').update({
+            free_rewards: freeRewards - 1
+        }).eq('id', currentCustomer.id);
+        
+        if (error) throw error;
+        
+        // Record visit
+        await supabase.from('visits').insert({
+            shop_id: currentShop.id,
+            customer_id: currentCustomer.id,
+            action: 'redeem',
+            notes: 'Reward redeemed',
+            created_at: new Date().toISOString()
+        });
+        
+        showToast('🎁 Reward redeemed! Enjoy!', 'success');
+        
+        // ✅ Refresh customer data BEFORE updating display
+        const { data: updated, error: refreshError } = await supabase
+            .from('customers')
+            .select('*')
+            .eq('id', currentCustomer.id)
+            .single();
+        
+        if (refreshError) throw refreshError;
+        
+        if (updated) {
+            currentCustomer = updated;
+            // ✅ Now display with fresh data
+            displayCustomer();
+        }
+        
+    } catch (err) {
+        console.error('Redeem error:', err);
+        showToast(err.message);
+        redeemBtn.disabled = false;
+    }
+}
     async function manualLookup(code) {
         const lookupCode = code || document.getElementById('manualCode')?.value?.trim();
         if (!lookupCode) { showToast('Enter a customer code'); return; }

@@ -264,11 +264,13 @@
             total_visits: (currentCustomer.total_visits || 0) + 1
         }).eq('id', currentCustomer.id);
         
-        await supabase.from('visits').insert({
-            shop_id: currentShop.id,
-            customer_id: currentCustomer.id,
-            action: newRewards > (currentCustomer.free_rewards || 0) ? 'stamp_reward' : 'stamp'
-        });
+      await supabase.from('visits').insert({
+    shop_id: currentShop.id,
+    customer_id: currentCustomer.id,
+    action: 'stamp',
+    notes: '',
+    created_at: new Date().toISOString()
+});
         
         showToast(message, 'success');
         
@@ -303,12 +305,13 @@ async function redeemReward() {
             free_rewards: freeRewards - 1
         }).eq('id', currentCustomer.id);
         
-        await supabase.from('visits').insert({
-            shop_id: currentShop.id,
-            customer_id: currentCustomer.id,
-            action: 'redeem',
-            notes: 'Reward redeemed by customer'
-        });
+      await supabase.from('visits').insert({
+    shop_id: currentShop.id,
+    customer_id: currentCustomer.id,
+    action: 'redeem',
+    notes: 'Reward redeemed',
+    created_at: new Date().toISOString()
+});
         
         showToast('🎁 Reward redeemed! Enjoy!', 'success');
         

@@ -81,13 +81,22 @@
     <footer class="footer">
         <p>© 2026 LoyaltySip. Built for cafés, by cafés.</p>
     </footer>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script>
-        // Safe check before using supabase
+      <script>
+        // Safe check - show dashboard link if logged in, but DON'T redirect
         if (typeof supabase !== 'undefined') {
             supabase.auth.getSession().then(({ data: { session } }) => {
-                if (session) window.location.href = 'dashboard.html';
+                if (session) {
+                    // Add dashboard button to navbar instead of redirecting
+                    const navLinks = document.querySelector('.nav-links');
+                    if (navLinks && !document.getElementById('dashboardBtn')) {
+                        const dashboardBtn = document.createElement('a');
+                        dashboardBtn.id = 'dashboardBtn';
+                        dashboardBtn.href = 'dashboard.html';
+                        dashboardBtn.className = 'btn btn-primary';
+                        dashboardBtn.textContent = '📊 Dashboard';
+                        navLinks.appendChild(dashboardBtn);
+                    }
+                }
             }).catch(err => console.error('Session check error:', err));
         } else {
             console.error('Supabase not loaded');

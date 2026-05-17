@@ -183,110 +183,151 @@
             }
         }
 
-        function displayCustomer() {
-            if (!currentCustomer) return;
-            
-            document.getElementById('scanResult').classList.remove('hidden');
-            document.getElementById('scannedName').textContent = currentCustomer.name;
-            document.getElementById('currentStamps').textContent = currentCustomer.stamps || 0;
-            document.getElementById('requiredStamps').textContent = shopSettings.stamps_required || 6;
-            
-            // Stamp visual
-            const required = shopSettings.stamps_required || 6;
-            const stamps = currentCustomer.stamps || 0;
-            let html = '';
-            for (let i = 0; i < required; i++) {
-                html += `<span style="font-size:1.5rem; opacity:${i < stamps ? '1' : '0.3'}">☕</span>`;
-            }
-            document.getElementById('stampVisual').innerHTML = html;
-            
-            // Reward badge
-            const hasReward = (currentCustomer.free_rewards > 0) || (stamps >= required);
-            document.getElementById('rewardBadge').classList.toggle('hidden', !hasReward);
-            document.getElementById('redeemBtn').disabled = !hasReward;
-        }
-
+      function displayCustomer() {
+    if (!currentCustomer) return;
+    
+    document.getElementById('scanResult').classList.remove('hidden');
+    document.getElementById('scannedName').textContent = currentCustomer.name;
+    
+    const required = shopSettings.stamps_required || 6;
+    const stamps = currentCustomer.stamps || 0;
+    const freeRewards = currentCustomer.free_rewards || 0;
+    
+    document.getElementById('currentStamps').textContent = stamps;
+    document.getElementById('requiredStamps').textContent = required;
+    
+    // Stamp visual with progress bar
+    let html = '';
+    for (let i = 0; i < required; i++) {
+        html += `<span style="font-size:1.5rem; opacity:${i < stamps ? '1' : '0.3'}">☕</span>`;
+    }
+    document.getElementById('stampVisual').innerHTML = html;
+    
+    // ✅ FIX: Reward logic
+    const badge = document.getElementById('rewardBadge');
+    const redeemBtn = document.getElementById('redeemBtn');
+    
+    // Show reward badge if stamps are complete OR if they have free rewards
+    const stampsComplete = stamps >= required;
+    const hasFreeRewards = freeRewards > 0;
+    
+    if (stampsComplete && !hasFreeRewards) {
+        badge.classList.remove('hidden');
+        badge.textContent = '🎁 Stamp card complete! Add stamp to redeem';
+    } else if (hasFreeRewards) {
+        badge.classList.remove('hidden');
+        badge.textContent = `🎁 ${freeRewards} Reward(s) Available!`;
+        redeemBtn.disabled = false;
+        redeemBtn.textContent = '🎁 Redeem Reward';
+    } else if (stampsComplete && hasFreeRewards) {
+        badge.classList.remove('hidden');
+        badge.textContent = `🎁 ${freeRewards} Reward(s) Available!`;
+        redeemBtn.disabled = false;
+    } else {
+        badge.classList.add('hidden');
+        redeemBtn.disabled = true;
+        redeemBtn.textContent = `🔒 Need ${required - stamps} more stamps`;
+    }
+    
+    // Show progress
+    const stampsNeeded = required - stamps;
+    if (stampsNeeded > 0) {
+        redeemBtn.textContent = `🔒 ${stampsNeeded} more stamps needed`;
+        redeemBtn.disabled = true;
+    }
+}
         // ============================================
         // ACTIONS
         // ============================================
-        async function addStamp() {
-            if (!currentCustomer) return;
-            
-            const required = shopSettings.stamps_required || 6;
-            let newStamps = currentCustomer.stamps + 1;
-            let newRewards = currentCustomer.free_rewards || 0;
-            
-            if (newStamps >= required) {
-                newStamps = 0;
-                newRewards += 1;
-            }
-            
-            try {
-                await supabase.from('customers').update({
-                    stamps: newStamps,
-                    free_rewards: newRewards,
-                    total_visits: (currentCustomer.total_visits || 0) + 1
-                }).eq('id', currentCustomer.id);
-                
-                await supabase.from('visits').insert({
-                    shop_id: currentShop.id,
-                    customer_id: currentCustomer.id,
-                    action: 'stamp'
-                });
-                
-                showToast(`✅ Stamp added! ${newStamps}/${required}`, 'success');
-                
-                // Refresh customer data
-                const { data: updated } = await supabase
-                    .from('customers')
-                    .select('*')
-                    .eq('id', currentCustomer.id)
-                    .single();
-                
-                if (updated) {
-                    currentCustomer = updated;
-                    displayCustomer();
-                }
-                
-            } catch (err) {
-                showToast(err.message);
-            }
+      async function addStamp() {
+    if (!currentCustomer) return;
+    
+    const required = shopSettings.stamps_required || 6;
+    let newStamps = currentCustomer.stamps + 1;
+    let newRewards = currentCustomer.free_rewards || 0;
+    let message = '';
+    
+    // Auto-redeem when stamps complete
+    if (newStamps >= required) {
+        newStamps = 0;
+        newRewards += 1;
+        message = `🎉 Stamp complete! Reward earned!`;
+    } else {
+        const left = required - newStamps;
+        message = `✅ Stamp added! ${left} more to earn reward`;
+    }
+    
+    try {
+        await supabase.from('customers').update({
+            stamps: newStamps,
+            free_rewards: newRewards,
+            total_visits: (currentCustomer.total_visits || 0) + 1
+        }).eq('id', currentCustomer.id);
+        
+        await supabase.from('visits').insert({
+            shop_id: currentShop.id,
+            customer_id: currentCustomer.id,
+            action: newRewards > (currentCustomer.free_rewards || 0) ? 'stamp_reward' : 'stamp'
+        });
+        
+        showToast(message, 'success');
+        
+        // Refresh
+        const { data: updated } = await supabase
+            .from('customers')
+            .select('*')
+            .eq('id', currentCustomer.id)
+            .single();
+        
+        if (updated) {
+            currentCustomer = updated;
+            displayCustomer();
         }
-
-        async function redeemReward() {
-            if (!currentCustomer || (currentCustomer.free_rewards || 0) < 1) {
-                showToast('No rewards available');
-                return;
-            }
-            
-            try {
-                await supabase.from('customers').update({
-                    free_rewards: currentCustomer.free_rewards - 1
-                }).eq('id', currentCustomer.id);
-                
-                await supabase.from('visits').insert({
-                    shop_id: currentShop.id,
-                    customer_id: currentCustomer.id,
-                    action: 'redeem'
-                });
-                
-                showToast('🎁 Reward redeemed!', 'success');
-                
-                const { data: updated } = await supabase
-                    .from('customers')
-                    .select('*')
-                    .eq('id', currentCustomer.id)
-                    .single();
-                
-                if (updated) {
-                    currentCustomer = updated;
-                    displayCustomer();
-                }
-                
-            } catch (err) {
-                showToast(err.message);
-            }
+        
+    } catch (err) {
+        showToast(err.message);
+    }
+}
+async function redeemReward() {
+    if (!currentCustomer) return;
+    
+    const freeRewards = currentCustomer.free_rewards || 0;
+    
+    if (freeRewards < 1) {
+        showToast('No rewards available yet');
+        return;
+    }
+    
+    try {
+        await supabase.from('customers').update({
+            free_rewards: freeRewards - 1
+        }).eq('id', currentCustomer.id);
+        
+        await supabase.from('visits').insert({
+            shop_id: currentShop.id,
+            customer_id: currentCustomer.id,
+            action: 'redeem',
+            notes: 'Reward redeemed by customer'
+        });
+        
+        showToast('🎁 Reward redeemed! Enjoy!', 'success');
+        
+        // Refresh
+        const { data: updated } = await supabase
+            .from('customers')
+            .select('*')
+            .eq('id', currentCustomer.id)
+            .single();
+        
+        if (updated) {
+            currentCustomer = updated;
+            displayCustomer();
         }
+        
+    } catch (err) {
+        showToast(err.message);
+    }
+}
 
         async function manualLookup(code) {
             const lookupCode = code || document.getElementById('manualCode')?.value?.trim();

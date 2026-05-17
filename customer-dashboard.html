@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Loyalty Card - LoyaltySip</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="customer-page">
+    <a href="index.html" style="position:absolute; top:1rem; left:1rem; color:#6F4E37; text-decoration:none;">← Home</a>
+    
     <div class="customer-container">
-        <!-- Login Form (shown first) -->
         <div id="loginSection" class="loyalty-card">
             <div class="card-header">
                 <h2>☕ My Loyalty Card</h2>
@@ -33,7 +34,6 @@
             </div>
         </div>
         
-        <!-- Loyalty Card (shown after login) -->
         <div id="cardSection" class="loyalty-card hidden">
             <div class="card-header">
                 <h2 id="shopName">Loading...</h2>
@@ -45,9 +45,9 @@
                     <p id="customerCode">...</p>
                 </div>
                 
-                <div class="qr-section">
-                    <canvas id="customerQR"></canvas>
-                    <p>Show this to staff</p>
+                <div class="qr-section" style="background:#fff; padding:1.5rem; border-radius:12px; margin:1rem 0; text-align:center;">
+                    <div id="customerQR" style="display:inline-block;"></div>
+                    <p style="margin-top:0.5rem; font-weight:bold;">📱 Show this to staff</p>
                 </div>
                 
                 <div class="stamps-section">
@@ -63,20 +63,14 @@
                     <div class="reward-count" id="rewardCount">0</div>
                 </div>
                 
-                <!-- Visit History -->
                 <div class="history-section">
                     <h4>Recent Activity</h4>
-                    <div id="visitHistory">
-                        <p class="empty">Loading...</p>
-                    </div>
+                    <div id="visitHistory"><p class="empty">Loading...</p></div>
                 </div>
                 
-                <!-- Messages from Shop -->
                 <div class="messages-section">
                     <h4>📡 Messages from Shop</h4>
-                    <div id="shopMessages">
-                        <p class="empty">Loading...</p>
-                    </div>
+                    <div id="shopMessages"><p class="empty">Loading...</p></div>
                 </div>
                 
                 <button onclick="logoutCustomer()" class="btn btn-outline btn-block" style="margin-top:1rem;">
@@ -91,7 +85,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script>
-        // Check if already logged in
         const savedCode = localStorage.getItem('customerCode');
         const savedPhone = localStorage.getItem('customerPhone');
         
@@ -102,12 +95,7 @@
         async function loginCustomer() {
             const code = document.getElementById('loginCode').value.trim();
             const phone = document.getElementById('loginPhone').value.trim();
-            
-            if (!code || !phone) {
-                showToast('Please enter code and phone');
-                return;
-            }
-            
+            if (!code || !phone) { showToast('Please enter code and phone'); return; }
             await loadCustomerCard(code, phone);
         }
         
@@ -121,57 +109,50 @@
                     .single();
                 
                 if (error || !customer) {
-                    showToast('Customer not found. Check your code and phone.');
+                    showToast('Customer not found');
                     return;
                 }
                 
-                // Save to localStorage
                 localStorage.setItem('customerCode', code);
                 localStorage.setItem('customerPhone', phone);
                 
-                // Show card, hide login
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('cardSection').classList.remove('hidden');
                 
-                // Display data
                 const shop = customer.shops;
                 document.getElementById('shopName').textContent = shop.shop_name;
                 document.getElementById('customerName').textContent = customer.name;
                 document.getElementById('customerCode').textContent = customer.customer_code;
                 
-                // QR Code
-                const qrData = JSON.stringify({
-                    customer: customer.id,
-                    shop: shop.id
-                });
+                // Generate QR Code
+                const qrData = JSON.stringify({ customer: customer.id, shop: shop.id });
+                const qrContainer = document.getElementById('customerQR');
+                qrContainer.innerHTML = ''; // Clear previous
                 
-                const canvas = document.getElementById('customerQR');
-                if (canvas && typeof QRCode !== 'undefined') {
-                    QRCode.toCanvas(canvas, qrData, {
-                        width: 200,
-                        margin: 1,
-                        color: { dark: '#6F4E37', light: '#FFFFFF' }
-                    });
-                }
+                new QRCode(qrContainer, {
+                    text: qrData,
+                    width: 200,
+                    height: 200,
+                    colorDark: '#6F4E37',
+                    colorLight: '#FFFFFF'
+                });
                 
                 // Stamps
                 const required = shop.settings?.stamps_required || 6;
                 document.getElementById('stampTarget').textContent = required;
-                document.getElementById('stampCount').textContent = customer.stamps;
-                
+                document.getElementById('stampCount').textContent = customer.stamps || 0;
                 document.getElementById('stampsGrid').innerHTML = 
                     Array.from({length: required}, (_, i) => 
-                        `<span style="font-size:1.8rem; opacity:${i < customer.stamps ? '1' : '0.3'}">☕</span>`
+                        `<span style="font-size:1.8rem; opacity:${i < (customer.stamps||0) ? '1' : '0.3'}">☕</span>`
                     ).join('');
                 
                 document.getElementById('rewardCount').textContent = customer.free_rewards || 0;
                 
-                // Load history
                 loadVisitHistory(customer.id);
                 loadMessages(shop.id);
                 
             } catch (err) {
-                console.error('Error:', err);
+                console.error(err);
                 showToast('Could not load card');
             }
         }
@@ -185,18 +166,14 @@
                 .limit(20);
             
             const container = document.getElementById('visitHistory');
-            
             if (!visits?.length) {
                 container.innerHTML = '<p class="empty">No visits yet</p>';
                 return;
             }
-            
             container.innerHTML = visits.map(v => `
                 <div style="display:flex; justify-content:space-between; padding:0.5rem; border-bottom:1px solid #eee;">
                     <span>${v.action === 'stamp' ? '☕ Stamp Added' : '🎁 Reward Redeemed'}</span>
-                    <span style="color:#888; font-size:0.85rem;">
-                        ${new Date(v.created_at).toLocaleDateString()}
-                    </span>
+                    <span style="color:#888; font-size:0.85rem;">${new Date(v.created_at).toLocaleDateString()}</span>
                 </div>
             `).join('');
         }
@@ -210,12 +187,10 @@
                 .limit(10);
             
             const container = document.getElementById('shopMessages');
-            
             if (!messages?.length) {
                 container.innerHTML = '<p class="empty">No messages yet</p>';
                 return;
             }
-            
             container.innerHTML = messages.map(m => `
                 <div style="background:#f9f5f0; padding:0.75rem; margin-bottom:0.5rem; border-radius:8px;">
                     <strong>${m.title}</strong>
@@ -228,8 +203,7 @@
         function logoutCustomer() {
             localStorage.removeItem('customerCode');
             localStorage.removeItem('customerPhone');
-            document.getElementById('loginSection').classList.remove('hidden');
-            document.getElementById('cardSection').classList.add('hidden');
+            location.reload();
         }
         
         function showToast(message, type = 'error') {

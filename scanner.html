@@ -14,12 +14,12 @@
             <h1>Scan Customer QR</h1>
         </div>
 
-        <div class="scanner-wrapper">
-            <div id="reader"></div>
-            <div class="scanner-overlay">
-                <div class="scan-frame"></div>
-                <p>Point camera at customer QR code</p>
-            </div>
+        <div id="loadingMessage" style="text-align:center; padding:2rem;">
+            <p>📷 Starting camera...</p>
+        </div>
+
+        <div class="scanner-wrapper" id="scannerWrapper" style="display:none;">
+            <div id="reader" style="width:100%; max-width:400px; margin:0 auto;"></div>
         </div>
 
         <div id="scanResult" class="scan-result hidden">
@@ -35,6 +35,7 @@
             <div class="action-buttons">
                 <button onclick="addStamp()" class="btn btn-primary btn-large">☕ Add Stamp</button>
                 <button onclick="redeemReward()" class="btn btn-success btn-large" id="redeemBtn">🎁 Redeem Reward</button>
+                <button onclick="scanAgain()" class="btn btn-outline" style="margin-top:0.5rem;">📷 Scan Next</button>
             </div>
         </div>
 
@@ -51,6 +52,287 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
-    <script src="scanner.js"></script>
+    <script>
+        // ============================================
+        // STATE
+        // ============================================
+        let html5QrCode = null;
+        let currentCustomer = null;
+        let shopSettings = { stamps_required: 6 };
+        let currentShop = null;
+        let isScanning = false;
+
+        // ============================================
+        // INIT - Start immediately
+        // ============================================
+        initScanner();
+
+        async function initScanner() {
+            try {
+                currentShop = await window.getCurrentShop();
+                if (!currentShop) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                if (currentShop.settings) {
+                    shopSettings = currentShop.settings;
+                }
+                
+                startCamera();
+            } catch (err) {
+                console.error('Init error:', err);
+                document.getElementById('loadingMessage').innerHTML = 
+                    '<p style="color:red;">⚠️ Camera not available</p><p>Use manual entry below</p>';
+            }
+        }
+
+        // ============================================
+        // CAMERA - Optimized for speed
+        // ============================================
+        async function startCamera() {
+            try {
+                html5QrCode = new Html5Qrcode("reader");
+                
+                const config = {
+                    fps: 30,                    // Higher FPS for faster scanning
+                    qrbox: { width: 300, height: 300 },
+                    aspectRatio: 1,
+                    disableFlip: false
+                };
+                
+                await html5QrCode.start(
+                    { facingMode: "environment" },
+                    config,
+                    onScanSuccess,
+                    onScanFailure
+                );
+                
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('scannerWrapper').style.display = 'block';
+                isScanning = true;
+                
+            } catch (err) {
+                console.error('Camera error:', err);
+                document.getElementById('loadingMessage').innerHTML = 
+                    '<p style="color:red;">⚠️ Camera error</p><p>Use manual entry below</p>';
+            }
+        }
+
+        function onScanSuccess(decodedText) {
+            if (!isScanning) return;
+            
+            try {
+                const data = JSON.parse(decodedText);
+                if (data.customer && data.shop) {
+                    isScanning = false;
+                    loadCustomer(data.customer, data.shop);
+                }
+            } catch (e) {
+                // Try as plain code
+                manualLookup(decodedText);
+            }
+        }
+
+        function onScanFailure(error) {
+            // Silent - improves performance
+        }
+
+        function scanAgain() {
+            document.getElementById('scanResult').classList.add('hidden');
+            currentCustomer = null;
+            isScanning = true;
+            
+            if (html5QrCode) {
+                html5QrCode.resume();
+            }
+        }
+
+        // ============================================
+        // CUSTOMER LOADING
+        // ============================================
+        async function loadCustomer(customerId, shopId) {
+            if (currentShop.id !== shopId) {
+                showToast('❌ Not your customer');
+                scanAgain();
+                return;
+            }
+            
+            try {
+                const { data: customer, error } = await supabase
+                    .from('customers')
+                    .select('*')
+                    .eq('id', customerId)
+                    .eq('shop_id', shopId)
+                    .single();
+                
+                if (error || !customer) {
+                    showToast('Customer not found');
+                    scanAgain();
+                    return;
+                }
+                
+                currentCustomer = customer;
+                displayCustomer();
+                
+                if (html5QrCode) html5QrCode.pause();
+                
+            } catch (err) {
+                showToast(err.message);
+                scanAgain();
+            }
+        }
+
+        function displayCustomer() {
+            if (!currentCustomer) return;
+            
+            document.getElementById('scanResult').classList.remove('hidden');
+            document.getElementById('scannedName').textContent = currentCustomer.name;
+            document.getElementById('currentStamps').textContent = currentCustomer.stamps || 0;
+            document.getElementById('requiredStamps').textContent = shopSettings.stamps_required || 6;
+            
+            // Stamp visual
+            const required = shopSettings.stamps_required || 6;
+            const stamps = currentCustomer.stamps || 0;
+            let html = '';
+            for (let i = 0; i < required; i++) {
+                html += `<span style="font-size:1.5rem; opacity:${i < stamps ? '1' : '0.3'}">☕</span>`;
+            }
+            document.getElementById('stampVisual').innerHTML = html;
+            
+            // Reward badge
+            const hasReward = (currentCustomer.free_rewards > 0) || (stamps >= required);
+            document.getElementById('rewardBadge').classList.toggle('hidden', !hasReward);
+            document.getElementById('redeemBtn').disabled = !hasReward;
+        }
+
+        // ============================================
+        // ACTIONS
+        // ============================================
+        async function addStamp() {
+            if (!currentCustomer) return;
+            
+            const required = shopSettings.stamps_required || 6;
+            let newStamps = currentCustomer.stamps + 1;
+            let newRewards = currentCustomer.free_rewards || 0;
+            
+            if (newStamps >= required) {
+                newStamps = 0;
+                newRewards += 1;
+            }
+            
+            try {
+                await supabase.from('customers').update({
+                    stamps: newStamps,
+                    free_rewards: newRewards,
+                    total_visits: (currentCustomer.total_visits || 0) + 1
+                }).eq('id', currentCustomer.id);
+                
+                await supabase.from('visits').insert({
+                    shop_id: currentShop.id,
+                    customer_id: currentCustomer.id,
+                    action: 'stamp'
+                });
+                
+                showToast(`✅ Stamp added! ${newStamps}/${required}`, 'success');
+                
+                // Refresh customer data
+                const { data: updated } = await supabase
+                    .from('customers')
+                    .select('*')
+                    .eq('id', currentCustomer.id)
+                    .single();
+                
+                if (updated) {
+                    currentCustomer = updated;
+                    displayCustomer();
+                }
+                
+            } catch (err) {
+                showToast(err.message);
+            }
+        }
+
+        async function redeemReward() {
+            if (!currentCustomer || (currentCustomer.free_rewards || 0) < 1) {
+                showToast('No rewards available');
+                return;
+            }
+            
+            try {
+                await supabase.from('customers').update({
+                    free_rewards: currentCustomer.free_rewards - 1
+                }).eq('id', currentCustomer.id);
+                
+                await supabase.from('visits').insert({
+                    shop_id: currentShop.id,
+                    customer_id: currentCustomer.id,
+                    action: 'redeem'
+                });
+                
+                showToast('🎁 Reward redeemed!', 'success');
+                
+                const { data: updated } = await supabase
+                    .from('customers')
+                    .select('*')
+                    .eq('id', currentCustomer.id)
+                    .single();
+                
+                if (updated) {
+                    currentCustomer = updated;
+                    displayCustomer();
+                }
+                
+            } catch (err) {
+                showToast(err.message);
+            }
+        }
+
+        async function manualLookup(code) {
+            const lookupCode = code || document.getElementById('manualCode')?.value?.trim();
+            
+            if (!lookupCode) {
+                showToast('Enter a customer code');
+                return;
+            }
+            
+            try {
+                const { data: customer, error } = await supabase
+                    .from('customers')
+                    .select('*')
+                    .eq('shop_id', currentShop.id)
+                    .eq('customer_code', lookupCode)
+                    .single();
+                
+                if (error || !customer) {
+                    showToast('Customer not found');
+                    return;
+                }
+                
+                currentCustomer = customer;
+                displayCustomer();
+                
+                if (html5QrCode) html5QrCode.pause();
+                
+            } catch (err) {
+                showToast(err.message);
+            }
+        }
+
+        function showToast(message, type = 'error') {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            setTimeout(() => toast.className = 'toast hidden', 3000);
+        }
+
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+            if (html5QrCode) {
+                html5QrCode.stop().catch(() => {});
+            }
+        });
+    </script>
 </body>
 </html>

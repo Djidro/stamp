@@ -71,35 +71,55 @@
         // Add fresh event listener
         newForm.addEventListener('submit', handleSubmit);
     });
+async function loadShops() {
+    const select = document.getElementById('shopSelect');
     
-    async function loadShops() {
-        const select = document.getElementById('shopSelect');
+    // Show loading
+    select.innerHTML = '<option value="">Loading shops...</option>';
+    
+    try {
+        // Try multiple times if needed
+        let shops = null;
+        let retries = 3;
         
-        try {
-            const { data: shops, error } = await supabase
+        while (retries > 0) {
+            const result = await supabase
                 .from('shops')
                 .select('id, shop_name')
                 .order('shop_name');
             
-            if (error) throw error;
-            
-            if (!shops || shops.length === 0) {
-                select.innerHTML = '<option value="">No shops available yet</option>';
-                return;
+            if (result.data && result.data.length > 0) {
+                shops = result.data;
+                break;
             }
             
-            select.innerHTML = '<option value="">Choose a shop...</option>';
-            shops.forEach(shop => {
-                select.innerHTML += `<option value="${shop.id}">${shop.shop_name}</option>`;
-            });
-            
-            console.log(`✅ Loaded ${shops.length} shops`);
-            
-        } catch (err) {
-            console.error('❌ Error loading shops:', err);
-            select.innerHTML = '<option value="">Error loading shops</option>';
+            retries--;
+            await new Promise(r => setTimeout(r, 1000)); // Wait 1 second
         }
+        
+        if (!shops || shops.length === 0) {
+            select.innerHTML = `
+                <option value="">No shops available yet</option>
+            `;
+            return;
+        }
+        
+        // Populate dropdown
+        select.innerHTML = '<option value="">Choose a shop...</option>';
+        shops.forEach(shop => {
+            select.innerHTML += `<option value="${shop.id}">${shop.shop_name}</option>`;
+        });
+        
+        console.log(`✅ Loaded ${shops.length} shops`);
+        
+    } catch (err) {
+        console.error('❌ Error:', err);
+        select.innerHTML = `
+            <option value="">Error loading shops</option>
+            <option value="" onclick="location.reload()">Click to retry</option>
+        `;
     }
+}
     
     async function handleSubmit(e) {
         e.preventDefault();

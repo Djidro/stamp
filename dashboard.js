@@ -356,21 +356,27 @@ async function sendBroadcast() {
         return;
     }
     
-    const sendBtn = document.querySelector('#broadcast button');
-    sendBtn.disabled = true;
-    sendBtn.textContent = 'Sending...';
-    
     try {
-        const { error } = await supabase.from('notifications').insert({
-            shop_id: currentShop.id,
-            title: title,
-            message: message,
-            sent_at: new Date().toISOString()
-        });
+        console.log('📡 Sending broadcast:', { shop_id: currentShop.id, title, message });
         
-        if (error) throw error;
+        const { data, error } = await supabase
+            .from('notifications')
+            .insert({
+                shop_id: currentShop.id,
+                title: title,
+                message: message,
+                sent_at: new Date().toISOString()
+            })
+            .select();
         
+        if (error) {
+            console.error('Insert error:', error);
+            throw error;
+        }
+        
+        console.log('✅ Broadcast sent:', data);
         showToast('✅ Broadcast sent to all customers!', 'success');
+        
         document.getElementById('broadcastTitle').value = '';
         document.getElementById('broadcastMessage').value = '';
         updatePreview();
@@ -379,26 +385,27 @@ async function sendBroadcast() {
     } catch (err) {
         console.error('Broadcast error:', err);
         showToast(err.message || 'Failed to send broadcast');
-    } finally {
-        sendBtn.disabled = false;
-        sendBtn.textContent = 'Send to All Customers';
     }
 }
 
 async function loadBroadcasts() {
     try {
-        const { data } = await supabase
+        const { data, error } = await supabase
             .from('notifications')
             .select('*')
             .eq('shop_id', currentShop.id)
             .order('sent_at', { ascending: false })
             .limit(10);
         
+        if (error) throw error;
+        
+        console.log('📡 Loaded broadcasts:', data?.length || 0);
+        
         const container = document.getElementById('broadcastHistory');
         if (!container) return;
         
         if (!data?.length) {
-            container.innerHTML = '<h4>Recent Broadcasts</h4><p class="empty">No broadcasts yet</p>';
+            container.innerHTML = '<h4>Recent Broadcasts</h4><p class="empty">No broadcasts yet. Send your first message!</p>';
             return;
         }
         
@@ -407,7 +414,7 @@ async function loadBroadcasts() {
             const date = n.sent_at ? new Date(n.sent_at).toLocaleString() : 'Just now';
             html += `
                 <div class="history-item">
-                    <strong>${n.title}</strong>
+                    <strong>📢 ${n.title}</strong>
                     <p style="color: var(--text-light); margin-top: 0.25rem;">${n.message}</p>
                     <small style="color: var(--text-light);">${date}</small>
                 </div>
@@ -419,10 +426,9 @@ async function loadBroadcasts() {
     } catch (err) {
         console.error('loadBroadcasts error:', err);
         document.getElementById('broadcastHistory').innerHTML = 
-            '<h4>Recent Broadcasts</h4><p class="empty">Error loading broadcasts</p>';
+            '<h4>Recent Broadcasts</h4><p class="empty">Error loading</p>';
     }
 }
-
 // Settings
 async function saveSettings() {
     const stamps = parseInt(document.getElementById('stampsRequired')?.value);

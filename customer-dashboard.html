@@ -157,26 +157,53 @@
             }
         }
         
-        async function loadVisitHistory(customerId) {
-            const { data: visits } = await supabase
-                .from('visits')
-                .select('*')
-                .eq('customer_id', customerId)
-                .order('created_at', { ascending: false })
-                .limit(20);
-            
-            const container = document.getElementById('visitHistory');
-            if (!visits?.length) {
-                container.innerHTML = '<p class="empty">No visits yet</p>';
-                return;
-            }
-            container.innerHTML = visits.map(v => `
-                <div style="display:flex; justify-content:space-between; padding:0.5rem; border-bottom:1px solid #eee;">
-                    <span>${v.action === 'stamp' ? '☕ Stamp Added' : '🎁 Reward Redeemed'}</span>
-                    <span style="color:#888; font-size:0.85rem;">${new Date(v.created_at).toLocaleDateString()}</span>
-                </div>
-            `).join('');
+      async function loadVisitHistory(customerId) {
+    try {
+        const { data: visits, error } = await supabase
+            .from('visits')
+            .select('action, created_at')
+            .eq('customer_id', customerId)
+            .order('created_at', { ascending: false })
+            .limit(20);
+        
+        const container = document.getElementById('visitHistory');
+        
+        if (!visits?.length) {
+            container.innerHTML = '<p class="empty">No visits yet. Visit your coffee shop to earn stamps! ☕</p>';
+            return;
         }
+        
+        let html = '';
+        visits.forEach(v => {
+            const isStamp = v.action === 'stamp' || v.action === 'stamp_reward';
+            const icon = isStamp ? '☕' : '🎁';
+            const text = isStamp ? 'Stamp Added' : 'Reward Redeemed';
+            const date = new Date(v.created_at);
+            const dateStr = date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            html += `
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:0.75rem 0.5rem; border-bottom:1px solid #f0e8df;">
+                    <span style="display:flex; align-items:center; gap:0.5rem;">
+                        <span style="font-size:1.3rem;">${icon}</span>
+                        <span style="font-weight:500;">${text}</span>
+                    </span>
+                    <span style="color:#888; font-size:0.8rem;">${dateStr}</span>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+        
+    } catch (err) {
+        console.error('History error:', err);
+        document.getElementById('visitHistory').innerHTML = '<p class="empty">Error loading history</p>';
+    }
+}
         
       async function loadMessages(shopId) {
     try {

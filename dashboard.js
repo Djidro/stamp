@@ -348,30 +348,40 @@ function updatePreview() {
 }
 
 async function sendBroadcast() {
-    const title = document.getElementById('broadcastTitle')?.value;
-    const message = document.getElementById('broadcastMessage')?.value;
+    const title = document.getElementById('broadcastTitle')?.value?.trim();
+    const message = document.getElementById('broadcastMessage')?.value?.trim();
     
     if (!title || !message) {
         showToast('Please fill title and message');
         return;
     }
     
+    const sendBtn = document.querySelector('#broadcast button');
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Sending...';
+    
     try {
         const { error } = await supabase.from('notifications').insert({
             shop_id: currentShop.id,
-            title,
-            message
+            title: title,
+            message: message,
+            sent_at: new Date().toISOString()
         });
         
         if (error) throw error;
         
-        showToast('Broadcast sent!', 'success');
+        showToast('✅ Broadcast sent to all customers!', 'success');
         document.getElementById('broadcastTitle').value = '';
         document.getElementById('broadcastMessage').value = '';
         updatePreview();
         loadBroadcasts();
+        
     } catch (err) {
-        showToast(err.message);
+        console.error('Broadcast error:', err);
+        showToast(err.message || 'Failed to send broadcast');
+    } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send to All Customers';
     }
 }
 
@@ -387,26 +397,29 @@ async function loadBroadcasts() {
         const container = document.getElementById('broadcastHistory');
         if (!container) return;
         
-        const header = '<h4>Recent Broadcasts</h4>';
-        
         if (!data?.length) {
-            container.innerHTML = header + '<p class="empty">No broadcasts yet</p>';
+            container.innerHTML = '<h4>Recent Broadcasts</h4><p class="empty">No broadcasts yet</p>';
             return;
         }
         
-        const list = data.map(n => `
-            <div class="history-item">
-                <strong>${n.title}</strong>
-                <p style="color: var(--text-light); margin-top: 0.25rem;">${n.message}</p>
-                <small style="color: var(--text-light);">
-                    ${new Date(n.sent_at).toLocaleString()}
-                </small>
-            </div>
-        `).join('');
+        let html = '<h4>Recent Broadcasts</h4>';
+        data.forEach(n => {
+            const date = n.sent_at ? new Date(n.sent_at).toLocaleString() : 'Just now';
+            html += `
+                <div class="history-item">
+                    <strong>${n.title}</strong>
+                    <p style="color: var(--text-light); margin-top: 0.25rem;">${n.message}</p>
+                    <small style="color: var(--text-light);">${date}</small>
+                </div>
+            `;
+        });
         
-        container.innerHTML = header + list;
+        container.innerHTML = html;
+        
     } catch (err) {
         console.error('loadBroadcasts error:', err);
+        document.getElementById('broadcastHistory').innerHTML = 
+            '<h4>Recent Broadcasts</h4><p class="empty">Error loading broadcasts</p>';
     }
 }
 

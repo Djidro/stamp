@@ -178,28 +178,41 @@
             `).join('');
         }
         
-        async function loadMessages(shopId) {
-            const { data: messages } = await supabase
-                .from('notifications')
-                .select('*')
-                .eq('shop_id', shopId)
-                .order('sent_at', { ascending: false })
-                .limit(10);
-            
-            const container = document.getElementById('shopMessages');
-            if (!messages?.length) {
-                container.innerHTML = '<p class="empty">No messages yet</p>';
-                return;
-            }
-            container.innerHTML = messages.map(m => `
-                <div style="background:#f9f5f0; padding:0.75rem; margin-bottom:0.5rem; border-radius:8px;">
-                    <strong>${m.title}</strong>
-                    <p style="margin:0.25rem 0; font-size:0.9rem;">${m.message}</p>
-                    <small style="color:#888;">${new Date(m.sent_at).toLocaleDateString()}</small>
-                </div>
-            `).join('');
+      async function loadMessages(shopId) {
+    try {
+        const { data, error } = await supabase
+            .from('notifications')
+            .select('title, message, sent_at')
+            .eq('shop_id', shopId)
+            .order('sent_at', { ascending: false })
+            .limit(5);
+        
+        console.log('📡 Messages for customer:', data?.length || 0);
+        
+        const container = document.getElementById('shopMessages');
+        if (!data?.length) {
+            container.innerHTML = '<p class="empty">No messages yet</p>';
+            return;
         }
         
+        let html = '';
+        data.forEach(m => {
+            const date = m.sent_at ? new Date(m.sent_at).toLocaleDateString() : '';
+            html += `
+                <div style="background:#f9f5f0; padding:0.75rem; margin-bottom:0.5rem; border-radius:8px;">
+                    <strong>📢 ${m.title}</strong>
+                    <p style="margin:0.25rem 0; font-size:0.9rem;">${m.message}</p>
+                    <small style="color:#888;">${date}</small>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+        
+    } catch (err) {
+        console.error('Messages error:', err);
+        document.getElementById('shopMessages').innerHTML = '<p class="empty">Error loading</p>';
+    }
+}
         function logoutCustomer() {
             localStorage.removeItem('customerCode');
             localStorage.removeItem('customerPhone');

@@ -40,11 +40,44 @@ window.logout = async function() {
 window.toggleDarkMode = function() {
     const current = document.documentElement.getAttribute('data-theme');
     const next = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
+    setTheme(next);
 };
 
-const savedTheme = localStorage.getItem('theme') || 'light';
-document.documentElement.setAttribute('data-theme', savedTheme);
+window.setTheme = function(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    updateThemeIcon(theme);
+};
 
-console.log('✅ Supabase ready');
+function updateThemeIcon(theme) {
+    const icons = document.querySelectorAll('.theme-icon');
+    icons.forEach(icon => {
+        icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    });
+}
+
+// Detect saved theme, system preference, or default to light
+function getPreferredTheme() {
+    // Check saved preference first
+    const saved = localStorage.getItem('theme');
+    if (saved) return saved;
+    
+    // Check system preference
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+    }
+    
+    // Default
+    return 'light';
+}
+
+// Apply theme on load
+const theme = getPreferredTheme();
+document.documentElement.setAttribute('data-theme', theme);
+
+// Update icons after DOM loads
+document.addEventListener('DOMContentLoaded', () => {
+    updateThemeIcon(theme);
+});
+
+console.log('✅ Supabase ready | Theme:', theme);

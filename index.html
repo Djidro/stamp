@@ -32,20 +32,21 @@
                 <a href="#how-it-works" class="btn btn-large btn-outline">How It Works</a>
             </div>         
         </div>
-        <div class="hero-visual">
+             <div class="hero-visual">
             <div class="phone-mockup">
                 <div class="phone-screen">
-                    <div class="mock-header">☕ Royal Bakes</div>
+                    <div class="mock-header">☕ Your Café</div>
                     <div class="mock-card">
-                        <div class="mock-stamps">
-                            <span class="stamp active">☕</span>
-                            <span class="stamp active">☕</span>
-                            <span class="stamp active">☕</span>
-                            <span class="stamp">☕</span>
-                            <span class="stamp">☕</span>
-                            <span class="stamp">☕</span>
+                        <div class="mock-stamps animated-stamps">
+                            <span class="stamp stamp-1">☕</span>
+                            <span class="stamp stamp-2">☕</span>
+                            <span class="stamp stamp-3">☕</span>
+                            <span class="stamp stamp-4">☕</span>
+                            <span class="stamp stamp-5">☕</span>
+                            <span class="stamp stamp-6">☕</span>
                         </div>
-                        <p>3 / 6 stamps</p>
+                        <p class="mock-counter"><span class="count">0</span> / 6 stamps</p>
+                        <p class="mock-reward hidden">🎁 Free Drink Earned!</p>
                     </div>
                 </div>
             </div>
@@ -171,4 +172,42 @@
         });
     </script>
 </body>
+      <!-- Animated Stamps Script -->
+    <script>
+        let currentStamp = 0;
+        const totalStamps = 6;
+        
+        function animateStamp() {
+            const stamps = document.querySelectorAll('.animated-stamps .stamp');
+            const counter = document.querySelector('.mock-counter .count');
+            const reward = document.querySelector('.mock-reward');
+            
+            // Reset
+            stamps.forEach(s => s.classList.remove('active'));
+            reward.classList.add('hidden');
+            counter.textContent = '0';
+            currentStamp = 0;
+            
+            // Animate one by one
+            const interval = setInterval(() => {
+                if (currentStamp < totalStamps) {
+                    stamps[currentStamp].classList.add('active');
+                    currentStamp++;
+                    counter.textContent = currentStamp;
+                    
+                    if (currentStamp === totalStamps) {
+                        setTimeout(() => {
+                            reward.classList.remove('hidden');
+                        }, 500);
+                    }
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => animateStamp(), 2500);
+                }
+            }, 500);
+        }
+        
+        animateStamp();
+    </script>
+</body>  
 </html>

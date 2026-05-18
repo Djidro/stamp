@@ -19,14 +19,15 @@
 }
 
 [data-theme="dark"] {
-    --bg: #1a1410;
-    --surface: #2C1810;
-    --text: #FAF7F2;
-    --text-light: #B8A99A;
-    --border: #4A3428;
-    --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --text: #e0e0e0;
+    --text-light: #a0a0b0;
+    --border: #2a2a4a;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --primary: #c4956a;
+    --primary-dark: #a0784c;
 }
-
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html {

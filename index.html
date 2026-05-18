@@ -81,26 +81,24 @@
     <footer class="footer">
         <p>© 2026 LoyaltySip. Built for cafés, by cafés.</p>
     </footer>
-      <script>
-        // Safe check - show dashboard link if logged in, but DON'T redirect
-        if (typeof supabase !== 'undefined') {
-            supabase.auth.getSession().then(({ data: { session } }) => {
-                if (session) {
-                    // Add dashboard button to navbar instead of redirecting
-                    const navLinks = document.querySelector('.nav-links');
-                    if (navLinks && !document.getElementById('dashboardBtn')) {
-                        const dashboardBtn = document.createElement('a');
-                        dashboardBtn.id = 'dashboardBtn';
-                        dashboardBtn.href = 'dashboard.html';
-                        dashboardBtn.className = 'btn btn-primary';
-                        dashboardBtn.textContent = '📊 Dashboard';
-                        navLinks.appendChild(dashboardBtn);
-                    }
+   <script>
+    if (typeof supabase !== 'undefined') {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                const navLinks = document.querySelector('.nav-links');
+                if (navLinks && !document.getElementById('dashboardBtn')) {
+                    const dashboardBtn = document.createElement('a');
+                    dashboardBtn.id = 'dashboardBtn';
+                    dashboardBtn.href = 'dashboard.html';
+                    dashboardBtn.className = 'btn btn-primary';
+                    dashboardBtn.textContent = '📊 Dashboard';
+                    navLinks.appendChild(dashboardBtn);
                 }
-            }).catch(err => console.error('Session check error:', err));
-        } else {
-            console.error('Supabase not loaded');
-        }
-    </script>
+            }
+        }).catch(err => console.log('Session check skipped'));
+    } else {
+        console.log('ℹ️ Browsing as guest');
+    }
+</script>
 </body>
 </html>

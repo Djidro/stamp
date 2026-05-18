@@ -1116,3 +1116,80 @@ body {
     .step-card { padding: 1.5rem 1rem; }
     .step-icon { font-size: 2.5rem; }
 }
+/* ============================================ */
+/* ANIMATED STAMPS MOCKUP */
+/* ============================================ */
+.animated-stamps {
+    display: flex;
+    justify-content: center;
+    gap: 0.3rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.3rem;
+}
+
+.animated-stamps .stamp {
+    opacity: 0.15;
+    transform: scale(0.8);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: inline-block;
+}
+
+.animated-stamps .stamp.active {
+    opacity: 1;
+    transform: scale(1);
+    animation: stampPop 0.5s ease forwards;
+}
+
+@keyframes stampPop {
+    0% { 
+        transform: scale(0) rotate(-180deg); 
+        opacity: 0; 
+    }
+    60% { 
+        transform: scale(1.3) rotate(10deg); 
+    }
+    100% { 
+        transform: scale(1) rotate(0deg); 
+        opacity: 1; 
+    }
+}
+
+.mock-counter {
+    color: rgba(255,255,255,0.85);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.mock-counter .count {
+    color: #FFD700;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.mock-reward {
+    color: #FFD700;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 0.5rem;
+    animation: rewardPulse 0.8s infinite;
+}
+
+.mock-reward.hidden {
+    display: none;
+}
+
+@keyframes rewardPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.08); }
+}
+
+/* Mobile responsive mockup */
+@media (max-width: 768px) {
+    .animated-stamps { font-size: 1.1rem; gap: 0.2rem; }
+    .mock-counter { font-size: 0.85rem; }
+    .mock-counter .count { font-size: 1rem; }
+    .mock-reward { font-size: 0.8rem; }
+}

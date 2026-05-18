@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LoyaltySip - Café Loyalty Platform</title>
-   <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6F4E37">
 </head>
@@ -26,10 +26,10 @@
         <div class="hero-content">
             <h1>Digital Loyalty Cards<br>for Every Café</h1>
             <p class="subtitle">Multi-tenant SaaS platform. Each shop gets their own isolated dashboard, QR system, and customer management.</p>
-                         <div class="hero-cta">
+            <div class="hero-cta">
                 <a href="customer-register.html" class="btn btn-large btn-primary">☕ Join Loyalty Program</a>
                 <a href="register.html" class="btn btn-large btn-outline">Create Your Shop</a>
-                <a href="#features" class="btn btn-large btn-outline">Learn More</a>
+                <a href="#how-it-works" class="btn btn-large btn-outline">How It Works</a>
             </div>         
         </div>
         <div class="hero-visual">
@@ -52,6 +52,60 @@
         </div>
     </header>
 
+    <!-- ============================================ -->
+    <!-- HOW IT WORKS - 4 STEPS -->
+    <!-- ============================================ -->
+    <section id="how-it-works" class="how-it-works">
+        <h2>How It Works</h2>
+        <p class="section-subtitle">Simple 4-step process for your customers</p>
+        
+        <div class="steps-container">
+            <!-- Step 1 -->
+            <div class="step-card" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-icon">🙋</div>
+                <h3>Customer Joins</h3>
+                <p>Customer visits your shop link, enters name & phone, and gets a unique loyalty card instantly.</p>
+            </div>
+            
+            <!-- Arrow -->
+            <div class="step-arrow">→</div>
+            
+            <!-- Step 2 -->
+            <div class="step-card" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-icon">📷</div>
+                <h3>Staff Scans QR</h3>
+                <p>Your staff opens the scanner, points at the customer's QR code, and identifies them instantly.</p>
+            </div>
+            
+            <!-- Arrow -->
+            <div class="step-arrow">→</div>
+            
+            <!-- Step 3 -->
+            <div class="step-card" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-icon">☕</div>
+                <h3>Collect Stamps</h3>
+                <p>Each purchase adds a digital stamp. Customers watch their progress toward a free reward!</p>
+            </div>
+            
+            <!-- Arrow -->
+            <div class="step-arrow">→</div>
+            
+            <!-- Step 4 -->
+            <div class="step-card" data-step="4">
+                <div class="step-number">4</div>
+                <div class="step-icon">🎁</div>
+                <h3>Redeem Rewards</h3>
+                <p>When stamps are complete, customers earn a free drink or reward. Staff redeems with one click!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- FEATURES -->
+    <!-- ============================================ -->
     <section id="features" class="features">
         <h2>Everything You Need</h2>
         <div class="feature-grid">
@@ -81,24 +135,40 @@
     <footer class="footer">
         <p>© 2026 LoyaltySip. Built for cafés, by cafés.</p>
     </footer>
-   <script>
-    if (typeof supabase !== 'undefined') {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
-                const navLinks = document.querySelector('.nav-links');
-                if (navLinks && !document.getElementById('dashboardBtn')) {
-                    const dashboardBtn = document.createElement('a');
-                    dashboardBtn.id = 'dashboardBtn';
-                    dashboardBtn.href = 'dashboard.html';
-                    dashboardBtn.className = 'btn btn-primary';
-                    dashboardBtn.textContent = '📊 Dashboard';
-                    navLinks.appendChild(dashboardBtn);
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+        if (typeof supabase !== 'undefined') {
+            supabase.auth.getSession().then(({ data: { session } }) => {
+                if (session) {
+                    const navLinks = document.querySelector('.nav-links');
+                    if (navLinks && !document.getElementById('dashboardBtn')) {
+                        const dashboardBtn = document.createElement('a');
+                        dashboardBtn.id = 'dashboardBtn';
+                        dashboardBtn.href = 'dashboard.html';
+                        dashboardBtn.className = 'btn btn-primary';
+                        dashboardBtn.textContent = '📊 Dashboard';
+                        navLinks.appendChild(dashboardBtn);
+                    }
                 }
-            }
-        }).catch(err => console.log('Session check skipped'));
-    } else {
-        console.log('ℹ️ Browsing as guest');
-    }
-</script>
+            }).catch(err => console.log('Session check skipped'));
+        } else {
+            console.log('ℹ️ Browsing as guest');
+        }
+
+        // Animate steps on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('.step-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
 </body>
 </html>

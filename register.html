@@ -142,8 +142,11 @@
                         await supabase.from('shops').update({ phone }).eq('id', data.user.id);
                     }
                     
-                    showToast('Account created! Check your email to verify.', 'success');
-                    setTimeout(() => window.location.href = 'login.html', 2000);
+                              showToast('Welcome! Choose your plan...', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'pricing.html';
+            }, 1000);
                     
                 } catch (err) {
                     console.error('Register error:', err);

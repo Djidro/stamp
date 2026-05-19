@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - LoyaltySip</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">☕</span>
+            <span>LoyaltySip</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="btn btn-outline">← Home</a>
+            <a href="login.html" class="btn btn-outline">Shop Login</a>
+        </div>
+    </nav>
+
+    <section class="pricing-page">
+        <div class="pricing-header">
+            <h1>Choose Your Plan</h1>
+            <p>14-day free trial on all plans. No credit card required.</p>
+        </div>
+
+        <div class="pricing-grid">
+            <!-- Starter Plan -->
+            <div class="pricing-card">
+                <div class="plan-header">
+                    <h3>☕ Starter</h3>
+                    <div class="plan-price">
+                        <span class="currency">OMR</span>
+                        <span class="amount">3</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <p>Perfect for small cafés</p>
+                </div>
+                <ul class="plan-features">
+                    <li>✅ Up to 100 customers</li>
+                    <li>✅ Digital stamp cards</li>
+                    <li>✅ QR code scanner</li>
+                    <li>✅ Manual customer entry</li>
+                    <li>✅ Basic analytics</li>
+                    <li>❌ Broadcast messages</li>
+                    <li>❌ Custom branding</li>
+                </ul>
+                <button onclick="selectPlan('starter')" class="btn btn-primary btn-block btn-large">
+                    Start Free Trial
+                </button>
+            </div>
+
+            <!-- Pro Plan (Recommended) -->
+            <div class="pricing-card popular">
+                <div class="popular-badge">🌟 Most Popular</div>
+                <div class="plan-header">
+                    <h3>🥇 Pro</h3>
+                    <div class="plan-price">
+                        <span class="currency">OMR</span>
+                        <span class="amount">9</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <p>Best for growing cafés</p>
+                </div>
+                <ul class="plan-features">
+                    <li>✅ Unlimited customers</li>
+                    <li>✅ Digital stamp cards</li>
+                    <li>✅ QR code scanner</li>
+                    <li>✅ Broadcast messages</li>
+                    <li>✅ Full analytics</li>
+                    <li>✅ Customer history</li>
+                    <li>✅ Priority support</li>
+                </ul>
+                <button onclick="selectPlan('pro')" class="btn btn-primary btn-block btn-large">
+                    Start Free Trial
+                </button>
+            </div>
+
+            <!-- Premium Plan -->
+            <div class="pricing-card">
+                <div class="plan-header">
+                    <h3>👑 Premium</h3>
+                    <div class="plan-price">
+                        <span class="currency">OMR</span>
+                        <span class="amount">15</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <p>For established businesses</p>
+                </div>
+                <ul class="plan-features">
+                    <li>✅ Unlimited customers</li>
+                    <li>✅ Digital stamp cards</li>
+                    <li>✅ QR code scanner</li>
+                    <li>✅ Broadcast messages</li>
+                    <li>✅ Full analytics</li>
+                    <li>✅ Custom branding</li>
+                    <li>✅ Multiple staff accounts</li>
+                    <li>✅ Dedicated support</li>
+                </ul>
+                <button onclick="selectPlan('premium')" class="btn btn-primary btn-block btn-large">
+                    Start Free Trial
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal hidden">
+        <div class="modal-content payment-modal">
+            <h2>💳 Complete Your Subscription</h2>
+            <p class="plan-name" id="selectedPlanName"></p>
+            
+            <div class="payment-info">
+                <h4>📱 Transfer to:</h4>
+                
+                <div class="bank-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Bank:</span>
+                        <span class="detail-value">AHLI ISLAMIC</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Account Name:</span>
+                        <span class="detail-value">Harerimana Nadjib</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Account Number:</span>
+                        <span class="detail-value copyable" onclick="copyText(this)">0204060924001</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Amount:</span>
+                        <span class="detail-value amount-due" id="amountDue"></span>
+                    </div>
+                </div>
+
+                <div class="or-divider">
+                    <span>OR</span>
+                </div>
+
+                <h4>📱 Mobile Wallet:</h4>
+                <div class="bank-details">
+                    <div class="detail-row">
+                        <span class="detail-label"> Mobile:</span>
+                        <span class="detail-value copyable" onclick="copyText(this)">+96878440900</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="upload-section">
+                <h4>📸 Upload Payment Receipt</h4>
+                <p class="help-text">Take a screenshot of your transfer</p>
+                <input type="file" id="receiptUpload" accept="image/*" onchange="previewReceipt(event)">
+                <div id="receiptPreview" class="receipt-preview hidden">
+                    <img id="receiptImage" src="" alt="Receipt preview">
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button onclick="closePaymentModal()" class="btn btn-outline">Cancel</button>
+                <button onclick="submitPayment()" class="btn btn-primary" id="submitPaymentBtn">
+                    I've Paid - Submit
+                </button>
+            </div>
+            
+            <p class="help-text" style="margin-top:1rem; text-align:center;">
+                ⚡ Your account will be activated within 24 hours after verification
+            </p>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal hidden">
+        <div class="modal-content" style="text-align:center;">
+            <span style="font-size:4rem;">🎉</span>
+            <h2>Payment Submitted!</h2>
+            <p>Your receipt has been sent for verification.</p>
+            <p style="color: var(--text-light);">You'll receive a confirmation within 24 hours.</p>
+            <p style="font-weight:600;">Your 14-day free trial starts now!</p>
+            <button onclick="goToDashboard()" class="btn btn-primary btn-block" style="margin-top:1rem;">
+                Go to Dashboard
+            </button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2026 LoyaltySip. All prices in OMR. 14-day free trial included.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+        let selectedPlan = null;
+        const prices = { starter: 3, pro: 9, premium: 15 };
+
+        function selectPlan(plan) {
+            if (typeof supabase === 'undefined') {
+                alert('Please login first');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Check if logged in
+            supabase.auth.getSession().then(({ data: { session } }) => {
+                if (!session) {
+                    alert('Please login or create a shop account first');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                selectedPlan = plan;
+                document.getElementById('selectedPlanName').textContent = 
+                    plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan';
+                document.getElementById('amountDue').textContent = 
+                    'OMR ' + prices[plan] + '/month';
+                document.getElementById('paymentModal').classList.remove('hidden');
+            });
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.add('hidden');
+        }
+
+        function previewReceipt(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('receiptImage').src = e.target.result;
+                    document.getElementById('receiptPreview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function submitPayment() {
+            const fileInput = document.getElementById('receiptUpload');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please upload a payment receipt screenshot');
+                return;
+            }
+            
+            const btn = document.getElementById('submitPaymentBtn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+            
+            try {
+                // Get current shop
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                // Upload receipt to Supabase Storage
+                const fileName = `receipts/${session.user.id}/${Date.now()}.jpg`;
+                const { error: uploadError } = await supabase.storage
+                    .from('receipts')
+                    .upload(fileName, file);
+                
+                if (uploadError) throw uploadError;
+                
+                // Get public URL
+                const { data: { publicUrl } } = supabase.storage
+                    .from('receipts')
+                    .getPublicUrl(fileName);
+                
+                // Save payment record
+                const { error: dbError } = await supabase
+                    .from('payments')
+                    .insert({
+                        shop_id: session.user.id,
+                        plan: selectedPlan,
+                        amount: prices[selectedPlan],
+                        receipt_url: publicUrl,
+                        status: 'pending',
+                        created_at: new Date().toISOString()
+                    });
+                
+                if (dbError) throw dbError;
+                
+                // Update shop plan
+                const trialEnd = new Date();
+                trialEnd.setDate(trialEnd.getDate() + 14);
+                
+                await supabase.from('shops').update({
+                    plan: selectedPlan,
+                    trial_ends_at: trialEnd.toISOString(),
+                    payment_status: 'pending'
+                }).eq('id', session.user.id);
+                
+                // Show success
+                document.getElementById('paymentModal').classList.add('hidden');
+                document.getElementById('successModal').classList.remove('hidden');
+                
+            } catch (err) {
+                console.error('Payment error:', err);
+                alert('Error submitting payment: ' + err.message);
+                btn.disabled = false;
+                btn.textContent = "I've Paid - Submit";
+            }
+        }
+
+        function goToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
+        function copyText(element) {
+            const text = element.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const original = element.textContent;
+                element.textContent = '✅ Copied!';
+                setTimeout(() => element.textContent = original, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

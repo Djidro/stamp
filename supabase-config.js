@@ -22,13 +22,27 @@ window.getCurrentShop = async function() {
             .single();
         
         if (error) throw error;
+        
+        // ✅ CHECK PLAN & TRIAL
+        if (shop) {
+            const trialEnd = shop.trial_ends_at ? new Date(shop.trial_ends_at) : null;
+            const now = new Date();
+            const trialExpired = trialEnd && trialEnd < now;
+            const needsPayment = shop.payment_status !== 'approved' && trialExpired;
+            
+            // If on dashboard and trial expired without payment, redirect to pricing
+            if (needsPayment && window.location.pathname.includes('dashboard')) {
+                window.location.href = 'pricing.html';
+                return null;
+            }
+        }
+        
         return shop;
     } catch (err) {
         console.error('getCurrentShop error:', err);
         return null;
     }
 };
-
 window.logout = async function() {
     await window.supabase.auth.signOut();
     window.location.href = 'login.html';

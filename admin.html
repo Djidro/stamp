@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - LoyaltySip</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dashboard-page">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <span class="logo">☕</span>
+            <span class="brand-text">Admin Panel</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#payments" class="nav-item active" data-section="payments">
+                <span>💳</span> Pending Payments
+            </a>
+            <a href="#shops" class="nav-item" data-section="shops">
+                <span>🏪</span> All Shops
+            </a>
+            <a href="#approved" class="nav-item" data-section="approved">
+                <span>✅</span> Approved
+            </a>
+            <a href="index.html" class="nav-item">
+                <span>🏠</span> Back to Site
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button onclick="logout()" class="btn btn-sm btn-outline">Logout</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <h2>Admin Dashboard</h2>
+        </header>
+
+        <!-- Pending Payments -->
+        <section id="payments" class="section active">
+            <h3>💳 Pending Payment Verifications</h3>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Shop Name</th>
+                            <th>Plan</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Receipt</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingPayments">
+                        <tr><td colspan="6" class="empty">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- All Shops -->
+        <section id="shops" class="section">
+            <h3>🏪 All Registered Shops</h3>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Shop Name</th>
+                            <th>Owner</th>
+                            <th>Plan</th>
+                            <th>Trial Ends</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allShops">
+                        <tr><td colspan="6" class="empty">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Approved -->
+        <section id="approved" class="section">
+            <h3>✅ Approved Payments</h3>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Shop Name</th>
+                            <th>Plan</th>
+                            <th>Amount</th>
+                            <th>Approved Date</th>
+                            <th>Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody id="approvedPayments">
+                        <tr><td colspan="5" class="empty">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Receipt Preview Modal -->
+    <div id="receiptModal" class="modal hidden">
+        <div class="modal-content" style="text-align:center;">
+            <h3>🧾 Payment Receipt</h3>
+            <img id="receiptLarge" src="" style="max-width:100%; max-height:70vh; border-radius:8px;">
+            <button onclick="closeReceiptModal()" class="btn btn-outline" style="margin-top:1rem;">Close</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+        // Auth check - only admin
+        const ADMIN_EMAIL = 'nadjibaharera@gmail.com'; // Your email
+
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (!session || session.user.email !== ADMIN_EMAIL) {
+                alert('Access denied. Admin only.');
+                window.location.href = 'login.html';
+                return;
+            }
+            initAdmin();
+        });
+
+        function initAdmin() {
+            loadPendingPayments();
+            loadAllShops();
+            loadApprovedPayments();
+            
+            // Navigation
+            document.querySelectorAll('.nav-item[data-section]').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showSection(item.dataset.section);
+                    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                    item.classList.add('active');
+                });
+            });
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // Load pending payments
+        async function loadPendingPayments() {
+            const { data, error } = await supabase
+                .from('payments')
+                .select('*, shops(shop_name, owner_name)')
+                .eq('status', 'pending')
+                .order('created_at', { ascending: false });
+
+            const tbody = document.getElementById('pendingPayments');
+            
+            if (!data?.length) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty">✅ No pending payments</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(p => `
+                <tr>
+                    <td><strong>${p.shops?.shop_name || 'Unknown'}</strong></td>
+                    <td><span class="plan-badge plan-${p.plan}">${p.plan.toUpperCase()}</span></td>
+                    <td>OMR ${p.amount}</td>
+                    <td>${new Date(p.created_at).toLocaleDateString()}</td>
+                    <td><button onclick="viewReceipt('${p.receipt_url}')" class="btn btn-sm btn-outline">📷 View</button></td>
+                    <td>
+                        <button onclick="approvePayment('${p.id}', '${p.shop_id}', '${p.plan}')" class="btn btn-sm btn-success">✅ Approve</button>
+                        <button onclick="rejectPayment('${p.id}')" class="btn btn-sm btn-danger">❌ Reject</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Load all shops
+        async function loadAllShops() {
+            const { data, error } = await supabase
+                .from('shops')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const tbody = document.getElementById('allShops');
+            
+            if (!data?.length) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty">No shops yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(s => {
+                const trialEnd = s.trial_ends_at ? new Date(s.trial_ends_at) : null;
+                const trialActive = trialEnd && trialEnd > new Date();
+                
+                return `
+                    <tr>
+                        <td><strong>${s.shop_name}</strong></td>
+                        <td>${s.owner_name}</td>
+                        <td><span class="plan-badge plan-${s.plan || 'trial'}">${(s.plan || 'trial').toUpperCase()}</span></td>
+                        <td>${trialEnd ? trialEnd.toLocaleDateString() : 'N/A'}</td>
+                        <td>
+                            <span class="status-badge status-${s.payment_status || 'trial'}">
+                                ${s.payment_status === 'approved' ? '✅ Active' : 
+                                  s.payment_status === 'pending' ? '⏳ Pending' : 
+                                  trialActive ? '🆓 Trial' : '⚠️ Expired'}
+                            </span>
+                        </td>
+                        <td>
+                            <button onclick="extendTrial('${s.id}')" class="btn btn-sm btn-outline">🔄 Extend</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Load approved payments
+        async function loadApprovedPayments() {
+            const { data, error } = await supabase
+                .from('payments')
+                .select('*, shops(shop_name)')
+                .eq('status', 'approved')
+                .order('created_at', { ascending: false })
+                .limit(20);
+
+            const tbody = document.getElementById('approvedPayments');
+            
+            if (!data?.length) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty">No approved payments yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(p => `
+                <tr>
+                    <td><strong>${p.shops?.shop_name || 'Unknown'}</strong></td>
+                    <td><span class="plan-badge plan-${p.plan}">${p.plan.toUpperCase()}</span></td>
+                    <td>OMR ${p.amount}</td>
+                    <td>${new Date(p.created_at).toLocaleDateString()}</td>
+                    <td><button onclick="viewReceipt('${p.receipt_url}')" class="btn btn-sm btn-outline">📷 View</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // Approve payment
+        async function approvePayment(paymentId, shopId, plan) {
+            if (!confirm('Approve this payment?')) return;
+
+            try {
+                // Update payment status
+                await supabase.from('payments')
+                    .update({ status: 'approved' })
+                    .eq('id', paymentId);
+
+                // Update shop
+                const nextMonth = new Date();
+                nextMonth.setMonth(nextMonth.getMonth() + 1);
+                
+                await supabase.from('shops')
+                    .update({
+                        plan: plan,
+                        payment_status: 'approved',
+                        trial_ends_at: nextMonth.toISOString()
+                    })
+                    .eq('id', shopId);
+
+                alert('✅ Payment approved! Shop activated.');
+                loadPendingPayments();
+                loadAllShops();
+                loadApprovedPayments();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // Reject payment
+        async function rejectPayment(paymentId) {
+            if (!confirm('Reject this payment?')) return;
+
+            try {
+                await supabase.from('payments')
+                    .update({ status: 'rejected' })
+                    .eq('id', paymentId);
+
+                alert('Payment rejected.');
+                loadPendingPayments();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // Extend trial
+        async function extendTrial(shopId) {
+            const days = prompt('Extend trial by how many days?', '7');
+            if (!days) return;
+
+            const newDate = new Date();
+            newDate.setDate(newDate.getDate() + parseInt(days));
+
+            try {
+                await supabase.from('shops')
+                    .update({ trial_ends_at: newDate.toISOString() })
+                    .eq('id', shopId);
+
+                alert(`✅ Trial extended by ${days} days`);
+                loadAllShops();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // View receipt
+        function viewReceipt(url) {
+            document.getElementById('receiptLarge').src = url;
+            document.getElementById('receiptModal').classList.remove('hidden');
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').classList.add('hidden');
+        }
+
+        // Sidebar toggle
+        window.toggleSidebar = function() {
+            document.querySelector('.sidebar').classList.toggle('open');
+        };
+
+        // Logout
+        window.logout = async function() {
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        };
+    </script>
+
+    <style>
+        .plan-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .plan-starter { background: #e8f5e9; color: #2e7d32; }
+        .plan-pro { background: #e3f2fd; color: #1565c0; }
+        .plan-premium { background: #fff3e0; color: #e65100; }
+        .plan-trial { background: #f3e5f5; color: #7b1fa2; }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-approved { background: #e8f5e9; color: #2e7d32; }
+        .status-pending { background: #fff8e1; color: #f57f17; }
+        .status-trial { background: #e3f2fd; color: #1565c0; }
+        .status-expired { background: #ffebee; color: #c62828; }
+    </style>
+</body>
+</html>

@@ -130,12 +130,12 @@
                 qrContainer.innerHTML = ''; // Clear previous
                 
                 new QRCode(qrContainer, {
-                    text: qrData,
-                    width: 200,
-                    height: 200,
-                    colorDark: '#6F4E37',
-                    colorLight: '#FFFFFF'
-                });
+    text: JSON.stringify({ customer: customer.id, shop: shop.id }),
+    width: 200,
+    height: 200,
+    colorDark: '#6F4E37',
+    colorLight: '#FFFFFF'
+});
                 
                 // Stamps
                 const required = shop.settings?.stamps_required || 6;

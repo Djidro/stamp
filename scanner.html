@@ -162,13 +162,15 @@
 function onScanSuccess(decodedText) {
     if (!isScanning) return;
     
-    // Stop scanning immediately
+    // Stop scanning
     isScanning = false;
     if (html5QrCode) {
         html5QrCode.pause().catch(() => {});
     }
     
-    // Show loading in scan result
+    console.log('📷 QR Scanned:', decodedText);
+    
+    // Show loading immediately
     document.getElementById('scanResult').classList.remove('hidden');
     document.getElementById('scannedName').textContent = 'Loading...';
     document.getElementById('currentStamps').textContent = '...';
@@ -177,15 +179,28 @@ function onScanSuccess(decodedText) {
     document.getElementById('redeemBtn').disabled = true;
     
     try {
+        // Try parsing as JSON
         const data = JSON.parse(decodedText);
+        console.log('📷 Parsed JSON:', data);
+        
         if (data.customer && data.shop) {
             loadCustomer(data.customer, data.shop);
+        } else if (data.text) {
+            // Some QR libraries wrap in {text: "..."}
+            const inner = JSON.parse(data.text);
+            if (inner.customer && inner.shop) {
+                loadCustomer(inner.customer, inner.shop);
+            }
+        } else {
+            showToast('Invalid QR code format');
+            scanAgain();
         }
     } catch (e) {
+        console.log('📷 Not JSON, trying as code:', decodedText);
+        // Try as plain customer code
         manualLookup(decodedText);
     }
 }
-
 function onScanFailure(error) {
     // Silent
 }

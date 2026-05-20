@@ -107,103 +107,75 @@
         }
     }
 
-    async function startCamera() {
-        try {
-            // Stop any existing instance
-            if (html5QrCode) {
-                await html5QrCode.stop().catch(() => {});
-                html5QrCode = null;
-            }
-
-            const readerElement = document.getElementById('reader');
-            readerElement.innerHTML = '';
-            
-            html5QrCode = new Html5Qrcode("reader");
-            
-            const config = {
-                fps: 10,
-                qrbox: { width: 250, height: 250 },
-                aspectRatio: 1,
-                disableFlip: false,
-                videoConstraints: {
-                    facingMode: "environment",
-                    width: { ideal: 640 },
-                    height: { ideal: 640 }
-                }
-            };
-            
-            await html5QrCode.start(
-                { facingMode: "environment" },
-                config,
-                onScanSuccess,
-                onScanFailure
-            );
-            
-            document.getElementById('loadingMessage').style.display = 'none';
-            document.getElementById('scannerWrapper').style.display = 'block';
-            isScanning = true;
-            console.log('✅ Camera started');
-            
-        } catch (err) {
-            console.error('Camera error:', err.message);
-            
-            // Check specific errors
-            if (err.message.includes('NotAllowedError') || err.message.includes('Permission')) {
-                showLoadingError('Camera permission denied. Please allow camera access in your browser settings and try again.');
-            } else if (err.message.includes('NotFoundError')) {
-                showLoadingError('No camera found on this device.');
-            } else if (err.message.includes('NotReadableError')) {
-                showLoadingError('Camera is in use by another app. Please close other apps and try again.');
-            } else {
-                showLoadingError('Camera error. Use manual entry below or try again.');
-            }
-        }
-    }
-function onScanSuccess(decodedText) {
-    if (!isScanning) return;
-    
-    // Stop scanning
-    isScanning = false;
-    if (html5QrCode) {
-        html5QrCode.pause().catch(() => {});
-    }
-    
-    console.log('📷 QR Scanned:', decodedText);
-    
-    // Show loading immediately
-    document.getElementById('scanResult').classList.remove('hidden');
-    document.getElementById('scannedName').textContent = 'Loading...';
-    document.getElementById('currentStamps').textContent = '...';
-    document.getElementById('stampVisual').innerHTML = '';
-    document.getElementById('rewardBadge').classList.add('hidden');
-    document.getElementById('redeemBtn').disabled = true;
-    
+   async function startCamera() {
     try {
-        // Try parsing as JSON
-        const data = JSON.parse(decodedText);
-        console.log('📷 Parsed JSON:', data);
-        
-        if (data.customer && data.shop) {
-            loadCustomer(data.customer, data.shop);
-        } else if (data.text) {
-            // Some QR libraries wrap in {text: "..."}
-            const inner = JSON.parse(data.text);
-            if (inner.customer && inner.shop) {
-                loadCustomer(inner.customer, inner.shop);
-            }
-        } else {
-            showToast('Invalid QR code format');
-            scanAgain();
+        if (html5QrCode) {
+            await html5QrCode.stop().catch(() => {});
+            html5QrCode = null;
         }
-    } catch (e) {
-        console.log('📷 Not JSON, trying as code:', decodedText);
-        // Try as plain customer code
-        manualLookup(decodedText);
+
+        const readerElement = document.getElementById('reader');
+        readerElement.innerHTML = '';
+        
+        html5QrCode = new Html5Qrcode("reader");
+        
+        // Better config for QR detection
+        const config = {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1,
+            disableFlip: false
+        };
+        
+        await html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            (decodedText) => {
+                // INLINE onScanSuccess
+                if (!isScanning) return;
+                isScanning = false;
+                
+                console.log('✅ QR DETECTED:', decodedText);
+                
+                if (html5QrCode) {
+                    html5QrCode.pause().catch(() => {});
+                }
+                
+                // Show loading
+                document.getElementById('scanResult').classList.remove('hidden');
+                document.getElementById('scannedName').textContent = 'Loading...';
+                
+                // Parse QR data
+                try {
+                    const data = JSON.parse(decodedText);
+                    console.log('📷 Data:', data);
+                    if (data.customer && data.shop) {
+                        loadCustomer(data.customer, data.shop);
+                    } else {
+                        showToast('Invalid QR');
+                        scanAgain();
+                    }
+                } catch (e) {
+                    // Try as manual code
+                    manualLookup(decodedText);
+                }
+            },
+            (error) => {
+                // Silent - QR not found in this frame
+            }
+        );
+        
+        document.getElementById('loadingMessage').style.display = 'none';
+        document.getElementById('scannerWrapper').style.display = 'block';
+        isScanning = true;
+        console.log('✅ Camera ready - waiting for QR code');
+        
+    } catch (err) {
+        console.error('Camera error:', err.message);
+        showLoadingError('Camera error. Use manual entry.');
     }
 }
-function onScanFailure(error) {
-    // Silent
-}
+    }
 
 function scanAgain() {
     document.getElementById('scanResult').classList.add('hidden');

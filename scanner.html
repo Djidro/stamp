@@ -285,13 +285,22 @@
         } catch (err) { showToast(err.message); btn.disabled = false; }
     }
 
-    function manualLookup(code) {
-        const lookupCode = code || document.getElementById('manualCode')?.value?.trim();
-        if (!lookupCode) { showToast('Enter a code'); return; }
-        if (html5QrCode) html5QrCode.pause().catch(() => {});
-        directLookupByCode(lookupCode);
+   function manualLookup(code) {
+    const lookupCode = code || document.getElementById('manualCode')?.value?.trim();
+    if (!lookupCode) { showToast('Enter a code'); return; }
+    
+    // Only pause if actually scanning
+    if (html5QrCode && isScanning) {
+        html5QrCode.pause().catch(() => {});
+        isScanning = false;
     }
-
+    
+    // Show result section
+    document.getElementById('scanResult').classList.remove('hidden');
+    document.getElementById('scannedName').textContent = 'Loading...';
+    
+    directLookupByCode(lookupCode);
+}
     function showToast(message, type = 'error') {
         const toast = document.getElementById('toast');
         if (!toast) return;

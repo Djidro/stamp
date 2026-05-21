@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Loyalty Card - LoyaltySip</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+            appId: "2d9447b6-4e16-4dfe-9b0f-3362debfc5f7",
+        });
+        
+        // Set customer code as external ID for targeting
+        const customerCode = localStorage.getItem('customerCode');
+        if (customerCode) {
+            OneSignal.login(customerCode);
+            OneSignal.addTag("role", "customer");
+        }
+    });
+</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="customer-page">

@@ -49,12 +49,9 @@
     </div>
 
     <div id="toast" class="toast hidden"></div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <script>
-    // ============================================
-    // VARIABLES
-    // ============================================
     let html5QrCode = null;
     let currentCustomer = null;
     let shopSettings = { stamps_required: 6 };
@@ -62,7 +59,6 @@
     let isScanning = false;
     const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vZXdhbnNoZWt6cGpmZ3R5eXp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MjAwMjgsImV4cCI6MjA5NDM5NjAyOH0.AGd2ciUMPt1w4UqHpinJNQni08r0GPP-5-R7z_fvPn4';
 
-    // Start
     initScanner();
 
     async function initScanner() {
@@ -91,15 +87,29 @@
             
             await html5QrCode.start(
                 { facingMode: "environment" },
-                { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1 },
+                { fps: 15, qrbox: { width: 280, height: 280 }, aspectRatio: 1 },
                 (decodedText) => {
                     if (!isScanning) return;
                     isScanning = false;
-                    console.log('✅ QR:', decodedText);
-                    if (html5QrCode) html5QrCode.pause().catch(() => {});
-                    processScan(decodedText);
+                    console.log('✅ QR DETECTED');
+                    
+                    // Don't pause - keep camera running
+                    // Just process the scan
+                    document.getElementById('scanResult').classList.remove('hidden');
+                    document.getElementById('scannedName').textContent = 'Found!';
+                    
+                    try {
+                        const data = JSON.parse(decodedText);
+                        if (data.customer && data.shop) {
+                            quickLookup(data.customer, data.shop);
+                        } else {
+                            quickLookupByCode(decodedText);
+                        }
+                    } catch (e) {
+                        quickLookupByCode(decodedText);
+                    }
                 },
-                () => {}
+                () => {} // Silent errors
             );
             
             document.getElementById('loadingMessage').style.display = 'none';
@@ -112,21 +122,53 @@
         }
     }
 
-    async function processScan(decodedText) {
-        document.getElementById('scanResult').classList.remove('hidden');
-        document.getElementById('scannedName').textContent = 'Loading...';
+    // ⚡ FAST LOOKUP - No pausing, instant display
+    async function quickLookup(customerId, shopId) {
+        if (currentShop.id !== shopId) {
+            showToast('❌ Not your customer');
+            scanAgain();
+            return;
+        }
         
         try {
-            const data = JSON.parse(decodedText);
-            if (data.customer && data.shop) {
-                await directFetchCustomer(data.customer, data.shop);
+            const response = await fetch(
+                `https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?id=eq.${customerId}&limit=1`,
+                { headers: { 'apikey': ANON_KEY } }
+            );
+            const data = await response.json();
+            
+            if (data?.length > 0) {
+                currentCustomer = data[0];
+                displayCustomer();
             } else {
-                showToast('Invalid QR');
+                showToast('Not found');
                 scanAgain();
             }
-        } catch (e) {
-            // Try as customer code
-            await directLookupByCode(decodedText);
+        } catch (err) {
+            showToast('Error');
+            scanAgain();
+        }
+    }
+
+    async function quickLookupByCode(code) {
+        try {
+            const response = await fetch(
+                `https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?customer_code=eq.${code}&shop_id=eq.${currentShop.id}&limit=1`,
+                { headers: { 'apikey': ANON_KEY } }
+            );
+            const data = await response.json();
+            
+            if (data?.length > 0) {
+                currentCustomer = data[0];
+                displayCustomer();
+                showToast('✅ Found!', 'success');
+            } else {
+                showToast('Not found');
+                scanAgain();
+            }
+        } catch (err) {
+            showToast('Error');
+            scanAgain();
         }
     }
 
@@ -134,58 +176,6 @@
         document.getElementById('scanResult').classList.add('hidden');
         currentCustomer = null;
         isScanning = true;
-        if (html5QrCode) html5QrCode.resume().catch(() => startCamera());
-        else startCamera();
-    }
-
-    // ============================================
-    // DIRECT FETCH FUNCTIONS (bypass supabase library)
-    // ============================================
-    async function directFetchCustomer(customerId, shopId) {
-        if (currentShop.id !== shopId) {
-            showToast('❌ Not your customer');
-            scanAgain();
-            return;
-        }
-        await directLookupById(customerId);
-    }
-
-    async function directLookupByCode(code) {
-        const url = `https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?select=*&customer_code=eq.${code}&shop_id=eq.${currentShop.id}`;
-        await directFetch(url);
-    }
-
-    async function directLookupById(id) {
-        const url = `https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?select=*&id=eq.${id}`;
-        await directFetch(url);
-    }
-
-    async function directFetch(url) {
-        try {
-            console.log('🔍 Fetching:', url);
-            const response = await fetch(url, {
-                headers: {
-                    'apikey': ANON_KEY,
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            const data = await response.json();
-            console.log('📊 Result:', data);
-            
-            if (data && data.length > 0) {
-                currentCustomer = data[0];
-                displayCustomer();
-                showToast('✅ Customer found!', 'success');
-            } else {
-                showToast('Customer not found');
-                scanAgain();
-            }
-        } catch (err) {
-            console.error('Fetch error:', err);
-            showToast('Error');
-            scanAgain();
-        }
     }
 
     function displayCustomer() {
@@ -216,9 +206,9 @@
             redeemBtn.textContent = '🎁 Redeem Reward';
         } else if (stamps >= required) {
             badge.classList.remove('hidden');
-            badge.textContent = '✅ Complete! Add stamp';
+            badge.textContent = '✅ Complete!';
             redeemBtn.disabled = true;
-            redeemBtn.textContent = 'Add stamp first';
+            redeemBtn.textContent = 'Add stamp';
         } else {
             badge.classList.add('hidden');
             redeemBtn.disabled = true;
@@ -226,9 +216,17 @@
         }
     }
 
-    // ============================================
-    // ACTIONS (using supabase - these should work)
-    // ============================================
+    // Manual lookup - FAST
+    function manualLookup(code) {
+        const lookupCode = code || document.getElementById('manualCode')?.value?.trim();
+        if (!lookupCode) { showToast('Enter a code'); return; }
+        
+        document.getElementById('scanResult').classList.remove('hidden');
+        document.getElementById('scannedName').textContent = 'Searching...';
+        
+        quickLookupByCode(lookupCode);
+    }
+
     async function addStamp() {
         if (!currentCustomer) return;
         
@@ -253,8 +251,15 @@
                 created_at: new Date().toISOString()
             });
             
-            showToast(newRewards > (currentCustomer.free_rewards || 0) ? '🎉 Reward earned!' : '✅ Stamp added!', 'success');
-            await directLookupById(currentCustomer.id);
+            showToast(newRewards > (currentCustomer.free_rewards || 0) ? '🎉 Reward!' : '✅ Stamp!', 'success');
+            
+            // Quick refresh
+            const response = await fetch(
+                `https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?id=eq.${currentCustomer.id}&limit=1`,
+                { headers: { 'apikey': ANON_KEY } }
+            );
+            const data = await response.json();
+            if (data?.length > 0) { currentCustomer = data[0]; displayCustomer(); }
         } catch (err) { showToast(err.message); }
     }
 
@@ -265,7 +270,7 @@
         
         const btn = document.getElementById('redeemBtn');
         btn.disabled = true;
-        btn.textContent = 'Processing...';
+        btn.textContent = '...';
         
         try {
             await supabase.from('customers').update({
@@ -276,37 +281,27 @@
                 shop_id: currentShop.id,
                 customer_id: currentCustomer.id,
                 action: 'redeem',
-                notes: 'Reward redeemed',
+                notes: 'Redeemed',
                 created_at: new Date().toISOString()
             });
             
-            showToast('🎁 Redeemed!', 'success');
-            await directLookupById(currentCustomer.id);
+            showToast('🎁 Done!', 'success');
+            
+            const response = await fetch(
+                `https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?id=eq.${currentCustomer.id}&limit=1`,
+                { headers: { 'apikey': ANON_KEY } }
+            );
+            const data = await response.json();
+            if (data?.length > 0) { currentCustomer = data[0]; displayCustomer(); }
         } catch (err) { showToast(err.message); btn.disabled = false; }
     }
 
-   function manualLookup(code) {
-    const lookupCode = code || document.getElementById('manualCode')?.value?.trim();
-    if (!lookupCode) { showToast('Enter a code'); return; }
-    
-    // Only pause if actually scanning
-    if (html5QrCode && isScanning) {
-        html5QrCode.pause().catch(() => {});
-        isScanning = false;
-    }
-    
-    // Show result section
-    document.getElementById('scanResult').classList.remove('hidden');
-    document.getElementById('scannedName').textContent = 'Loading...';
-    
-    directLookupByCode(lookupCode);
-}
     function showToast(message, type = 'error') {
         const toast = document.getElementById('toast');
         if (!toast) return;
         toast.textContent = message;
         toast.className = `toast ${type}`;
-        setTimeout(() => toast.className = 'toast hidden', 2500);
+        setTimeout(() => toast.className = 'toast hidden', 2000);
     }
 
     window.addEventListener('beforeunload', () => {

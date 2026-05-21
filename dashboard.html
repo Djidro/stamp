@@ -7,9 +7,42 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        /* Mobile sidebar overlay fix */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 1000;
+                width: 280px;
+                box-shadow: 0 0 30px rgba(0,0,0,0.3);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            /* Overlay when sidebar is open */
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+            }
+            .sidebar-overlay.active {
+                display: block;
+            }
+        }
+    </style>
 </head>
 <body class="dashboard-page">
-    <aside class="sidebar">
+    <!-- Overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <span class="logo">☕</span>
             <span class="brand-text">LoyaltySip</span>
@@ -30,10 +63,10 @@
             </a>
             <a href="#settings" class="nav-item" data-section="settings">
                 <span>⚙️</span> Settings
-            </a> 
-                       <a href="pricing.html" class="nav-item" style="background: rgba(111,78,55,0.1); border-left: 3px solid #6F4E37;">
+            </a>
+            <a href="pricing.html" class="nav-item" style="background: rgba(111,78,55,0.1); border-left: 3px solid #6F4E37;">
                 <span>💳</span> Upgrade Plan
-            </a> 
+            </a>
         </nav>
         
         <div class="sidebar-footer">
@@ -45,9 +78,9 @@
         </div>
     </aside>
 
-    <main class="main-content">
+    <main class="main-content" id="mainContent" onclick="closeSidebar()">
         <header class="top-bar">
-            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <button class="menu-toggle" onclick="event.stopPropagation(); toggleSidebar()">☰</button>
             <h2 id="pageTitle">Dashboard</h2>
             <button onclick="toggleDarkMode()" class="btn btn-icon">🌙</button>
         </header>
@@ -95,11 +128,9 @@
                 <h3>Customer Management</h3>
                 <button onclick="openAddCustomer()" class="btn btn-primary">+ Add Customer</button>
             </div>
-            
             <div class="search-bar">
                 <input type="text" id="customerSearch" placeholder="Search customers..." oninput="searchCustomers()">
             </div>
-            
             <div class="table-container">
                 <table class="data-table">
                     <thead>
@@ -114,8 +145,7 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="customersTableBody">
-                    </tbody>
+                    <tbody id="customersTableBody"></tbody>
                 </table>
             </div>
         </section>
@@ -124,26 +154,21 @@
             <div class="broadcast-card">
                 <h3>📡 Send Broadcast</h3>
                 <p class="help-text">Message all your customers instantly</p>
-                
                 <div class="form-group">
                     <label>Title</label>
                     <input type="text" id="broadcastTitle" placeholder="e.g. Weekend Special!">
                 </div>
-                
                 <div class="form-group">
                     <label>Message</label>
                     <textarea id="broadcastMessage" rows="4" placeholder="☕ Buy 2 get 1 free today!"></textarea>
                 </div>
-                
                 <div class="broadcast-preview">
                     <strong>Preview:</strong>
                     <div class="preview-box" id="previewBox">Your message will appear here...</div>
                 </div>
-                
                 <button onclick="sendBroadcast()" class="btn btn-primary btn-block btn-large">
                     Send to All Customers
                 </button>
-                
                 <div id="broadcastHistory" class="history-list">
                     <h4>Recent Broadcasts</h4>
                 </div>
@@ -195,30 +220,40 @@
 
         <div id="toast" class="toast hidden"></div>
     </main>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
-      <script src="dashboard.js"></script>
+    <script src="dashboard.js"></script>
     
-    <!-- Auto-close sidebar on mobile when menu clicked -->
+    <!-- Sidebar auto-close -->
     <script>
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                // Close sidebar on mobile
-                const sidebar = document.querySelector('.sidebar');
-                if (sidebar && window.innerWidth <= 768) {
-                    sidebar.classList.remove('open');
-                }
-            });
-        });
+        window.closeSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar) sidebar.classList.remove('open');
+            if (overlay) overlay.classList.remove('active');
+        };
         
-        // Close sidebar when clicking outside
-        document.querySelector('.main-content').addEventListener('click', () => {
-            const sidebar = document.querySelector('.sidebar');
-            if (sidebar && window.innerWidth <= 768) {
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const isOpen = sidebar.classList.contains('open');
+            
+            if (isOpen) {
                 sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            } else {
+                sidebar.classList.add('open');
+                overlay.classList.add('active');
             }
+        };
+        
+        // Close sidebar when menu item clicked
+        document.querySelectorAll('.nav-item[data-section]').forEach(item => {
+            item.addEventListener('click', () => {
+                closeSidebar();
+            });
         });
     </script>
 </body>
 </html>
-  

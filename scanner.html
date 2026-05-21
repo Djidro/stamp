@@ -49,265 +49,261 @@
     </div>
 
     <div id="toast" class="toast hidden"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+    // ============================================
+    // VARIABLES
+    // ============================================
+    let html5QrCode = null;
+    let currentCustomer = null;
+    let shopSettings = { stamps_required: 6 };
+    let currentShop = null;
+    let isScanning = false;
+    const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vZXdhbnNoZWt6cGpmZ3R5eXp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MjAwMjgsImV4cCI6MjA5NDM5NjAyOH0.AGd2ciUMPt1w4UqHpinJNQni08r0GPP-5-R7z_fvPn4';
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script>
-        // ============================================
-        // VARIABLES - MUST BE AT TOP
-        // ============================================
-        let html5QrCode = null;
-        let currentCustomer = null;
-        let shopSettings = { stamps_required: 6 };
-        let currentShop = null;
-        let isScanning = false;
+    // Start
+    initScanner();
 
-        // Start everything
-        initScanner();
-
-        async function initScanner() {
-            try {
-                currentShop = await window.getCurrentShop();
-                if (!currentShop) {
-                    window.location.href = 'login.html';
-                    return;
-                }
-                if (currentShop.settings) {
-                    shopSettings = currentShop.settings;
-                }
-                startCamera();
-            } catch (err) {
-                console.error('Init error:', err);
-                document.getElementById('loadingMessage').innerHTML = 
-                    '<p style="color:red;">⚠️ Camera not available</p><p>Use manual entry below</p>';
-            }
-        }
-
-        async function startCamera() {
-            try {
-                if (html5QrCode) {
-                    await html5QrCode.stop().catch(() => {});
-                    html5QrCode = null;
-                }
-
-                document.getElementById('reader').innerHTML = '';
-                html5QrCode = new Html5Qrcode("reader");
-                
-                const config = {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1
-                };
-                
-                await html5QrCode.start(
-                    { facingMode: "environment" },
-                    config,
-                    (decodedText) => {
-                        if (!isScanning) return;
-                        isScanning = false;
-                        console.log('✅ QR DETECTED:', decodedText);
-                        
-                        if (html5QrCode) html5QrCode.pause().catch(() => {});
-                        
-                        document.getElementById('scanResult').classList.remove('hidden');
-                        document.getElementById('scannedName').textContent = 'Loading...';
-                        
-                        try {
-                            const data = JSON.parse(decodedText);
-                            if (data.customer && data.shop) {
-                                loadCustomer(data.customer, data.shop);
-                            } else {
-                                showToast('Invalid QR');
-                                scanAgain();
-                            }
-                        } catch (e) {
-                            manualLookup(decodedText);
-                        }
-                    },
-                    (error) => {}
-                );
-                
-                document.getElementById('loadingMessage').style.display = 'none';
-                document.getElementById('scannerWrapper').style.display = 'block';
-                isScanning = true;
-                console.log('✅ Camera ready');
-                
-            } catch (err) {
-                console.error('Camera error:', err.message);
-                document.getElementById('loadingMessage').innerHTML = 
-                    '<p style="color:red;">⚠️ Camera error</p><p>Use manual entry below</p>';
-            }
-        }
-
-        function scanAgain() {
-            document.getElementById('scanResult').classList.add('hidden');
-            currentCustomer = null;
-            isScanning = true;
-            if (html5QrCode) {
-                html5QrCode.resume().catch(() => startCamera());
-            } else {
-                startCamera();
-            }
-        }
-
-        async function loadCustomer(customerId, shopId) {
-            if (currentShop.id !== shopId) {
-                showToast('❌ Not your customer');
-                scanAgain();
+    async function initScanner() {
+        try {
+            currentShop = await window.getCurrentShop();
+            if (!currentShop) {
+                window.location.href = 'login.html';
                 return;
             }
-            try {
-                const { data: customer, error } = await supabase
-                    .from('customers')
-                    .select('*')
-                    .eq('id', customerId)
-                    .eq('shop_id', shopId)
-                    .single();
-                
-                if (error || !customer) {
-                    showToast('Customer not found');
-                    scanAgain();
-                    return;
-                }
-                currentCustomer = customer;
-                displayCustomer();
-            } catch (err) {
-                showToast(err.message);
+            if (currentShop.settings) shopSettings = currentShop.settings;
+            startCamera();
+        } catch (err) {
+            document.getElementById('loadingMessage').innerHTML = 
+                '<p style="color:red;">⚠️ Error</p><p>Use manual entry</p>';
+        }
+    }
+
+    async function startCamera() {
+        try {
+            if (html5QrCode) {
+                await html5QrCode.stop().catch(() => {});
+                html5QrCode = null;
+            }
+            document.getElementById('reader').innerHTML = '';
+            html5QrCode = new Html5Qrcode("reader");
+            
+            await html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1 },
+                (decodedText) => {
+                    if (!isScanning) return;
+                    isScanning = false;
+                    console.log('✅ QR:', decodedText);
+                    if (html5QrCode) html5QrCode.pause().catch(() => {});
+                    processScan(decodedText);
+                },
+                () => {}
+            );
+            
+            document.getElementById('loadingMessage').style.display = 'none';
+            document.getElementById('scannerWrapper').style.display = 'block';
+            isScanning = true;
+            console.log('✅ Camera ready');
+        } catch (err) {
+            document.getElementById('loadingMessage').innerHTML = 
+                '<p style="color:red;">⚠️ Camera error</p><p>Use manual entry</p>';
+        }
+    }
+
+    async function processScan(decodedText) {
+        document.getElementById('scanResult').classList.remove('hidden');
+        document.getElementById('scannedName').textContent = 'Loading...';
+        
+        try {
+            const data = JSON.parse(decodedText);
+            if (data.customer && data.shop) {
+                await directFetchCustomer(data.customer, data.shop);
+            } else {
+                showToast('Invalid QR');
                 scanAgain();
             }
+        } catch (e) {
+            // Try as customer code
+            await directLookupByCode(decodedText);
         }
+    }
 
-        function displayCustomer() {
-            if (!currentCustomer) return;
-            
-            const required = shopSettings.stamps_required || 6;
-            const stamps = currentCustomer.stamps || 0;
-            const freeRewards = currentCustomer.free_rewards || 0;
-            
-            document.getElementById('scanResult').classList.remove('hidden');
-            document.getElementById('scannedName').textContent = currentCustomer.name;
-            document.getElementById('currentStamps').textContent = stamps;
-            document.getElementById('requiredStamps').textContent = required;
-            
-            let html = '';
-            for (let i = 0; i < required; i++) {
-                html += `<span style="font-size:1.8rem; opacity:${i < stamps ? '1' : '0.3'}">☕</span>`;
-            }
-            document.getElementById('stampVisual').innerHTML = html;
-            
-            const badge = document.getElementById('rewardBadge');
-            const redeemBtn = document.getElementById('redeemBtn');
-            
-            if (freeRewards > 0) {
-                badge.classList.remove('hidden');
-                badge.textContent = `🎁 ${freeRewards} Reward(s) Available!`;
-                redeemBtn.disabled = false;
-                redeemBtn.textContent = '🎁 Redeem Reward';
-            } else if (stamps >= required) {
-                badge.classList.remove('hidden');
-                badge.textContent = '✅ Complete! Add stamp to earn reward';
-                redeemBtn.disabled = true;
-                redeemBtn.textContent = 'Add stamp first';
-            } else {
-                badge.classList.add('hidden');
-                redeemBtn.disabled = true;
-                redeemBtn.textContent = `🔒 ${required - stamps} more needed`;
-            }
+    function scanAgain() {
+        document.getElementById('scanResult').classList.add('hidden');
+        currentCustomer = null;
+        isScanning = true;
+        if (html5QrCode) html5QrCode.resume().catch(() => startCamera());
+        else startCamera();
+    }
+
+    // ============================================
+    // DIRECT FETCH FUNCTIONS (bypass supabase library)
+    // ============================================
+    async function directFetchCustomer(customerId, shopId) {
+        if (currentShop.id !== shopId) {
+            showToast('❌ Not your customer');
+            scanAgain();
+            return;
         }
+        await directLookupById(customerId);
+    }
 
-        async function addStamp() {
-            if (!currentCustomer) return;
-            
-            const required = shopSettings.stamps_required || 6;
-            let newStamps = (currentCustomer.stamps || 0) + 1;
-            let newRewards = currentCustomer.free_rewards || 0;
-            
-            if (newStamps >= required) {
-                newStamps = 0;
-                newRewards += 1;
-            }
-            
-            try {
-                await supabase.from('customers').update({
-                    stamps: newStamps,
-                    free_rewards: newRewards,
-                    total_visits: (currentCustomer.total_visits || 0) + 1
-                }).eq('id', currentCustomer.id);
-                
-                await supabase.from('visits').insert({
-                    shop_id: currentShop.id,
-                    customer_id: currentCustomer.id,
-                    action: 'stamp',
-                    notes: '',
-                    created_at: new Date().toISOString()
-                });
-                
-                showToast(newRewards > (currentCustomer.free_rewards || 0) ? '🎉 Reward earned!' : '✅ Stamp added!', 'success');
-                
-                const { data: updated } = await supabase.from('customers').select('*').eq('id', currentCustomer.id).single();
-                if (updated) { currentCustomer = updated; displayCustomer(); }
-            } catch (err) { showToast(err.message); }
-        }
+    async function directLookupByCode(code) {
+        const url = `https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?select=*&customer_code=eq.${code}&shop_id=eq.${currentShop.id}`;
+        await directFetch(url);
+    }
 
-        async function redeemReward() {
-            if (!currentCustomer || (currentCustomer.free_rewards || 0) < 1) {
-                showToast('No rewards'); return;
-            }
-            
-            const btn = document.getElementById('redeemBtn');
-            btn.disabled = true;
-            btn.textContent = 'Processing...';
-            
-            try {
-                await supabase.from('customers').update({
-                    free_rewards: currentCustomer.free_rewards - 1
-                }).eq('id', currentCustomer.id);
-                
-                await supabase.from('visits').insert({
-                    shop_id: currentShop.id,
-                    customer_id: currentCustomer.id,
-                    action: 'redeem',
-                    notes: 'Reward redeemed',
-                    created_at: new Date().toISOString()
-                });
-                
-                showToast('🎁 Reward redeemed!', 'success');
-                
-                const { data: updated } = await supabase.from('customers').select('*').eq('id', currentCustomer.id).single();
-                if (updated) { currentCustomer = updated; displayCustomer(); }
-            } catch (err) { showToast(err.message); btn.disabled = false; }
-        }
+    async function directLookupById(id) {
+        const url = `https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?select=*&id=eq.${id}`;
+        await directFetch(url);
+    }
 
-        async function manualLookup(code) {
-            const lookupCode = code || document.getElementById('manualCode')?.value?.trim();
-            if (!lookupCode) { showToast('Enter a customer code'); return; }
+    async function directFetch(url) {
+        try {
+            console.log('🔍 Fetching:', url);
+            const response = await fetch(url, {
+                headers: {
+                    'apikey': ANON_KEY,
+                    'Content-Type': 'application/json'
+                }
+            });
             
-            try {
-                const { data: customer, error } = await supabase
-                    .from('customers')
-                    .select('*')
-                    .eq('shop_id', currentShop.id)
-                    .eq('customer_code', lookupCode)
-                    .single();
-                
-                if (error || !customer) { showToast('Customer not found'); return; }
-                currentCustomer = customer;
-                if (html5QrCode) html5QrCode.pause().catch(() => {});
+            const data = await response.json();
+            console.log('📊 Result:', data);
+            
+            if (data && data.length > 0) {
+                currentCustomer = data[0];
                 displayCustomer();
-            } catch (err) { showToast(err.message); }
+                showToast('✅ Customer found!', 'success');
+            } else {
+                showToast('Customer not found');
+                scanAgain();
+            }
+        } catch (err) {
+            console.error('Fetch error:', err);
+            showToast('Error');
+            scanAgain();
         }
+    }
 
-        function showToast(message, type = 'error') {
-            const toast = document.getElementById('toast');
-            if (!toast) return;
-            toast.textContent = message;
-            toast.className = `toast ${type}`;
-            setTimeout(() => toast.className = 'toast hidden', 2500);
+    function displayCustomer() {
+        if (!currentCustomer) return;
+        
+        const required = shopSettings.stamps_required || 6;
+        const stamps = currentCustomer.stamps || 0;
+        const freeRewards = currentCustomer.free_rewards || 0;
+        
+        document.getElementById('scanResult').classList.remove('hidden');
+        document.getElementById('scannedName').textContent = currentCustomer.name;
+        document.getElementById('currentStamps').textContent = stamps;
+        document.getElementById('requiredStamps').textContent = required;
+        
+        let html = '';
+        for (let i = 0; i < required; i++) {
+            html += `<span style="font-size:1.8rem; opacity:${i < stamps ? '1' : '0.3'}">☕</span>`;
         }
+        document.getElementById('stampVisual').innerHTML = html;
+        
+        const badge = document.getElementById('rewardBadge');
+        const redeemBtn = document.getElementById('redeemBtn');
+        
+        if (freeRewards > 0) {
+            badge.classList.remove('hidden');
+            badge.textContent = `🎁 ${freeRewards} Reward(s)!`;
+            redeemBtn.disabled = false;
+            redeemBtn.textContent = '🎁 Redeem Reward';
+        } else if (stamps >= required) {
+            badge.classList.remove('hidden');
+            badge.textContent = '✅ Complete! Add stamp';
+            redeemBtn.disabled = true;
+            redeemBtn.textContent = 'Add stamp first';
+        } else {
+            badge.classList.add('hidden');
+            redeemBtn.disabled = true;
+            redeemBtn.textContent = `🔒 ${required - stamps} more`;
+        }
+    }
 
-        window.addEventListener('beforeunload', () => {
-            if (html5QrCode) html5QrCode.stop().catch(() => {});
-        });
-    </script>
+    // ============================================
+    // ACTIONS (using supabase - these should work)
+    // ============================================
+    async function addStamp() {
+        if (!currentCustomer) return;
+        
+        const required = shopSettings.stamps_required || 6;
+        let newStamps = (currentCustomer.stamps || 0) + 1;
+        let newRewards = currentCustomer.free_rewards || 0;
+        
+        if (newStamps >= required) { newStamps = 0; newRewards += 1; }
+        
+        try {
+            await supabase.from('customers').update({
+                stamps: newStamps,
+                free_rewards: newRewards,
+                total_visits: (currentCustomer.total_visits || 0) + 1
+            }).eq('id', currentCustomer.id);
+            
+            await supabase.from('visits').insert({
+                shop_id: currentShop.id,
+                customer_id: currentCustomer.id,
+                action: 'stamp',
+                notes: '',
+                created_at: new Date().toISOString()
+            });
+            
+            showToast(newRewards > (currentCustomer.free_rewards || 0) ? '🎉 Reward earned!' : '✅ Stamp added!', 'success');
+            await directLookupById(currentCustomer.id);
+        } catch (err) { showToast(err.message); }
+    }
+
+    async function redeemReward() {
+        if (!currentCustomer || (currentCustomer.free_rewards || 0) < 1) {
+            showToast('No rewards'); return;
+        }
+        
+        const btn = document.getElementById('redeemBtn');
+        btn.disabled = true;
+        btn.textContent = 'Processing...';
+        
+        try {
+            await supabase.from('customers').update({
+                free_rewards: currentCustomer.free_rewards - 1
+            }).eq('id', currentCustomer.id);
+            
+            await supabase.from('visits').insert({
+                shop_id: currentShop.id,
+                customer_id: currentCustomer.id,
+                action: 'redeem',
+                notes: 'Reward redeemed',
+                created_at: new Date().toISOString()
+            });
+            
+            showToast('🎁 Redeemed!', 'success');
+            await directLookupById(currentCustomer.id);
+        } catch (err) { showToast(err.message); btn.disabled = false; }
+    }
+
+    function manualLookup(code) {
+        const lookupCode = code || document.getElementById('manualCode')?.value?.trim();
+        if (!lookupCode) { showToast('Enter a code'); return; }
+        if (html5QrCode) html5QrCode.pause().catch(() => {});
+        directLookupByCode(lookupCode);
+    }
+
+    function showToast(message, type = 'error') {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.textContent = message;
+        toast.className = `toast ${type}`;
+        setTimeout(() => toast.className = 'toast hidden', 2500);
+    }
+
+    window.addEventListener('beforeunload', () => {
+        if (html5QrCode) html5QrCode.stop().catch(() => {});
+    });
+</script>
+ 
 </body>
 </html>

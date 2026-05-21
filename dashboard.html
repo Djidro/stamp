@@ -197,7 +197,28 @@
     </main>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
-    <script src="dashboard.js"></script>
+      <script src="dashboard.js"></script>
+    
+    <!-- Auto-close sidebar on mobile when menu clicked -->
+    <script>
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                // Close sidebar on mobile
+                const sidebar = document.querySelector('.sidebar');
+                if (sidebar && window.innerWidth <= 768) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        });
+        
+        // Close sidebar when clicking outside
+        document.querySelector('.main-content').addEventListener('click', () => {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar && window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+            }
+        });
+    </script>
 </body>
 </html>
   

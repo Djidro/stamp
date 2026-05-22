@@ -9,11 +9,13 @@
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "2d9447b6-4e16-4dfe-9b0f-3362debfc5f7",
-      safari_web_id: "web.onesignal.auto.4c35e1cb-920a-4e68-be7d-eea8363a1cf4",
-      notifyButton: { enable: true },
-    });
+   await OneSignal.init({
+    appId: "2d9447b6-4e16-4dfe-9b0f-3362debfc5f7",
+    safari_web_id: "web.onesignal.auto.4c35e1cb-920a-4e68-be7d-eea8363a1cf4",
+    notifyButton: { enable: true },
+    path: "/stamp/OneSignalSDKWorker.js",
+    serviceWorkerParam: { scope: "/stamp/" },
+});
     const code = localStorage.getItem('customerCode');
     if (code) {
       OneSignal.login(code);

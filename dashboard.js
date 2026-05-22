@@ -357,9 +357,7 @@ async function sendBroadcast() {
     }
     
     try {
-        console.log('📡 Sending broadcast:', { shop_id: currentShop.id, title, message });
-        
-        // 1. Save to Supabase
+        // Save to Supabase
         const { error } = await supabase
             .from('notifications')
             .insert({
@@ -371,29 +369,7 @@ async function sendBroadcast() {
         
         if (error) throw error;
         
-        // 2. 🔔 Send push notification via OneSignal
-        const onesignalResponse = await fetch('https://api.onesignal.com/notifications', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Key os_v2_app_fwkepnsoczg75gypgnrn5p6f67gbnz5sgieuzvnoxso3j77pimy2j2iibv4xs33oiamitd6lnqifkx4jyudbm46zfg5la7ngjannp4q'
-            },
-            body: JSON.stringify({
-                app_id: "2d9447b6-4e16-4dfe-9b0f-3362debfc5f7",
-                headings: { en: "☕ " + title },
-                contents: { en: message },
-                included_segments: ["Total Subscriptions"],
-                data: { 
-                    shop_id: currentShop.id,
-                    shop_name: currentShop.shop_name
-                }
-            })
-        });
-        
-        const onesignalResult = await onesignalResponse.json();
-        console.log('🔔 OneSignal result:', onesignalResult);
-        
-        showToast('✅ Broadcast sent to all customers!', 'success');
+        showToast('✅ Broadcast sent! Check OneSignal dashboard to push notification.', 'success');
         
         document.getElementById('broadcastTitle').value = '';
         document.getElementById('broadcastMessage').value = '';

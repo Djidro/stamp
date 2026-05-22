@@ -369,7 +369,19 @@ async function sendBroadcast() {
         
         if (error) throw error;
         
-        showToast('✅ Broadcast sent! Check OneSignal dashboard to push notification.', 'success');
+        // 🔔 Send push via Edge Function
+        const pushResponse = await fetch(
+            'https://ooewanshekzpjfgtyyzx.supabase.co/functions/v1/send-push',
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, message })
+            }
+        );
+        const pushResult = await pushResponse.json();
+        console.log('🔔 Push result:', pushResult);
+        
+        showToast('✅ Broadcast & push notification sent!', 'success');
         
         document.getElementById('broadcastTitle').value = '';
         document.getElementById('broadcastMessage').value = '';
@@ -378,51 +390,9 @@ async function sendBroadcast() {
         
     } catch (err) {
         console.error('Broadcast error:', err);
-        showToast(err.message || 'Failed to send broadcast');
+        showToast(err.message || 'Failed');
     }
 }
-async function loadBroadcasts() {
-    try {
-        const { data, error } = await supabase
-            .from('notifications')
-            .select('*')
-            .eq('shop_id', currentShop.id)
-            .order('sent_at', { ascending: false })
-            .limit(10);
-        
-        if (error) throw error;
-        
-        console.log('📡 Loaded broadcasts:', data?.length || 0);
-        
-        const container = document.getElementById('broadcastHistory');
-        if (!container) return;
-        
-        if (!data?.length) {
-            container.innerHTML = '<h4>Recent Broadcasts</h4><p class="empty">No broadcasts yet. Send your first message!</p>';
-            return;
-        }
-        
-        let html = '<h4>Recent Broadcasts</h4>';
-        data.forEach(n => {
-            const date = n.sent_at ? new Date(n.sent_at).toLocaleString() : 'Just now';
-            html += `
-                <div class="history-item">
-                    <strong>📢 ${n.title}</strong>
-                    <p style="color: var(--text-light); margin-top: 0.25rem;">${n.message}</p>
-                    <small style="color: var(--text-light);">${date}</small>
-                </div>
-            `;
-        });
-        
-        container.innerHTML = html;
-        
-    } catch (err) {
-        console.error('loadBroadcasts error:', err);
-        document.getElementById('broadcastHistory').innerHTML = 
-            '<h4>Recent Broadcasts</h4><p class="empty">Error loading</p>';
-    }
-}
-// Settings
 async function saveSettings() {
     const stamps = parseInt(document.getElementById('stampsRequired')?.value);
     const reward = document.getElementById('rewardName')?.value;

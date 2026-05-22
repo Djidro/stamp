@@ -347,50 +347,34 @@ function updatePreview() {
     if (box) box.innerHTML = `<strong>${title || 'No Title'}</strong><br>${msg || 'Your message will appear here...'}`;
 }
 
-async function sendBroadcast() {
-    const title = document.getElementById('broadcastTitle')?.value?.trim();
-    const message = document.getElementById('broadcastMessage')?.value?.trim();
-    
-    if (!title || !message) {
-        showToast('Please fill title and message');
-        return;
-    }
-    
+async function loadBroadcasts() {
     try {
-        // Save to Supabase
-        const { error } = await supabase
+        const { data } = await supabase
             .from('notifications')
-            .insert({
-                shop_id: currentShop.id,
-                title: title,
-                message: message,
-                sent_at: new Date().toISOString()
-            });
+            .select('*')
+            .eq('shop_id', currentShop.id)
+            .order('sent_at', { ascending: false })
+            .limit(10);
         
-        if (error) throw error;
+        const container = document.getElementById('broadcastHistory');
+        if (!container) return;
         
-        // 🔔 Send push via Edge Function
-        const pushResponse = await fetch(
-            'https://ooewanshekzpjfgtyyzx.supabase.co/functions/v1/send-push',
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, message })
-            }
-        );
-        const pushResult = await pushResponse.json();
-        console.log('🔔 Push result:', pushResult);
+        if (!data?.length) {
+            container.innerHTML = '<h4>Recent Broadcasts</h4><p class="empty">No broadcasts yet</p>';
+            return;
+        }
         
-        showToast('✅ Broadcast & push notification sent!', 'success');
-        
-        document.getElementById('broadcastTitle').value = '';
-        document.getElementById('broadcastMessage').value = '';
-        updatePreview();
-        loadBroadcasts();
-        
+        let html = '<h4>Recent Broadcasts</h4>';
+        data.forEach(n => {
+            html += `<div class="history-item">
+                <strong>📢 ${n.title}</strong>
+                <p>${n.message}</p>
+                <small>${new Date(n.sent_at).toLocaleString()}</small>
+            </div>`;
+        });
+        container.innerHTML = html;
     } catch (err) {
-        console.error('Broadcast error:', err);
-        showToast(err.message || 'Failed');
+        console.error('loadBroadcasts error:', err);
     }
 }
 async function saveSettings() {

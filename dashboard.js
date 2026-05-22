@@ -359,22 +359,40 @@ async function sendBroadcast() {
     try {
         console.log('📡 Sending broadcast:', { shop_id: currentShop.id, title, message });
         
-        const { data, error } = await supabase
+        // 1. Save to Supabase
+        const { error } = await supabase
             .from('notifications')
             .insert({
                 shop_id: currentShop.id,
                 title: title,
                 message: message,
                 sent_at: new Date().toISOString()
+            });
+        
+        if (error) throw error;
+        
+        // 2. 🔔 Send push notification via OneSignal
+        const onesignalResponse = await fetch('https://api.onesignal.com/notifications', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Key os_v2_app_fwkepnsoczg75gypgnrn5p6f67gbnz5sgieuzvnoxso3j77pimy2j2iibv4xs33oiamitd6lnqifkx4jyudbm46zfg5la7ngjannp4q'
+            },
+            body: JSON.stringify({
+                app_id: "2d9447b6-4e16-4dfe-9b0f-3362debfc5f7",
+                headings: { en: "☕ " + title },
+                contents: { en: message },
+                included_segments: ["Total Subscriptions"],
+                data: { 
+                    shop_id: currentShop.id,
+                    shop_name: currentShop.shop_name
+                }
             })
-            .select();
+        });
         
-        if (error) {
-            console.error('Insert error:', error);
-            throw error;
-        }
+        const onesignalResult = await onesignalResponse.json();
+        console.log('🔔 OneSignal result:', onesignalResult);
         
-        console.log('✅ Broadcast sent:', data);
         showToast('✅ Broadcast sent to all customers!', 'success');
         
         document.getElementById('broadcastTitle').value = '';
@@ -387,7 +405,6 @@ async function sendBroadcast() {
         showToast(err.message || 'Failed to send broadcast');
     }
 }
-
 async function loadBroadcasts() {
     try {
         const { data, error } = await supabase

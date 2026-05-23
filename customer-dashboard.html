@@ -65,7 +65,17 @@
                     <div id="customerQR" style="display:inline-block;"></div>
                     <p style="margin-top:0.5rem; font-weight:bold;">📱 Show this to staff</p>
                 </div>
-                
+                                <!-- Telegram Connect -->
+                <div style="text-align:center; margin:1rem 0; padding:1rem; background:#e8f5e9; border-radius:8px;">
+                    <p style="font-weight:600; margin:0 0 0.5rem 0;">📱 Get updates on Telegram!</p>
+                    <a href="https://t.me/LoyaltySip_Bot" id="telegramLink" target="_blank" 
+                       style="display:inline-block; background:#0088cc; color:white; padding:0.75rem 1.5rem; border-radius:8px; text-decoration:none; font-weight:600;">
+                        🤖 Connect on Telegram
+                    </a>
+                    <p style="font-size:0.75rem; margin-top:0.5rem; color:#666;">
+                        Get stamp alerts & reward notifications instantly!
+                    </p>
+                </div>
                 <div class="stamps-section">
                     <h4>Stamps</h4>
                     <div class="stamps-grid" id="stampsGrid"></div>
@@ -139,7 +149,11 @@
                 document.getElementById('shopName').textContent = shop.shop_name;
                 document.getElementById('customerName').textContent = customer.name;
                 document.getElementById('customerCode').textContent = customer.customer_code;
-                
+                                // Update Telegram link with customer code
+                const telegramLink = document.getElementById('telegramLink');
+                if (telegramLink && customer) {
+                    telegramLink.href = `https://t.me/LoyaltySip_Bot?start=${customer.customer_code}`;
+                }
                 // Generate QR Code
                 const qrData = JSON.stringify({ customer: customer.id, shop: shop.id });
                 const qrContainer = document.getElementById('customerQR');

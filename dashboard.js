@@ -338,13 +338,48 @@ function downloadQR() {
     link.href = canvas.toDataURL();
     link.click();
 }
-
-// Broadcast
+// ============================================
+// BROADCAST
+// ============================================
 function updatePreview() {
     const title = document.getElementById('broadcastTitle')?.value || '';
     const msg = document.getElementById('broadcastMessage')?.value || '';
     const box = document.getElementById('previewBox');
     if (box) box.innerHTML = `<strong>${title || 'No Title'}</strong><br>${msg || 'Your message will appear here...'}`;
+}
+
+async function sendBroadcast() {
+    const title = document.getElementById('broadcastTitle')?.value?.trim();
+    const message = document.getElementById('broadcastMessage')?.value?.trim();
+    
+    if (!title || !message) {
+        showToast('Please fill title and message');
+        return;
+    }
+    
+    try {
+        const { error } = await supabase
+            .from('notifications')
+            .insert({
+                shop_id: currentShop.id,
+                title: title,
+                message: message,
+                sent_at: new Date().toISOString()
+            });
+        
+        if (error) throw error;
+        
+        showToast('✅ Broadcast sent!', 'success');
+        
+        document.getElementById('broadcastTitle').value = '';
+        document.getElementById('broadcastMessage').value = '';
+        updatePreview();
+        loadBroadcasts();
+        
+    } catch (err) {
+        console.error('Broadcast error:', err);
+        showToast(err.message || 'Failed to send broadcast');
+    }
 }
 
 async function loadBroadcasts() {
@@ -377,6 +412,10 @@ async function loadBroadcasts() {
         console.error('loadBroadcasts error:', err);
     }
 }
+
+// ============================================
+// SETTINGS
+// ============================================
 async function saveSettings() {
     const stamps = parseInt(document.getElementById('stampsRequired')?.value);
     const reward = document.getElementById('rewardName')?.value;

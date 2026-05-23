@@ -5,21 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - LoyaltySip</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-            appId: "2d9447b6-4e16-4dfe-9b0f-3362debfc5f7",
-            safari_web_id: "web.onesignal.auto.4c35e1cb-920a-4e68-be7d-eea8363a1cf4",
-            notifyButton: { enable: true },
-        });
-    });
-</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
-        /* Mobile sidebar overlay fix */
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -28,14 +16,8 @@
                 width: 280px;
                 box-shadow: 0 0 30px rgba(0,0,0,0.3);
             }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-            }
-            /* Overlay when sidebar is open */
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
             .sidebar-overlay {
                 display: none;
                 position: fixed;
@@ -43,14 +25,11 @@
                 background: rgba(0,0,0,0.5);
                 z-index: 999;
             }
-            .sidebar-overlay.active {
-                display: block;
-            }
+            .sidebar-overlay.active { display: block; }
         }
     </style>
 </head>
 <body class="dashboard-page">
-    <!-- Overlay for mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
     
     <aside class="sidebar" id="sidebar">
@@ -58,28 +37,14 @@
             <span class="logo">☕</span>
             <span class="brand-text">LoyaltySip</span>
         </div>
-        
         <nav class="sidebar-nav">
-            <a href="#overview" class="nav-item active" data-section="overview">
-                <span>📊</span> Overview
-            </a>
-            <a href="#customers" class="nav-item" data-section="customers">
-                <span>👥</span> Customers
-            </a>
-            <a href="scanner.html" class="nav-item">
-                <span>📷</span> QR Scanner
-            </a>
-            <a href="#broadcast" class="nav-item" data-section="broadcast">
-                <span>📡</span> Broadcast
-            </a>
-            <a href="#settings" class="nav-item" data-section="settings">
-                <span>⚙️</span> Settings
-            </a>
-            <a href="pricing.html" class="nav-item" style="background: rgba(111,78,55,0.1); border-left: 3px solid #6F4E37;">
-                <span>💳</span> Upgrade Plan
-            </a>
+            <a href="#overview" class="nav-item active" data-section="overview"><span>📊</span> Overview</a>
+            <a href="#customers" class="nav-item" data-section="customers"><span>👥</span> Customers</a>
+            <a href="scanner.html" class="nav-item"><span>📷</span> QR Scanner</a>
+            <a href="#broadcast" class="nav-item" data-section="broadcast"><span>📡</span> Broadcast</a>
+            <a href="#settings" class="nav-item" data-section="settings"><span>⚙️</span> Settings</a>
+            <a href="pricing.html" class="nav-item" style="background: rgba(111,78,55,0.1); border-left: 3px solid #6F4E37;"><span>💳</span> Upgrade Plan</a>
         </nav>
-        
         <div class="sidebar-footer">
             <div class="shop-info">
                 <div class="shop-name" id="shopNameDisplay">Loading...</div>
@@ -98,64 +63,23 @@
 
         <section id="overview" class="section active">
             <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">👥</div>
-                    <div class="stat-value" id="totalCustomers">0</div>
-                    <div class="stat-label">Total Customers</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">☕</div>
-                    <div class="stat-value" id="totalVisits">0</div>
-                    <div class="stat-label">Total Visits</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🎁</div>
-                    <div class="stat-value" id="totalRedemptions">0</div>
-                    <div class="stat-label">Rewards Redeemed</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">📅</div>
-                    <div class="stat-value" id="todayVisits">0</div>
-                    <div class="stat-label">Today</div>
-                </div>
+                <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="totalCustomers">0</div><div class="stat-label">Total Customers</div></div>
+                <div class="stat-card"><div class="stat-icon">☕</div><div class="stat-value" id="totalVisits">0</div><div class="stat-label">Total Visits</div></div>
+                <div class="stat-card"><div class="stat-icon">🎁</div><div class="stat-value" id="totalRedemptions">0</div><div class="stat-label">Rewards Redeemed</div></div>
+                <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-value" id="todayVisits">0</div><div class="stat-label">Today</div></div>
             </div>
-
             <div class="charts-row">
-                <div class="chart-card">
-                    <h3>Weekly Visits</h3>
-                    <canvas id="visitsChart"></canvas>
-                </div>
-                <div class="chart-card">
-                    <h3>Recent Activity</h3>
-                    <div class="activity-list" id="activityList">
-                        <p class="empty">No recent activity</p>
-                    </div>
-                </div>
+                <div class="chart-card"><h3>Weekly Visits</h3><canvas id="visitsChart"></canvas></div>
+                <div class="chart-card"><h3>Recent Activity</h3><div class="activity-list" id="activityList"><p class="empty">No recent activity</p></div></div>
             </div>
         </section>
 
         <section id="customers" class="section">
-            <div class="section-header">
-                <h3>Customer Management</h3>
-                <button onclick="openAddCustomer()" class="btn btn-primary">+ Add Customer</button>
-            </div>
-            <div class="search-bar">
-                <input type="text" id="customerSearch" placeholder="Search customers..." oninput="searchCustomers()">
-            </div>
+            <div class="section-header"><h3>Customer Management</h3><button onclick="openAddCustomer()" class="btn btn-primary">+ Add Customer</button></div>
+            <div class="search-bar"><input type="text" id="customerSearch" placeholder="Search customers..." oninput="searchCustomers()"></div>
             <div class="table-container">
                 <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Code</th>
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th>Stamps</th>
-                            <th>Rewards</th>
-                            <th>Visits</th>
-                            <th>QR Code</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Code</th><th>Name</th><th>Phone</th><th>Stamps</th><th>Rewards</th><th>Visits</th><th>QR Code</th><th>Actions</th></tr></thead>
                     <tbody id="customersTableBody"></tbody>
                 </table>
             </div>
@@ -164,45 +88,20 @@
         <section id="broadcast" class="section">
             <div class="broadcast-card">
                 <h3>📡 Send Broadcast</h3>
-                <p class="help-text">Message all your customers instantly</p>
-                <div class="form-group">
-                    <label>Title</label>
-                    <input type="text" id="broadcastTitle" placeholder="e.g. Weekend Special!">
-                </div>
-                <div class="form-group">
-                    <label>Message</label>
-                    <textarea id="broadcastMessage" rows="4" placeholder="☕ Buy 2 get 1 free today!"></textarea>
-                </div>
-                <div class="broadcast-preview">
-                    <strong>Preview:</strong>
-                    <div class="preview-box" id="previewBox">Your message will appear here...</div>
-                </div>
-                <button onclick="sendBroadcast()" class="btn btn-primary btn-block btn-large">
-                    Send to All Customers
-                </button>
-                                <a href="https://app.onesignal.com/apps/2d9447b6-4e16-4dfe-9b0f-3362debfc5f7/notifications/new" 
-                   target="_blank" 
-                   class="btn btn-outline btn-block" 
-                   style="margin-top:0.5rem;">
-                   📱 Open OneSignal Push Panel
-                </a>
-                <div id="broadcastHistory" class="history-list">
-                    <h4>Recent Broadcasts</h4>
-                </div>
+                <p class="help-text">Message all your customers via Telegram 🤖</p>
+                <div class="form-group"><label>Title</label><input type="text" id="broadcastTitle" placeholder="e.g. Weekend Special!"></div>
+                <div class="form-group"><label>Message</label><textarea id="broadcastMessage" rows="4" placeholder="☕ Buy 2 get 1 free today!"></textarea></div>
+                <div class="broadcast-preview"><strong>Preview:</strong><div class="preview-box" id="previewBox">Your message will appear here...</div></div>
+                <button onclick="sendBroadcast()" class="btn btn-primary btn-block btn-large">Send to All Customers</button>
+                <div id="broadcastHistory" class="history-list"><h4>Recent Broadcasts</h4></div>
             </div>
         </section>
 
         <section id="settings" class="section">
             <div class="settings-card">
                 <h3>⚙️ Loyalty Settings</h3>
-                <div class="form-group">
-                    <label>Stamps Required for Reward</label>
-                    <input type="number" id="stampsRequired" value="6" min="1">
-                </div>
-                <div class="form-group">
-                    <label>Reward Name</label>
-                    <input type="text" id="rewardName" value="Free Drink">
-                </div>
+                <div class="form-group"><label>Stamps Required for Reward</label><input type="number" id="stampsRequired" value="6" min="1"></div>
+                <div class="form-group"><label>Reward Name</label><input type="text" id="rewardName" value="Free Drink"></div>
                 <button onclick="saveSettings()" class="btn btn-primary">Save Settings</button>
             </div>
         </section>
@@ -210,18 +109,9 @@
         <div id="customerModal" class="modal hidden">
             <div class="modal-content">
                 <h3>Add New Customer</h3>
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" id="newCustomerName" placeholder="Customer name">
-                </div>
-                <div class="form-group">
-                    <label>Phone</label>
-                    <input type="tel" id="newCustomerPhone" placeholder="Phone number">
-                </div>
-                <div class="modal-actions">
-                    <button onclick="closeModal()" class="btn btn-outline">Cancel</button>
-                    <button onclick="addCustomer()" class="btn btn-primary">Add Customer</button>
-                </div>
+                <div class="form-group"><label>Name</label><input type="text" id="newCustomerName" placeholder="Customer name"></div>
+                <div class="form-group"><label>Phone</label><input type="tel" id="newCustomerPhone" placeholder="Phone number"></div>
+                <div class="modal-actions"><button onclick="closeModal()" class="btn btn-outline">Cancel</button><button onclick="addCustomer()" class="btn btn-primary">Add Customer</button></div>
             </div>
         </div>
 
@@ -240,23 +130,18 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
+    <script src="telegram-bot.js"></script>
     <script src="dashboard.js"></script>
     
-    <!-- Sidebar auto-close -->
     <script>
         window.closeSidebar = function() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            if (sidebar) sidebar.classList.remove('open');
-            if (overlay) overlay.classList.remove('active');
+            document.getElementById('sidebar')?.classList.remove('open');
+            document.getElementById('sidebarOverlay')?.classList.remove('active');
         };
-        
         window.toggleSidebar = function() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
-            const isOpen = sidebar.classList.contains('open');
-            
-            if (isOpen) {
+            if (sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
                 overlay.classList.remove('active');
             } else {
@@ -264,12 +149,8 @@
                 overlay.classList.add('active');
             }
         };
-        
-        // Close sidebar when menu item clicked
         document.querySelectorAll('.nav-item[data-section]').forEach(item => {
-            item.addEventListener('click', () => {
-                closeSidebar();
-            });
+            item.addEventListener('click', () => closeSidebar());
         });
     </script>
 </body>

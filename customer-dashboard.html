@@ -5,22 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Loyalty Card - LoyaltySip</title>
     <link rel="stylesheet" href="styles.css">
-   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-  await OneSignal.init({
-    appId: "2d9447b6-4e16-4dfe-9b0f-3362debfc5f7",
-    safari_web_id: "web.onesignal.auto.4c35e1cb-920a-4e68-be7d-eea8363a1cf4",
-    notifyButton: { enable: true },
-});
-    const code = localStorage.getItem('customerCode');
-    if (code) {
-      OneSignal.login(code);
-      OneSignal.addTag("role", "customer");
-    }
-  });
-</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="customer-page">
@@ -33,20 +17,10 @@
                 <p>Enter your details to view your card</p>
             </div>
             <div class="card-body">
-                <div class="form-group">
-                    <label>Customer Code</label>
-                    <input type="text" id="loginCode" placeholder="e.g., RB-001">
-                </div>
-                <div class="form-group">
-                    <label>Phone Number</label>
-                    <input type="tel" id="loginPhone" placeholder="Your phone number">
-                </div>
-                <button onclick="loginCustomer()" class="btn btn-primary btn-block">
-                    View My Card
-                </button>
-                <p style="text-align:center; margin-top:1rem;">
-                    <a href="customer-register.html">Not a member? Join now</a>
-                </p>
+                <div class="form-group"><label>Customer Code</label><input type="text" id="loginCode" placeholder="e.g., RB-001"></div>
+                <div class="form-group"><label>Phone Number</label><input type="tel" id="loginPhone" placeholder="Your phone number"></div>
+                <button onclick="loginCustomer()" class="btn btn-primary btn-block">View My Card</button>
+                <p style="text-align:center; margin-top:1rem;"><a href="customer-register.html">Not a member? Join now</a></p>
             </div>
         </div>
         
@@ -65,23 +39,21 @@
                     <div id="customerQR" style="display:inline-block;"></div>
                     <p style="margin-top:0.5rem; font-weight:bold;">📱 Show this to staff</p>
                 </div>
-                                <!-- Telegram Connect -->
+                
+                <!-- Telegram Connect -->
                 <div style="text-align:center; margin:1rem 0; padding:1rem; background:#e8f5e9; border-radius:8px;">
                     <p style="font-weight:600; margin:0 0 0.5rem 0;">📱 Get updates on Telegram!</p>
                     <a href="https://t.me/LoyaltySip_Bot" id="telegramLink" target="_blank" 
                        style="display:inline-block; background:#0088cc; color:white; padding:0.75rem 1.5rem; border-radius:8px; text-decoration:none; font-weight:600;">
                         🤖 Connect on Telegram
                     </a>
-                    <p style="font-size:0.75rem; margin-top:0.5rem; color:#666;">
-                        Get stamp alerts & reward notifications instantly!
-                    </p>
+                    <p style="font-size:0.75rem; margin-top:0.5rem; color:#666;">Get stamp alerts & reward notifications instantly!</p>
                 </div>
+                
                 <div class="stamps-section">
                     <h4>Stamps</h4>
                     <div class="stamps-grid" id="stampsGrid"></div>
-                    <p class="stamps-text">
-                        <span id="stampCount">0</span> / <span id="stampTarget">6</span>
-                    </p>
+                    <p class="stamps-text"><span id="stampCount">0</span> / <span id="stampTarget">6</span></p>
                 </div>
                 
                 <div class="rewards-section">
@@ -99,9 +71,7 @@
                     <div id="shopMessages"><p class="empty">Loading...</p></div>
                 </div>
                 
-                <button onclick="logoutCustomer()" class="btn btn-outline btn-block" style="margin-top:1rem;">
-                    Switch Account
-                </button>
+                <button onclick="logoutCustomer()" class="btn btn-outline btn-block" style="margin-top:1rem;">Switch Account</button>
             </div>
         </div>
     </div>
@@ -113,10 +83,7 @@
     <script>
         const savedCode = localStorage.getItem('customerCode');
         const savedPhone = localStorage.getItem('customerPhone');
-        
-        if (savedCode && savedPhone) {
-            loadCustomerCard(savedCode, savedPhone);
-        }
+        if (savedCode && savedPhone) loadCustomerCard(savedCode, savedPhone);
         
         async function loginCustomer() {
             const code = document.getElementById('loginCode').value.trim();
@@ -130,18 +97,12 @@
                 const { data: customer, error } = await supabase
                     .from('customers')
                     .select('*, shops(shop_name, settings, id)')
-                    .eq('customer_code', code)
-                    .eq('phone', phone)
-                    .single();
+                    .eq('customer_code', code).eq('phone', phone).single();
                 
-                if (error || !customer) {
-                    showToast('Customer not found');
-                    return;
-                }
+                if (error || !customer) { showToast('Customer not found'); return; }
                 
                 localStorage.setItem('customerCode', code);
                 localStorage.setItem('customerPhone', phone);
-                
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('cardSection').classList.remove('hidden');
                 
@@ -149,139 +110,54 @@
                 document.getElementById('shopName').textContent = shop.shop_name;
                 document.getElementById('customerName').textContent = customer.name;
                 document.getElementById('customerCode').textContent = customer.customer_code;
-                                // Update Telegram link with customer code
+                
                 const telegramLink = document.getElementById('telegramLink');
-                if (telegramLink && customer) {
-                    telegramLink.href = `https://t.me/LoyaltySip_Bot?start=${customer.customer_code}`;
-                }
-                // Generate QR Code
-                const qrData = JSON.stringify({ customer: customer.id, shop: shop.id });
+                if (telegramLink) telegramLink.href = `https://t.me/LoyaltySip_Bot?start=${customer.customer_code}`;
+                
                 const qrContainer = document.getElementById('customerQR');
-                qrContainer.innerHTML = ''; // Clear previous
+                qrContainer.innerHTML = '';
+                new QRCode(qrContainer, { text: JSON.stringify({ customer: customer.id, shop: shop.id }), width: 200, height: 200, colorDark: '#6F4E37', colorLight: '#FFFFFF' });
                 
-                new QRCode(qrContainer, {
-    text: JSON.stringify({ customer: customer.id, shop: shop.id }),
-    width: 200,
-    height: 200,
-    colorDark: '#6F4E37',
-    colorLight: '#FFFFFF'
-});
-                
-                // Stamps
                 const required = shop.settings?.stamps_required || 6;
+                const stamps = customer.stamps || 0;
                 document.getElementById('stampTarget').textContent = required;
-                document.getElementById('stampCount').textContent = customer.stamps || 0;
-                document.getElementById('stampsGrid').innerHTML = 
-                    Array.from({length: required}, (_, i) => 
-                        `<span style="font-size:1.8rem; opacity:${i < (customer.stamps||0) ? '1' : '0.3'}">☕</span>`
-                    ).join('');
-                
+                document.getElementById('stampCount').textContent = stamps;
+                document.getElementById('stampsGrid').innerHTML = Array.from({length: required}, (_, i) => `<span style="font-size:1.8rem; opacity:${i < stamps ? '1' : '0.3'}">☕</span>`).join('');
                 document.getElementById('rewardCount').textContent = customer.free_rewards || 0;
                 
                 loadVisitHistory(customer.id);
                 loadMessages(shop.id);
-                
-            } catch (err) {
-                console.error(err);
-                showToast('Could not load card');
-            }
+            } catch (err) { console.error(err); showToast('Could not load card'); }
         }
         
-      async function loadVisitHistory(customerId) {
-    try {
-        const { data: visits, error } = await supabase
-            .from('visits')
-            .select('action, created_at')
-            .eq('customer_id', customerId)
-            .order('created_at', { ascending: false })
-            .limit(20);
-        
-        const container = document.getElementById('visitHistory');
-        
-        if (!visits?.length) {
-            container.innerHTML = '<p class="empty">No visits yet. Visit your coffee shop to earn stamps! ☕</p>';
-            return;
+        async function loadVisitHistory(customerId) {
+            try {
+                const { data: visits } = await supabase.from('visits').select('action, created_at').eq('customer_id', customerId).order('created_at', { ascending: false }).limit(20);
+                const container = document.getElementById('visitHistory');
+                if (!visits?.length) { container.innerHTML = '<p class="empty">No visits yet ☕</p>'; return; }
+                let html = '';
+                visits.forEach(v => {
+                    const icon = v.action === 'stamp' ? '☕' : '🎁';
+                    const text = v.action === 'stamp' ? 'Stamp Added' : 'Reward Redeemed';
+                    html += `<div style="display:flex; justify-content:space-between; padding:0.5rem; border-bottom:1px solid #eee;"><span>${icon} ${text}</span><span style="color:#888; font-size:0.85rem;">${new Date(v.created_at).toLocaleDateString()}</span></div>`;
+                });
+                container.innerHTML = html;
+            } catch (err) { document.getElementById('visitHistory').innerHTML = '<p class="empty">Error</p>'; }
         }
         
-        let html = '';
-        visits.forEach(v => {
-            const isStamp = v.action === 'stamp' || v.action === 'stamp_reward';
-            const icon = isStamp ? '☕' : '🎁';
-            const text = isStamp ? 'Stamp Added' : 'Reward Redeemed';
-            const date = new Date(v.created_at);
-            const dateStr = date.toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            
-            html += `
-                <div style="display:flex; align-items:center; justify-content:space-between; padding:0.75rem 0.5rem; border-bottom:1px solid #f0e8df;">
-                    <span style="display:flex; align-items:center; gap:0.5rem;">
-                        <span style="font-size:1.3rem;">${icon}</span>
-                        <span style="font-weight:500;">${text}</span>
-                    </span>
-                    <span style="color:#888; font-size:0.8rem;">${dateStr}</span>
-                </div>
-            `;
-        });
-        
-        container.innerHTML = html;
-        
-    } catch (err) {
-        console.error('History error:', err);
-        document.getElementById('visitHistory').innerHTML = '<p class="empty">Error loading history</p>';
-    }
-}
-        
-      async function loadMessages(shopId) {
-    try {
-        const { data, error } = await supabase
-            .from('notifications')
-            .select('title, message, sent_at')
-            .eq('shop_id', shopId)
-            .order('sent_at', { ascending: false })
-            .limit(5);
-        
-        console.log('📡 Messages for customer:', data?.length || 0);
-        
-        const container = document.getElementById('shopMessages');
-        if (!data?.length) {
-            container.innerHTML = '<p class="empty">No messages yet</p>';
-            return;
+        async function loadMessages(shopId) {
+            try {
+                const { data } = await supabase.from('notifications').select('title, message, sent_at').eq('shop_id', shopId).order('sent_at', { ascending: false }).limit(5);
+                const container = document.getElementById('shopMessages');
+                if (!data?.length) { container.innerHTML = '<p class="empty">No messages yet</p>'; return; }
+                let html = '';
+                data.forEach(m => { html += `<div style="background:#f9f5f0; padding:0.75rem; margin-bottom:0.5rem; border-radius:8px;"><strong>📢 ${m.title}</strong><p style="margin:0.25rem 0; font-size:0.9rem;">${m.message}</p><small style="color:#888;">${new Date(m.sent_at).toLocaleDateString()}</small></div>`; });
+                container.innerHTML = html;
+            } catch (err) { document.getElementById('shopMessages').innerHTML = '<p class="empty">Error</p>'; }
         }
         
-        let html = '';
-        data.forEach(m => {
-            const date = m.sent_at ? new Date(m.sent_at).toLocaleDateString() : '';
-            html += `
-                <div style="background:#f9f5f0; padding:0.75rem; margin-bottom:0.5rem; border-radius:8px;">
-                    <strong>📢 ${m.title}</strong>
-                    <p style="margin:0.25rem 0; font-size:0.9rem;">${m.message}</p>
-                    <small style="color:#888;">${date}</small>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-        
-    } catch (err) {
-        console.error('Messages error:', err);
-        document.getElementById('shopMessages').innerHTML = '<p class="empty">Error loading</p>';
-    }
-}
-        function logoutCustomer() {
-            localStorage.removeItem('customerCode');
-            localStorage.removeItem('customerPhone');
-            location.reload();
-        }
-        
-        function showToast(message, type = 'error') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = `toast ${type}`;
-            setTimeout(() => toast.className = 'toast hidden', 3000);
-        }
+        function logoutCustomer() { localStorage.removeItem('customerCode'); localStorage.removeItem('customerPhone'); location.reload(); }
+        function showToast(message, type = 'error') { const t = document.getElementById('toast'); t.textContent = message; t.className = `toast ${type}`; setTimeout(() => t.className = 'toast hidden', 3000); }
     </script>
 </body>
 </html>

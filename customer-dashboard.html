@@ -147,7 +147,7 @@
                 document.getElementById('stampProgressBar').style.width = (stamps / required * 100) + '%';
                 document.getElementById('rewardCount').textContent = customer.free_rewards || 0;
                 loadVisitHistory(customer.id); loadMessages(shop.id);
-                lastStampCount = stamps;
+               lastStampCount = stamps;
                 if (stampCheckInterval) clearInterval(stampCheckInterval);
                 stampCheckInterval = setInterval(() => checkForNewStamps(customer.id), 10000);
             } catch (err) { console.error(err); showToast('Could not load card'); }
@@ -195,19 +195,43 @@
             setTimeout(() => closeStampPopup(), 4000);
         }
         function closeStampPopup() { document.getElementById('stampPopup').classList.add('hidden'); }
-        async function checkForNewStamps(customerId) {
+              async function checkForNewStamps(customerId) {
             try {
-                const { data } = await supabase.from('customers').select('stamps, free_rewards').eq('id', customerId).single();
-                if (data && data.stamps !== lastStampCount && lastStampCount > 0) {
+                console.log('🔍 Checking for new stamps...');
+                const { data } = await supabase
+                    .from('customers')
+                    .select('stamps, free_rewards')
+                    .eq('id', customerId)
+                    .single();
+
+                if (data) {
+                    const newStamps = data.stamps || 0;
+                    const newRewards = data.free_rewards || 0;
                     const required = parseInt(document.getElementById('stampTarget').textContent) || 6;
-                    showStampPopup(data.stamps, required, data.free_rewards > 0);
-                    document.getElementById('stampCount').textContent = data.stamps;
-                    document.getElementById('stampsGrid').innerHTML = Array.from({length: required}, (_, i) => `<span style="font-size:1.5rem; opacity:${i < data.stamps ? '1' : '0.2'}">☕</span>`).join('');
-                    document.getElementById('stampProgressBar').style.width = (data.stamps / required * 100) + '%';
-                    document.getElementById('rewardCount').textContent = data.free_rewards || 0;
+                    
+                    console.log(`📊 Last: ${lastStampCount}, New: ${newStamps}`);
+
+                    if (newStamps > lastStampCount) {
+                        console.log('🎉 New stamp detected!');
+                        const isReward = newRewards > 0 && newStamps >= required;
+                        
+                        // Update display
+                        document.getElementById('stampCount').textContent = newStamps;
+                        document.getElementById('stampsGrid').innerHTML = Array.from({length: required}, (_, i) => 
+                            `<span style="font-size:1.5rem; opacity:${i < newStamps ? '1' : '0.2'}">☕</span>`
+                        ).join('');
+                        document.getElementById('stampProgressBar').style.width = (newStamps / required * 100) + '%';
+                        document.getElementById('rewardCount').textContent = newRewards;
+                        
+                        // Show popup
+                        showStampPopup(newStamps, required, isReward);
+                    }
+                    
+                    lastStampCount = newStamps;
                 }
-                if (data) lastStampCount = data.stamps;
-            } catch (err) {}
+            } catch (err) {
+                console.error('Check error:', err);
+            }
         }
     </script>
 </body>

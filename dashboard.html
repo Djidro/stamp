@@ -88,11 +88,13 @@
         <section id="broadcast" class="section">
             <div class="broadcast-card">
                 <h3>📡 Send Broadcast</h3>
-                <p class="help-text">Message all your customers via Telegram 🤖</p>
+                <p class="help-text">Message all your customers via Telegram </p>
                 <div class="form-group"><label>Title</label><input type="text" id="broadcastTitle" placeholder="e.g. Weekend Special!"></div>
                 <div class="form-group"><label>Message</label><textarea id="broadcastMessage" rows="4" placeholder="☕ Buy 2 get 1 free today!"></textarea></div>
                 <div class="broadcast-preview"><strong>Preview:</strong><div class="preview-box" id="previewBox">Your message will appear here...</div></div>
-                <button onclick="sendBroadcast()" class="btn btn-primary btn-block btn-large">Send to All Customers</button>
+                <button id="broadcastBtn" onclick="sendBroadcast()" class="btn btn-primary btn-block btn-large">
+    Send to All Customers
+</button>
                 <div id="broadcastHistory" class="history-list"><h4>Recent Broadcasts</h4></div>
             </div>
         </section>

@@ -15,37 +15,49 @@
         .dropdown { position: relative; display: inline-block; }
         .dropdown-btn { cursor: pointer; }
         .dropdown-menu {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 100%;
-            background: var(--surface);
-            border-radius: var(--radius-sm);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-            z-index: 200;
-            min-width: 180px;
-            padding: 0.5rem 0;
-            margin-top: 0.25rem;
+            display: none; position: absolute; right: 0; top: 100%;
+            background: var(--surface); border-radius: var(--radius-sm);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15); z-index: 200;
+            min-width: 180px; padding: 0.5rem 0; margin-top: 0.25rem;
         }
         .dropdown-menu.show { display: block; }
-        .dropdown-menu a {
-            display: block;
-            padding: 0.75rem 1rem;
-            color: var(--text);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
+        .dropdown-menu a { display: block; padding: 0.75rem 1rem; color: var(--text); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
         .dropdown-menu a:hover { background: rgba(111,78,55,0.08); }
         .nav-links { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+        
+        /* Interactive Demo */
+        .demo-phone { background: var(--primary); padding: 0.75rem; border-radius: 2rem; box-shadow: var(--shadow); max-width: 280px; margin: 0 auto; }
+        .demo-screen { background: var(--surface); border-radius: 1.5rem; padding: 1rem; text-align: center; min-height: 350px; }
+        .demo-header { font-weight: 700; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; }
+        .demo-card { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 1rem; border-radius: var(--radius); }
+        .demo-stamps { display: flex; justify-content: center; gap: 0.35rem; margin: 0.75rem 0; font-size: 1.5rem; }
+        .demo-stamp { opacity: 0.2; transition: all 0.3s; cursor: default; }
+        .demo-stamp.filled { opacity: 1; transform: scale(1.1); animation: popIn 0.3s ease; }
+        .demo-progress { background: rgba(255,255,255,0.3); border-radius: 10px; height: 8px; margin: 0.5rem 0; overflow: hidden; }
+        .demo-progress-bar { background: #FFD700; height: 100%; width: 0%; border-radius: 10px; transition: width 0.4s ease; }
+        .demo-counter { color: rgba(255,255,255,0.9); font-size: 0.9rem; font-weight: 600; }
+        .demo-reward { color: #FFD700; font-weight: 700; font-size: 1rem; margin-top: 0.5rem; display: none; animation: pulse 0.8s infinite; }
+        .demo-reward.show { display: block; }
+        .demo-reward-count { font-size: 1.5rem; font-weight: 700; color: #FFD700; }
+        .demo-buttons { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; justify-content: center; }
+        .demo-btn { padding: 0.4rem 0.75rem; border-radius: 20px; border: none; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .demo-btn-stamp { background: #FFD700; color: #000; }
+        .demo-btn-stamp:hover { background: #FFC107; transform: scale(1.05); }
+        .demo-btn-redeem { background: #4CAF50; color: white; }
+        .demo-btn-redeem:hover { background: #388E3C; transform: scale(1.05); }
+        .demo-btn-redeem:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        .demo-btn-reset { background: rgba(255,255,255,0.3); color: white; }
+        .demo-btn-reset:hover { background: rgba(255,255,255,0.5); }
+        .demo-label { font-size: 0.65rem; color: #888; margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1.1); } }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .demo-confetti { position: absolute; font-size: 1rem; animation: confettiFall 1s ease forwards; pointer-events: none; z-index: 10; }
+        @keyframes confettiFall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(-80px) rotate(360deg); opacity: 0; } }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="nav-brand">
-            <span class="logo">☕</span>
-            <span>LoyaltySip</span>
-        </div>
+        <div class="nav-brand"><span class="logo">☕</span><span>LoyaltySip</span></div>
         <div class="nav-links" id="navLinks">
             <a href="customer-register.html" class="btn btn-primary">☕ Join Loyalty</a>
             <a href="customer-dashboard.html" class="btn btn-outline">My Card</a>
@@ -71,21 +83,31 @@
             </div>         
         </div>
         <div class="hero-visual">
-            <div class="phone-mockup">
-                <div class="phone-screen">
-                    <div class="mock-header">☕ Customer</div>
-                    <div class="mock-card">
-                        <div class="mock-stamps animated-stamps">
-                            <span class="stamp stamp-1">☕</span>
-                            <span class="stamp stamp-2">☕</span>
-                            <span class="stamp stamp-3">☕</span>
-                            <span class="stamp stamp-4">☕</span>
-                            <span class="stamp stamp-5">☕</span>
-                            <span class="stamp stamp-6">☕</span>
-                        </div>
-                        <p class="mock-counter"><span class="count">0</span> / 6 stamps</p>
-                        <p class="mock-reward hidden">🎁 Free Drink Earned!</p>
+            <!-- INTERACTIVE DEMO -->
+            <div class="demo-phone" id="demoPhone">
+                <div class="demo-screen">
+                    <div class="demo-header">
+                        <span>☕ Demo Card</span>
+                        <span style="font-size:0.7rem; color:#888;">Try it!</span>
                     </div>
+                    <div class="demo-card">
+                        <p style="font-size:0.85rem; opacity:0.9;">👤 Demo Customer</p>
+                        <p style="font-size:0.7rem; opacity:0.7;">#DEMO-001</p>
+                        <div class="demo-stamps" id="demoStamps">
+                            <span class="demo-stamp">☕</span><span class="demo-stamp">☕</span><span class="demo-stamp">☕</span>
+                            <span class="demo-stamp">☕</span><span class="demo-stamp">☕</span><span class="demo-stamp">☕</span>
+                        </div>
+                        <div class="demo-progress"><div class="demo-progress-bar" id="demoProgress"></div></div>
+                        <p class="demo-counter"><span id="demoCount">0</span> / 6 stamps</p>
+                        <p class="demo-reward" id="demoRewardMsg">🎁 Free Drink Earned!</p>
+                        <p style="font-size:0.85rem; margin-top:0.25rem;">🎁 Rewards: <span class="demo-reward-count" id="demoRewards">0</span></p>
+                    </div>
+                    <div class="demo-buttons">
+                        <button class="demo-btn demo-btn-stamp" onclick="demoAddStamp()">☕ Add Stamp</button>
+                        <button class="demo-btn demo-btn-redeem" id="demoRedeemBtn" disabled onclick="demoRedeem()">🎁 Redeem</button>
+                        <button class="demo-btn demo-btn-reset" onclick="demoReset()">🔄 Reset</button>
+                    </div>
+                    <p class="demo-label">🖱️ Click buttons to try the demo!</p>
                 </div>
             </div>
         </div>
@@ -115,71 +137,93 @@
         </div>
     </section>
 
-    <footer class="footer">
-        <p>© 2026 LoyaltySip. Built for cafés, by cafés.</p>
-    </footer>
+    <footer class="footer"><p>© 2026 LoyaltySip. Built for cafés, by cafés.</p></footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script>
-        // Dropdown toggle
-        function toggleDropdown() {
-            document.getElementById('dropdownMenu').classList.toggle('show');
-        }
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.dropdown')) {
-                document.getElementById('dropdownMenu').classList.remove('show');
-            }
-        });
-
-        // Show dashboard button if logged in
+        function toggleDropdown() { document.getElementById('dropdownMenu').classList.toggle('show'); }
+        document.addEventListener('click', function(e) { if (!e.target.closest('.dropdown')) document.getElementById('dropdownMenu').classList.remove('show'); });
         if (typeof supabase !== 'undefined') {
             supabase.auth.getSession().then(({ data: { session } }) => {
                 if (session) {
-                    const navLinks = document.getElementById('navLinks');
-                    // Replace "For Shops" dropdown with Dashboard button
-                    const dropdown = navLinks.querySelector('.dropdown');
-                    if (dropdown) {
-                        dropdown.outerHTML = '<a href="dashboard.html" class="btn btn-primary">📊 Dashboard</a>';
-                    }
+                    const dropdown = document.getElementById('navLinks').querySelector('.dropdown');
+                    if (dropdown) dropdown.outerHTML = '<a href="dashboard.html" class="btn btn-primary">📊 Dashboard</a>';
                 }
             }).catch(() => {});
         }
-
-        // Animate steps on scroll
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
-        }, { threshold: 0.3 });
+        const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { threshold: 0.3 });
         document.querySelectorAll('.step-card').forEach(card => observer.observe(card));
     </script>
 
+    <!-- Interactive Demo Script -->
     <script>
-        let currentStamp = 0;
-        const totalStamps = 6;
-        function animateStamp() {
-            const stamps = document.querySelectorAll('.animated-stamps .stamp');
-            const counter = document.querySelector('.mock-counter .count');
-            const reward = document.querySelector('.mock-reward');
-            stamps.forEach(s => s.classList.remove('active'));
-            reward.classList.add('hidden');
-            counter.textContent = '0';
-            currentStamp = 0;
-            const interval = setInterval(() => {
-                if (currentStamp < totalStamps) {
-                    stamps[currentStamp].classList.add('active');
-                    currentStamp++;
-                    counter.textContent = currentStamp;
-                    if (currentStamp === totalStamps) {
-                        setTimeout(() => reward.classList.remove('hidden'), 500);
-                    }
-                } else {
-                    clearInterval(interval);
-                    setTimeout(() => animateStamp(), 2500);
-                }
-            }, 500);
+        let demoStamps = 0;
+        let demoRewards = 0;
+        const totalRequired = 6;
+
+        function updateDemoDisplay() {
+            // Update stamps
+            const stamps = document.querySelectorAll('#demoStamps .demo-stamp');
+            stamps.forEach((s, i) => s.classList.toggle('filled', i < demoStamps));
+            // Update counter
+            document.getElementById('demoCount').textContent = demoStamps;
+            // Update progress bar
+            document.getElementById('demoProgress').style.width = (demoStamps / totalRequired * 100) + '%';
+            // Update rewards
+            document.getElementById('demoRewards').textContent = demoRewards;
+            // Update redeem button
+            const redeemBtn = document.getElementById('demoRedeemBtn');
+            redeemBtn.disabled = demoRewards < 1;
+            redeemBtn.textContent = demoRewards > 0 ? `🎁 Redeem (${demoRewards})` : '🎁 Redeem';
+            // Show/hide reward message
+            const rewardMsg = document.getElementById('demoRewardMsg');
+            if (demoRewards > 0) { rewardMsg.classList.add('show'); rewardMsg.textContent = `🎁 ${demoRewards} Reward(s) Available!`; }
+            else rewardMsg.classList.remove('show');
         }
-        animateStamp();
+
+        function spawnConfetti() {
+            const emojis = ['🎉','🎊','☕','⭐','🎁','✨'];
+            const phone = document.getElementById('demoPhone');
+            const rect = phone.getBoundingClientRect();
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const piece = document.createElement('div');
+                    piece.className = 'demo-confetti';
+                    piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    piece.style.left = rect.left + Math.random() * rect.width + 'px';
+                    piece.style.top = rect.top + rect.height * 0.5 + 'px';
+                    document.body.appendChild(piece);
+                    setTimeout(() => piece.remove(), 1000);
+                }, i * 40);
+            }
+        }
+
+        function demoAddStamp() {
+            demoStamps++;
+            if (demoStamps >= totalRequired) {
+                demoStamps = 0;
+                demoRewards++;
+                spawnConfetti();
+            }
+            updateDemoDisplay();
+        }
+
+        function demoRedeem() {
+            if (demoRewards > 0) {
+                demoRewards--;
+                updateDemoDisplay();
+            }
+        }
+
+        function demoReset() {
+            demoStamps = 0;
+            demoRewards = 0;
+            updateDemoDisplay();
+        }
+
+        // Initialize
+        updateDemoDisplay();
     </script>
 </body>
 </html>

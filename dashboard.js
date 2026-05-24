@@ -347,23 +347,46 @@ function updatePreview() {
     const box = document.getElementById('previewBox');
     if (box) box.innerHTML = `<strong>${title || 'No Title'}</strong><br>${msg || 'Your message will appear here...'}`;
 }
-
 async function sendBroadcast() {
+    // PREVENT DOUBLE CLICK
+    const btn = document.querySelector('#broadcast button');
+    if (btn.disabled) return;
+    
     const title = document.getElementById('broadcastTitle')?.value?.trim();
     const message = document.getElementById('broadcastMessage')?.value?.trim();
     
     if (!title || !message) { showToast('Please fill title and message'); return; }
     
+    // DISABLE button immediately
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    
     try {
-        await supabase.from('notifications').insert({ shop_id: currentShop.id, title, message, sent_at: new Date().toISOString() });
+        await supabase.from('notifications').insert({ 
+            shop_id: currentShop.id, 
+            title, 
+            message, 
+            sent_at: new Date().toISOString() 
+        });
+        
         const tg = await sendTelegramBroadcast(title, message, currentShop.id);
         showToast(tg?.sent ? `✅ Sent! (Telegram: ${tg.sent})` : '✅ Saved!', 'success');
+        
         document.getElementById('broadcastTitle').value = '';
         document.getElementById('broadcastMessage').value = '';
         updatePreview();
         loadBroadcasts();
-    } catch (err) { showToast(err.message || 'Failed'); }
+    } catch (err) { 
+        showToast(err.message || 'Failed'); 
+    } finally {
+        // RE-ENABLE button after 2 seconds
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.textContent = 'Send to All Customers';
+        }, 2000);
+    }
 }
+
 async function loadBroadcasts() {
     try {
         const { data } = await supabase

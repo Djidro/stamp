@@ -4,40 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LoyaltySip - Café Loyalty Platform</title>
-   <link rel="stylesheet" href="styles.css">
-
-<!-- iPhone Home Screen -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="LoyaltySip">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
-
-<!-- OneSignal -->
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "2d9447b6-4e16-4dfe-9b0f-3362debfc5f7",
-      safari_web_id: "web.onesignal.auto.4c35e1cb-920a-4e68-be7d-eea8363a1cf4",
-      notifyButton: { 
-        enable: true,
-        size: "large",
-        position: "bottom-right",
-        showCredit: false
-      },
-      promptOptions: {
-        native: {
-          enabled: true,
-          autoPrompt: true,
-          timeDelay: 3
-        }
-      }
-    });
-  });
-</script>
+    <link rel="stylesheet" href="styles.css">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="LoyaltySip">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6F4E37">
+    <style>
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-btn { cursor: pointer; }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: var(--surface);
+            border-radius: var(--radius-sm);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            z-index: 200;
+            min-width: 180px;
+            padding: 0.5rem 0;
+            margin-top: 0.25rem;
+        }
+        .dropdown-menu.show { display: block; }
+        .dropdown-menu a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .dropdown-menu a:hover { background: rgba(111,78,55,0.08); }
+        .nav-links { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -45,12 +46,17 @@
             <span class="logo">☕</span>
             <span>LoyaltySip</span>
         </div>
-               <div class="nav-links">
+        <div class="nav-links" id="navLinks">
             <a href="customer-register.html" class="btn btn-primary">☕ Join Loyalty</a>
             <a href="customer-dashboard.html" class="btn btn-outline">My Card</a>
-            <a href="pricing.html" class="btn btn-outline">💰 Pricing</a>
-            <a href="login.html" class="btn btn-outline">Shop Login</a>
-            <a href="register.html" class="btn btn-outline">Create Shop</a>
+            <div class="dropdown">
+                <button class="btn btn-outline dropdown-btn" onclick="toggleDropdown()">🏪 For Shops ▾</button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="login.html">🔑 Shop Login</a>
+                    <a href="register.html">🆕 Create Shop</a>
+                    <a href="pricing.html">💰 Pricing</a>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -64,9 +70,8 @@
                 <a href="#how-it-works" class="btn btn-large btn-outline">How It Works</a>
             </div>         
         </div>
-             <div class="hero-visual">
+        <div class="hero-visual">
             <div class="phone-mockup">
-            
                 <div class="phone-screen">
                     <div class="mock-header">☕ Customer</div>
                     <div class="mock-card">
@@ -86,83 +91,27 @@
         </div>
     </header>
 
-    <!-- ============================================ -->
-    <!-- HOW IT WORKS - 4 STEPS -->
-    <!-- ============================================ -->
     <section id="how-it-works" class="how-it-works">
         <h2>How It Works</h2>
         <p class="section-subtitle">Simple 4-step process for your customers</p>
-        
         <div class="steps-container">
-            <!-- Step 1 -->
-            <div class="step-card" data-step="1">
-                <div class="step-number">1</div>
-                <div class="step-icon">🙋</div>
-                <h3>Customer Joins</h3>
-                <p>Customer visits your shop link, enters name & phone, and gets a unique loyalty card instantly.</p>
-            </div>
-            
-            <!-- Arrow -->
+            <div class="step-card" data-step="1"><div class="step-number">1</div><div class="step-icon">🙋</div><h3>Customer Joins</h3><p>Customer visits your shop link, enters name & phone, and gets a unique loyalty card instantly.</p></div>
             <div class="step-arrow">→</div>
-            
-            <!-- Step 2 -->
-            <div class="step-card" data-step="2">
-                <div class="step-number">2</div>
-                <div class="step-icon">📷</div>
-                <h3>Staff Scans QR</h3>
-                <p>Your staff opens the scanner, points at the customer's QR code, and identifies them instantly.</p>
-            </div>
-            
-            <!-- Arrow -->
+            <div class="step-card" data-step="2"><div class="step-number">2</div><div class="step-icon">📷</div><h3>Staff Scans QR</h3><p>Your staff opens the scanner, points at the customer's QR code, and identifies them instantly.</p></div>
             <div class="step-arrow">→</div>
-            
-            <!-- Step 3 -->
-            <div class="step-card" data-step="3">
-                <div class="step-number">3</div>
-                <div class="step-icon">☕</div>
-                <h3>Collect Stamps</h3>
-                <p>Each purchase adds a digital stamp. Customers watch their progress toward a free reward!</p>
-            </div>
-            
-            <!-- Arrow -->
+            <div class="step-card" data-step="3"><div class="step-number">3</div><div class="step-icon">☕</div><h3>Collect Stamps</h3><p>Each purchase adds a digital stamp. Customers watch their progress toward a free reward!</p></div>
             <div class="step-arrow">→</div>
-            
-            <!-- Step 4 -->
-            <div class="step-card" data-step="4">
-                <div class="step-number">4</div>
-                <div class="step-icon">🎁</div>
-                <h3>Redeem Rewards</h3>
-                <p>When stamps are complete, customers earn a free drink or reward. Staff redeems with one click!</p>
-            </div>
+            <div class="step-card" data-step="4"><div class="step-number">4</div><div class="step-icon">🎁</div><h3>Redeem Rewards</h3><p>When stamps are complete, customers earn a free drink or reward. Staff redeems with one click!</p></div>
         </div>
     </section>
 
-    <!-- ============================================ -->
-    <!-- FEATURES -->
-    <!-- ============================================ -->
     <section id="features" class="features">
         <h2>Everything You Need</h2>
         <div class="feature-grid">
-            <div class="feature-card">
-                <div class="feature-icon">🏪</div>
-                <h3>Multi-Shop</h3>
-                <p>Each café gets complete data isolation. Your customers are yours alone.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">📱</div>
-                <h3>QR Codes</h3>
-                <p>Every customer gets a unique QR code. Staff scan to add stamps instantly.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">📊</div>
-                <h3>Analytics</h3>
-                <p>Track visits, redemptions, and customer growth in real-time.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">📡</div>
-                <h3>Broadcasts</h3>
-                <p>Send push notifications to all your customers with one click.</p>
-            </div>
+            <div class="feature-card"><div class="feature-icon">🏪</div><h3>Multi-Shop</h3><p>Each café gets complete data isolation. Your customers are yours alone.</p></div>
+            <div class="feature-card"><div class="feature-icon">📱</div><h3>QR Codes</h3><p>Every customer gets a unique QR code. Staff scan to add stamps instantly.</p></div>
+            <div class="feature-card"><div class="feature-icon">📊</div><h3>Analytics</h3><p>Track visits, redemptions, and customer growth in real-time.</p></div>
+            <div class="feature-card"><div class="feature-icon">📡</div><h3>Broadcasts</h3><p>Send push notifications to all your customers with one click.</p></div>
         </div>
     </section>
 
@@ -173,65 +122,56 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script>
+        // Dropdown toggle
+        function toggleDropdown() {
+            document.getElementById('dropdownMenu').classList.toggle('show');
+        }
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                document.getElementById('dropdownMenu').classList.remove('show');
+            }
+        });
+
+        // Show dashboard button if logged in
         if (typeof supabase !== 'undefined') {
             supabase.auth.getSession().then(({ data: { session } }) => {
                 if (session) {
-                    const navLinks = document.querySelector('.nav-links');
-                    if (navLinks && !document.getElementById('dashboardBtn')) {
-                        const dashboardBtn = document.createElement('a');
-                        dashboardBtn.id = 'dashboardBtn';
-                        dashboardBtn.href = 'dashboard.html';
-                        dashboardBtn.className = 'btn btn-primary';
-                        dashboardBtn.textContent = '📊 Dashboard';
-                        navLinks.appendChild(dashboardBtn);
+                    const navLinks = document.getElementById('navLinks');
+                    // Replace "For Shops" dropdown with Dashboard button
+                    const dropdown = navLinks.querySelector('.dropdown');
+                    if (dropdown) {
+                        dropdown.outerHTML = '<a href="dashboard.html" class="btn btn-primary">📊 Dashboard</a>';
                     }
                 }
-            }).catch(err => console.log('Session check skipped'));
-        } else {
-            console.log('ℹ️ Browsing as guest');
+            }).catch(() => {});
         }
 
         // Animate steps on scroll
         const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
         }, { threshold: 0.3 });
-
-        document.querySelectorAll('.step-card').forEach(card => {
-            observer.observe(card);
-        });
+        document.querySelectorAll('.step-card').forEach(card => observer.observe(card));
     </script>
-</body>
-      <!-- Animated Stamps Script -->
+
     <script>
         let currentStamp = 0;
         const totalStamps = 6;
-        
         function animateStamp() {
             const stamps = document.querySelectorAll('.animated-stamps .stamp');
             const counter = document.querySelector('.mock-counter .count');
             const reward = document.querySelector('.mock-reward');
-            
-            // Reset
             stamps.forEach(s => s.classList.remove('active'));
             reward.classList.add('hidden');
             counter.textContent = '0';
             currentStamp = 0;
-            
-            // Animate one by one
             const interval = setInterval(() => {
                 if (currentStamp < totalStamps) {
                     stamps[currentStamp].classList.add('active');
                     currentStamp++;
                     counter.textContent = currentStamp;
-                    
                     if (currentStamp === totalStamps) {
-                        setTimeout(() => {
-                            reward.classList.remove('hidden');
-                        }, 500);
+                        setTimeout(() => reward.classList.remove('hidden'), 500);
                     }
                 } else {
                     clearInterval(interval);
@@ -239,8 +179,7 @@
                 }
             }, 500);
         }
-        
         animateStamp();
     </script>
-</body>  
+</body>
 </html>

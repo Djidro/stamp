@@ -28,9 +28,7 @@
             <div class="pricing-card">
                 <div class="plan-header">
                     <h3>🆓 Trial</h3>
-                    <div class="plan-price">
-                        <span class="amount">Free</span>
-                    </div>
+                    <div class="plan-price"><span class="amount">Free</span></div>
                     <p>15 days trial</p>
                 </div>
                 <ul class="plan-features">
@@ -42,21 +40,16 @@
                     <li>❌ Custom branding</li>
                     <li>❌ Own domain name</li>
                 </ul>
-                <a href="register.html" class="btn btn-outline btn-block btn-large">
-                    Start Free Trial
-                </a>
+                <a href="register.html" class="btn btn-outline btn-block btn-large">Start Free Trial</a>
             </div>
 
             <!-- Monthly Plan (Recommended) -->
             <div class="pricing-card popular">
                 <div class="popular-badge">🌟 Most Popular</div>
+                <div style="text-align:center; margin:0.5rem 0; color:#4CAF50; font-weight:600; font-size:0.85rem;">🔒 7-Day Money Back Guarantee</div>
                 <div class="plan-header">
                     <h3>💳 Monthly</h3>
-                    <div class="plan-price">
-                        <span class="currency">OMR</span>
-                        <span class="amount">10</span>
-                        <span class="period">/month</span>
-                    </div>
+                    <div class="plan-price"><span class="currency">OMR</span><span class="amount">10</span><span class="period">/month</span></div>
                     <p>For growing cafés</p>
                 </div>
                 <ul class="plan-features">
@@ -68,20 +61,14 @@
                     <li>✅ Customer visit history</li>
                     <li>✅ Priority WhatsApp support</li>
                 </ul>
-                <button onclick="selectPlan('monthly', 10)" class="btn btn-primary btn-block btn-large">
-                    Choose Monthly
-                </button>
+                <button onclick="selectPlan('monthly', 10)" class="btn btn-primary btn-block btn-large">Choose Monthly</button>
             </div>
 
             <!-- Own Brand Plan -->
             <div class="pricing-card">
                 <div class="plan-header">
                     <h3>🏢 Own Brand</h3>
-                    <div class="plan-price">
-                        <span class="currency">OMR</span>
-                        <span class="amount">90</span>
-                        <span class="period">/year</span>
-                    </div>
+                    <div class="plan-price"><span class="currency">OMR</span><span class="amount">90</span><span class="period">/year</span></div>
                     <p>Your own loyalty platform</p>
                 </div>
                 <ul class="plan-features">
@@ -93,12 +80,43 @@
                     <li>✅ Multi-staff accounts</li>
                     <li>✅ Dedicated phone support</li>
                 </ul>
-                <button onclick="selectPlan('ownbrand', 90)" class="btn btn-primary btn-block btn-large">
-                    Choose Own Brand
-                </button>
+                <button onclick="selectPlan('ownbrand', 90)" class="btn btn-primary btn-block btn-large">Choose Own Brand</button>
             </div>
         </div>
     </section>
+
+    <!-- FAQ Section -->
+    <section style="max-width:800px; margin:3rem auto; padding:0 1rem;">
+        <h2 style="text-align:center; margin-bottom:2rem; color:var(--primary-dark);">❓ Frequently Asked Questions</h2>
+        
+        <div style="background:var(--surface); padding:1.5rem; border-radius:12px; margin-bottom:1rem; box-shadow:var(--shadow);">
+            <h4 style="color:var(--primary);">🔄 Can I switch plans later?</h4>
+            <p style="color:var(--text-light); margin-top:0.5rem;">Yes! Upgrade or downgrade anytime. Changes apply immediately.</p>
+        </div>
+        <div style="background:var(--surface); padding:1.5rem; border-radius:12px; margin-bottom:1rem; box-shadow:var(--shadow);">
+            <h4 style="color:var(--primary);">💳 What payment methods do you accept?</h4>
+            <p style="color:var(--text-light); margin-top:0.5rem;">Bank transfer (Bank Muscat) or Thawani mobile wallet.</p>
+        </div>
+        <div style="background:var(--surface); padding:1.5rem; border-radius:12px; margin-bottom:1rem; box-shadow:var(--shadow);">
+            <h4 style="color:var(--primary);">🆓 Is there really a free trial?</h4>
+            <p style="color:var(--text-light); margin-top:0.5rem;">Yes! 15 days free, no payment required. Cancel anytime.</p>
+        </div>
+        <div style="background:var(--surface); padding:1.5rem; border-radius:12px; margin-bottom:1rem; box-shadow:var(--shadow);">
+            <h4 style="color:var(--primary);">📱 Do customers need to download an app?</h4>
+            <p style="color:var(--text-light); margin-top:0.5rem;">No! Everything works in the browser. No app install needed.</p>
+        </div>
+        <div style="background:var(--surface); padding:1.5rem; border-radius:12px; margin-bottom:1rem; box-shadow:var(--shadow);">
+            <h4 style="color:var(--primary);">🔒 Is my data safe?</h4>
+            <p style="color:var(--text-light); margin-top:0.5rem;">Yes! Each shop's data is completely isolated. Your customers are yours alone.</p>
+        </div>
+    </section>
+
+    <!-- Contact Us Section -->
+    <div style="text-align:center; margin:2rem auto; padding:2rem; max-width:600px; background:linear-gradient(135deg,#faf7f2,#e8dfd0); border-radius:12px;">
+        <h3 style="color:var(--primary-dark);">🏢 Need a custom plan?</h3>
+        <p style="color:var(--text-light); margin-bottom:1rem;">Multiple locations? Large customer base? We'll create a plan for you.</p>
+        <a href="mailto:nadjibaharera@gmail.com" class="btn btn-outline btn-large">📧 Contact Us</a>
+    </div>
 
     <!-- Payment Modal -->
     <div id="paymentModal" class="modal hidden">
@@ -108,34 +126,16 @@
             
             <div class="payment-info">
                 <h4>🏦 Bank Transfer Details:</h4>
-                
                 <div class="bank-details">
-                    <div class="detail-row">
-                        <span class="detail-label">Bank:</span>
-                        <span class="detail-value">Bank Muscat</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Account Name:</span>
-                        <span class="detail-value">[Your Full Name]</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Account Number:</span>
-                        <span class="detail-value copyable" onclick="copyText(this)">[Your Account Number]</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Amount:</span>
-                        <span class="detail-value amount-due" id="amountDue"></span>
-                    </div>
+                    <div class="detail-row"><span class="detail-label">Bank:</span><span class="detail-value">Bank Muscat</span></div>
+                    <div class="detail-row"><span class="detail-label">Account Name:</span><span class="detail-value">[Your Full Name]</span></div>
+                    <div class="detail-row"><span class="detail-label">Account Number:</span><span class="detail-value copyable" onclick="copyText(this)">[Your Account Number]</span></div>
+                    <div class="detail-row"><span class="detail-label">Amount:</span><span class="detail-value amount-due" id="amountDue"></span></div>
                 </div>
-
                 <div class="or-divider"><span>OR</span></div>
-
                 <h4>📱 Mobile Wallet:</h4>
                 <div class="bank-details">
-                    <div class="detail-row">
-                        <span class="detail-label">Thawani / Phone:</span>
-                        <span class="detail-value copyable" onclick="copyText(this)">[Your Phone Number]</span>
-                    </div>
+                    <div class="detail-row"><span class="detail-label">Thawani / Phone:</span><span class="detail-value copyable" onclick="copyText(this)">[Your Phone Number]</span></div>
                 </div>
             </div>
 
@@ -143,21 +143,14 @@
                 <h4>📸 Upload Payment Screenshot</h4>
                 <p class="help-text">Take a screenshot of your transfer</p>
                 <input type="file" id="receiptUpload" accept="image/*" onchange="previewReceipt(event)">
-                <div id="receiptPreview" class="receipt-preview hidden">
-                    <img id="receiptImage" src="" alt="Receipt">
-                </div>
+                <div id="receiptPreview" class="receipt-preview hidden"><img id="receiptImage" src="" alt="Receipt"></div>
             </div>
 
             <div class="modal-actions">
                 <button onclick="closePaymentModal()" class="btn btn-outline">Cancel</button>
-                <button onclick="submitPayment()" class="btn btn-primary" id="submitPaymentBtn">
-                    I've Paid - Submit
-                </button>
+                <button onclick="submitPayment()" class="btn btn-primary" id="submitPaymentBtn">I've Paid - Submit</button>
             </div>
-            
-            <p style="text-align:center; margin-top:1rem; color:#888; font-size:0.9rem;">
-                ⚡ Activated within 24 hours after verification
-            </p>
+            <p style="text-align:center; margin-top:1rem; color:#888; font-size:0.9rem;">⚡ Activated within 24 hours after verification</p>
         </div>
     </div>
 
@@ -169,9 +162,7 @@
             <p>Your receipt is being verified.</p>
             <p style="color:#888;">You'll get confirmation within 24 hours.</p>
             <p style="font-weight:600;">15-day trial starts now!</p>
-            <button onclick="goToDashboard()" class="btn btn-primary btn-block" style="margin-top:1rem;">
-                Go to Dashboard
-            </button>
+            <button onclick="goToDashboard()" class="btn btn-primary btn-block" style="margin-top:1rem;">Go to Dashboard</button>
         </div>
     </div>
 
@@ -184,7 +175,6 @@
     <script>
         let selectedPlan = null;
         let selectedAmount = 0;
-        const plans = { trial: 0, monthly: 10, ownbrand: 90 };
 
         function selectPlan(plan, amount) {
             supabase.auth.getSession().then(({ data: { session } }) => {
@@ -193,21 +183,15 @@
                     window.location.href = 'register.html';
                     return;
                 }
-                
                 selectedPlan = plan;
                 selectedAmount = amount;
-                
-                document.getElementById('selectedPlanName').textContent = 
-                    plan === 'ownbrand' ? 'Own Brand Plan' : 
-                    plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan';
+                document.getElementById('selectedPlanName').textContent = plan === 'ownbrand' ? 'Own Brand Plan' : plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan';
                 document.getElementById('amountDue').textContent = 'OMR ' + amount;
                 document.getElementById('paymentModal').classList.remove('hidden');
             });
         }
 
-        function closePaymentModal() {
-            document.getElementById('paymentModal').classList.add('hidden');
-        }
+        function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
 
         function previewReceipt(event) {
             const file = event.target.files[0];
@@ -224,11 +208,7 @@
         async function submitPayment() {
             const fileInput = document.getElementById('receiptUpload');
             const file = fileInput.files[0];
-            
-            if (!file) {
-                alert('Please upload payment receipt');
-                return;
-            }
+            if (!file) { alert('Please upload payment receipt'); return; }
             
             const btn = document.getElementById('submitPaymentBtn');
             btn.disabled = true;
@@ -236,39 +216,25 @@
             
             try {
                 const { data: { session } } = await supabase.auth.getSession();
-                
                 const fileName = `receipts/${session.user.id}/${Date.now()}.jpg`;
-                const { error: uploadError } = await supabase.storage
-                    .from('receipts')
-                    .upload(fileName, file);
-                
+                const { error: uploadError } = await supabase.storage.from('receipts').upload(fileName, file);
                 if (uploadError) throw uploadError;
                 
-                const { data: { publicUrl } } = supabase.storage
-                    .from('receipts')
-                    .getPublicUrl(fileName);
+                const { data: { publicUrl } } = supabase.storage.from('receipts').getPublicUrl(fileName);
                 
                 await supabase.from('payments').insert({
-                    shop_id: session.user.id,
-                    plan: selectedPlan,
-                    amount: selectedAmount,
-                    receipt_url: publicUrl,
-                    status: 'pending',
-                    created_at: new Date().toISOString()
+                    shop_id: session.user.id, plan: selectedPlan, amount: selectedAmount,
+                    receipt_url: publicUrl, status: 'pending', created_at: new Date().toISOString()
                 });
                 
                 const trialEnd = new Date();
                 trialEnd.setDate(trialEnd.getDate() + 15);
-                
                 await supabase.from('shops').update({
-                    plan: selectedPlan,
-                    trial_ends_at: trialEnd.toISOString(),
-                    payment_status: 'pending'
+                    plan: selectedPlan, trial_ends_at: trialEnd.toISOString(), payment_status: 'pending'
                 }).eq('id', session.user.id);
                 
                 document.getElementById('paymentModal').classList.add('hidden');
                 document.getElementById('successModal').classList.remove('hidden');
-                
             } catch (err) {
                 console.error('Error:', err);
                 alert('Error: ' + err.message);
@@ -277,9 +243,7 @@
             }
         }
 
-        function goToDashboard() {
-            window.location.href = 'dashboard.html';
-        }
+        function goToDashboard() { window.location.href = 'dashboard.html'; }
 
         function copyText(element) {
             navigator.clipboard.writeText(element.textContent).then(() => {

@@ -7,119 +7,29 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        /* Professional History & Messages */
         .timeline { position: relative; padding-left: 25px; }
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 8px;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: linear-gradient(to bottom, #6F4E37, #D4A574);
-            border-radius: 2px;
-        }
-        .timeline-item {
-            position: relative;
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            background: #faf7f2;
-            border-radius: 10px;
-            animation: slideIn 0.4s ease;
-        }
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -21px;
-            top: 15px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 2px solid #6F4E37;
-            background: white;
-        }
+        .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #6F4E37, #D4A574); border-radius: 2px; }
+        .timeline-item { position: relative; padding: 0.75rem; margin-bottom: 0.5rem; background: #faf7f2; border-radius: 10px; animation: slideIn 0.4s ease; }
+        .timeline-item::before { content: ''; position: absolute; left: -21px; top: 15px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #6F4E37; background: white; }
         .timeline-item.stamp::before { background: #6F4E37; border-color: #6F4E37; }
         .timeline-item.redeem::before { background: #FFD700; border-color: #DAA520; }
-        .timeline-date {
-            font-size: 0.7rem;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.25rem;
-        }
-        .timeline-action {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-        }
-        .timeline-icon {
-            font-size: 1.5rem;
-            animation: popIn 0.3s ease;
-        }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes popIn {
-            from { transform: scale(0); }
-            to { transform: scale(1); }
-        }
-
-        /* Chat-style Messages */
-        .message-bubble {
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.5rem;
-            border-radius: 12px;
-            position: relative;
-            animation: slideIn 0.4s ease;
-        }
-        .message-bubble.shop {
-            background: linear-gradient(135deg, #6F4E37, #8B6914);
-            color: white;
-            margin-right: 10px;
-            border-bottom-left-radius: 4px;
-        }
-        .message-bubble.shop .message-title {
-            color: #FFD700;
-            font-weight: 700;
-            font-size: 0.9rem;
-            margin-bottom: 0.25rem;
-        }
-        .message-bubble.shop .message-text {
-            font-size: 0.9rem;
-            opacity: 0.95;
-        }
-        .message-bubble.shop .message-time {
-            color: rgba(255,255,255,0.7);
-            font-size: 0.7rem;
-            margin-top: 0.25rem;
-        }
-        .unread-badge {
-            display: inline-block;
-            background: #f44336;
-            color: white;
-            font-size: 0.65rem;
-            padding: 0.15rem 0.5rem;
-            border-radius: 10px;
-            margin-left: 0.5rem;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%,100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-        .empty-state {
-            text-align: center;
-            padding: 2rem 1rem;
-            color: #999;
-        }
-        .empty-state .empty-icon {
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 0.5rem;
-            opacity: 0.5;
-        }
+        .timeline-date { font-size: 0.7rem; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; }
+        .timeline-action { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; }
+        .timeline-icon { font-size: 1.5rem; animation: popIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+        .message-bubble { padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 12px; position: relative; animation: slideIn 0.4s ease; }
+        .message-bubble.shop { background: linear-gradient(135deg, #6F4E37, #8B6914); color: white; margin-right: 10px; border-bottom-left-radius: 4px; }
+        .message-bubble.shop .message-title { color: #FFD700; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .message-bubble.shop .message-text { font-size: 0.9rem; opacity: 0.95; }
+        .message-bubble.shop .message-time { color: rgba(255,255,255,0.7); font-size: 0.7rem; margin-top: 0.25rem; }
+        .unread-badge { display: inline-block; background: #f44336; color: white; font-size: 0.65rem; padding: 0.15rem 0.5rem; border-radius: 10px; margin-left: 0.5rem; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .empty-state { text-align: center; padding: 2rem 1rem; color: #999; }
+        .empty-state .empty-icon { font-size: 3rem; display: block; margin-bottom: 0.5rem; opacity: 0.5; }
+        @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes confetti { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(-100px) rotate(360deg); opacity: 0; } }
+        .confetti-piece { position: fixed; font-size: 1.5rem; animation: confetti 1s ease forwards; z-index: 999; pointer-events: none; }
     </style>
 </head>
 <body class="customer-page">
@@ -127,10 +37,7 @@
     
     <div class="customer-container">
         <div id="loginSection" class="loyalty-card">
-            <div class="card-header">
-                <h2>☕ My Loyalty Card</h2>
-                <p>Enter your details to view your card</p>
-            </div>
+            <div class="card-header"><h2>☕ My Loyalty Card</h2><p>Enter your details to view your card</p></div>
             <div class="card-body">
                 <div class="form-group"><label>Customer Code</label><input type="text" id="loginCode" placeholder="e.g., RB-001"></div>
                 <div class="form-group"><label>Phone Number</label><input type="tel" id="loginPhone" placeholder="Your phone number"></div>
@@ -140,17 +47,11 @@
         </div>
         
         <div id="cardSection" class="loyalty-card hidden">
-            <div class="card-header">
-                <h2 id="shopName">Loading...</h2>
-                <p>Digital Loyalty Card</p>
-            </div>
+            <div class="card-header"><h2 id="shopName">Loading...</h2><p>Digital Loyalty Card</p></div>
             <div class="card-body">
                 <div class="customer-info" style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
                     <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#6F4E37,#D4A574);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:white;">👤</div>
-                    <div>
-                        <h3 id="customerName" style="margin:0;">...</h3>
-                        <p id="customerCode" style="margin:0;font-size:0.85rem;color:#888;">...</p>
-                    </div>
+                    <div><h3 id="customerName" style="margin:0;">...</h3><p id="customerCode" style="margin:0;font-size:0.85rem;color:#888;">...</p></div>
                 </div>
                 
                 <div class="qr-section" style="background:#fff; padding:1.5rem; border-radius:12px; margin:1rem 0; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
@@ -160,17 +61,12 @@
                 
                 <div style="text-align:center; margin:1rem 0; padding:1rem; background:linear-gradient(135deg,#e8f5e9,#c8e6c9); border-radius:8px;">
                     <p style="font-weight:600; margin:0 0 0.5rem 0;">📱 Get updates on Telegram!</p>
-                    <a href="https://t.me/LoyaltySip_Bot" id="telegramLink" target="_blank" 
-                       style="display:inline-block; background:#0088cc; color:white; padding:0.75rem 1.5rem; border-radius:8px; text-decoration:none; font-weight:600;">
-                        🤖 Connect on Telegram
-                    </a>
+                    <a href="https://t.me/LoyaltySip_Bot" id="telegramLink" target="_blank" style="display:inline-block; background:#0088cc; color:white; padding:0.75rem 1.5rem; border-radius:8px; text-decoration:none; font-weight:600;">🤖 Connect on Telegram</a>
                 </div>
                 
                 <div class="stamps-section" style="background:#faf7f2; padding:1rem; border-radius:10px; margin:1rem 0;">
                     <h4 style="margin:0 0 0.5rem 0;">☕ Stamps Progress</h4>
-                    <div style="background:#e0d5c8; border-radius:20px; height:12px; margin:0.5rem 0; overflow:hidden;">
-                        <div id="stampProgressBar" style="background:linear-gradient(90deg,#6F4E37,#D4A574); height:100%; width:0%; border-radius:20px; transition:width 0.5s ease;"></div>
-                    </div>
+                    <div style="background:#e0d5c8; border-radius:20px; height:12px; margin:0.5rem 0; overflow:hidden;"><div id="stampProgressBar" style="background:linear-gradient(90deg,#6F4E37,#D4A574); height:100%; width:0%; border-radius:20px; transition:width 0.5s ease;"></div></div>
                     <div class="stamps-grid" id="stampsGrid" style="margin:0.5rem 0;"></div>
                     <p class="stamps-text" style="font-weight:700; color:#6F4E37;"><span id="stampCount">0</span> / <span id="stampTarget">6</span> stamps</p>
                 </div>
@@ -196,10 +92,10 @@
     </div>
 
     <div id="toast" class="toast hidden"></div>
-        <!-- Stamp Notification Popup -->
+    
     <div id="stampPopup" class="modal hidden">
         <div class="modal-content" style="text-align:center; max-width:350px; animation:bounceIn 0.5s ease;">
-            <span style="font-size:4rem; display:block; animation:popIn 0.3s ease;">☕</span>
+            <span style="font-size:4rem; display:block;">☕</span>
             <h2 style="color:#6F4E37; margin:0.5rem 0;">Stamp Added!</h2>
             <p id="popupMessage" style="font-size:1.1rem; margin:0.5rem 0;"></p>
             <div id="popupStamps" style="font-size:2rem; letter-spacing:0.25rem; margin:0.75rem 0;"></div>
@@ -207,6 +103,7 @@
             <button onclick="closeStampPopup()" class="btn btn-primary" style="margin-top:0.5rem;">🎉 Awesome!</button>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script>
@@ -222,122 +119,96 @@
         }
         
         function getTimeAgo(date) {
-            const now = new Date();
-            const diff = now - new Date(date);
-            const mins = Math.floor(diff / 60000);
-            const hours = Math.floor(diff / 3600000);
-            const days = Math.floor(diff / 86400000);
-            if (mins < 1) return 'Just now';
-            if (mins < 60) return `${mins}m ago`;
-            if (hours < 24) return `${hours}h ago`;
-            if (days === 1) return 'Yesterday';
+            const now = new Date(); const diff = now - new Date(date);
+            const mins = Math.floor(diff / 60000); const hours = Math.floor(diff / 3600000); const days = Math.floor(diff / 86400000);
+            if (mins < 1) return 'Just now'; if (mins < 60) return `${mins}m ago`;
+            if (hours < 24) return `${hours}h ago`; if (days === 1) return 'Yesterday';
             if (days < 7) return `${days}d ago`;
             return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         }
         
         async function loadCustomerCard(code, phone) {
             try {
-                const { data: customer, error } = await supabase
-                    .from('customers')
-                    .select('*, shops(shop_name, settings, id)')
-                    .eq('customer_code', code).eq('phone', phone).single();
-                
+                const { data: customer, error } = await supabase.from('customers').select('*, shops(shop_name, settings, id)').eq('customer_code', code).eq('phone', phone).single();
                 if (error || !customer) { showToast('Customer not found'); return; }
-                
-                localStorage.setItem('customerCode', code);
-                localStorage.setItem('customerPhone', phone);
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('cardSection').classList.remove('hidden');
-                
+                localStorage.setItem('customerCode', code); localStorage.setItem('customerPhone', phone);
+                document.getElementById('loginSection').classList.add('hidden'); document.getElementById('cardSection').classList.remove('hidden');
                 const shop = customer.shops;
                 document.getElementById('shopName').textContent = shop.shop_name;
                 document.getElementById('customerName').textContent = customer.name;
                 document.getElementById('customerCode').textContent = '#' + customer.customer_code;
-                
-                const telegramLink = document.getElementById('telegramLink');
-                if (telegramLink) telegramLink.href = `https://t.me/LoyaltySip_Bot?start=${customer.customer_code}`;
-                
-                const qrContainer = document.getElementById('customerQR');
-                qrContainer.innerHTML = '';
+                document.getElementById('telegramLink').href = `https://t.me/LoyaltySip_Bot?start=${customer.customer_code}`;
+                const qrContainer = document.getElementById('customerQR'); qrContainer.innerHTML = '';
                 new QRCode(qrContainer, { text: JSON.stringify({ customer: customer.id, shop: shop.id }), width: 200, height: 200, colorDark: '#6F4E37', colorLight: '#FFFFFF' });
-                
-                const required = shop.settings?.stamps_required || 6;
-                const stamps = customer.stamps || 0;
+                const required = shop.settings?.stamps_required || 6; const stamps = customer.stamps || 0;
                 document.getElementById('stampTarget').textContent = required;
                 document.getElementById('stampCount').textContent = stamps;
                 document.getElementById('stampsGrid').innerHTML = Array.from({length: required}, (_, i) => `<span style="font-size:1.5rem; transition:all 0.3s; opacity:${i < stamps ? '1' : '0.2'}; transform:scale(${i < stamps ? '1.1' : '0.9'});">☕</span>`).join('');
                 document.getElementById('stampProgressBar').style.width = (stamps / required * 100) + '%';
                 document.getElementById('rewardCount').textContent = customer.free_rewards || 0;
-                
-                loadVisitHistory(customer.id);
-                loadMessages(shop.id);
+                loadVisitHistory(customer.id); loadMessages(shop.id);
+                lastStampCount = stamps;
+                if (stampCheckInterval) clearInterval(stampCheckInterval);
+                stampCheckInterval = setInterval(() => checkForNewStamps(customer.id), 10000);
             } catch (err) { console.error(err); showToast('Could not load card'); }
         }
         
         async function loadVisitHistory(customerId) {
             try {
                 const { data: visits } = await supabase.from('visits').select('action, created_at').eq('customer_id', customerId).order('created_at', { ascending: false }).limit(20);
-                const container = document.getElementById('visitHistory');
-                const countBadge = document.getElementById('activityCount');
-                
-                if (!visits?.length) {
-                    container.innerHTML = '<div class="empty-state"><span class="empty-icon">☕</span><p>No visits yet</p><p style="font-size:0.8rem;">Visit your coffee shop to earn stamps!</p></div>';
-                    return;
-                }
-                
-                countBadge.style.display = 'inline-block';
-                countBadge.textContent = visits.length;
-                
+                const container = document.getElementById('visitHistory'); const countBadge = document.getElementById('activityCount');
+                if (!visits?.length) { container.innerHTML = '<div class="empty-state"><span class="empty-icon">☕</span><p>No visits yet</p><p style="font-size:0.8rem;">Visit your coffee shop to earn stamps!</p></div>'; return; }
+                countBadge.style.display = 'inline-block'; countBadge.textContent = visits.length;
                 let html = '<div class="timeline">';
                 visits.forEach((v, i) => {
                     const isStamp = v.action === 'stamp' || v.action === 'stamp_reward';
-                    const icon = isStamp ? '☕' : '🎁';
-                    const type = isStamp ? 'stamp' : 'redeem';
-                    const text = isStamp ? 'Stamp collected' : 'Reward redeemed';
-                    const timeAgo = getTimeAgo(v.created_at);
-                    html += `
-                        <div class="timeline-item ${type}" style="animation-delay:${i * 0.05}s">
-                            <div class="timeline-date">${timeAgo}</div>
-                            <div class="timeline-action">
-                                <span class="timeline-icon">${icon}</span>
-                                <span>${text}</span>
-                            </div>
-                        </div>`;
+                    html += `<div class="timeline-item ${isStamp ? 'stamp' : 'redeem'}" style="animation-delay:${i * 0.05}s"><div class="timeline-date">${getTimeAgo(v.created_at)}</div><div class="timeline-action"><span class="timeline-icon">${isStamp ? '☕' : '🎁'}</span><span>${isStamp ? 'Stamp collected' : 'Reward redeemed'}</span></div></div>`;
                 });
-                html += '</div>';
-                container.innerHTML = html;
+                html += '</div>'; container.innerHTML = html;
             } catch (err) { document.getElementById('visitHistory').innerHTML = '<div class="empty-state"><span class="empty-icon">⚠️</span><p>Error loading</p></div>'; }
         }
         
         async function loadMessages(shopId) {
             try {
                 const { data } = await supabase.from('notifications').select('title, message, sent_at').eq('shop_id', shopId).order('sent_at', { ascending: false }).limit(5);
-                const container = document.getElementById('shopMessages');
-                const badge = document.getElementById('unreadBadge');
-                
-                if (!data?.length) {
-                    container.innerHTML = '<div class="empty-state"><span class="empty-icon">📡</span><p>No messages yet</p><p style="font-size:0.8rem;">Shop broadcasts will appear here</p></div>';
-                    return;
-                }
-                
+                const container = document.getElementById('shopMessages'); const badge = document.getElementById('unreadBadge');
+                if (!data?.length) { container.innerHTML = '<div class="empty-state"><span class="empty-icon">📡</span><p>No messages yet</p></div>'; return; }
                 badge.style.display = 'inline-block';
-                
-                let html = '';
-                data.forEach((m, i) => {
-                    const timeAgo = getTimeAgo(m.sent_at);
-                    html += `
-                        <div class="message-bubble shop" style="animation-delay:${i * 0.05}s">
-                            <div class="message-title">📢 ${m.title}</div>
-                            <div class="message-text">${m.message}</div>
-                            <div class="message-time">${timeAgo}</div>
-                        </div>`;
-                });
+                let html = ''; data.forEach((m, i) => { html += `<div class="message-bubble shop" style="animation-delay:${i * 0.05}s"><div class="message-title">📢 ${m.title}</div><div class="message-text">${m.message}</div><div class="message-time">${getTimeAgo(m.sent_at)}</div></div>`; });
                 container.innerHTML = html;
             } catch (err) { document.getElementById('shopMessages').innerHTML = '<div class="empty-state"><span class="empty-icon">⚠️</span><p>Error loading</p></div>'; }
         }
         
         function logoutCustomer() { localStorage.removeItem('customerCode'); localStorage.removeItem('customerPhone'); location.reload(); }
         function showToast(message, type = 'error') { const t = document.getElementById('toast'); t.textContent = message; t.className = `toast ${type}`; setTimeout(() => t.className = 'toast hidden', 3000); }
+
+        // ============================================
+        // STAMP POPUP
+        // ============================================
+        let lastStampCount = 0; let stampCheckInterval = null;
+        function showStampPopup(stamps, required, isReward) {
+            document.getElementById('popupMessage').innerHTML = isReward ? '🎉 <b>Congratulations!</b><br>You earned a <b>free reward!</b>' : '☕ <b>Stamp collected!</b>';
+            document.getElementById('popupProgress').textContent = isReward ? 'Visit your shop to redeem!' : `${stamps}/${required} - ${required - stamps} more to earn a reward!`;
+            document.getElementById('popupStamps').innerHTML = isReward ? '🎁' : Array.from({length: required}, (_, i) => `<span style="opacity:${i < stamps ? '1' : '0.3'}">☕</span>`).join('');
+            document.getElementById('stampPopup').classList.remove('hidden');
+            if (isReward) { const emojis = ['🎉','🎊','☕','⭐','🎁','✨']; for (let i=0;i<20;i++) { setTimeout(() => { const p=document.createElement('div'); p.className='confetti-piece'; p.textContent=emojis[Math.floor(Math.random()*emojis.length)]; p.style.left=Math.random()*100+'%'; p.style.top='80%'; document.body.appendChild(p); setTimeout(()=>p.remove(),1500); }, i*50); } }
+            setTimeout(() => closeStampPopup(), 4000);
+        }
+        function closeStampPopup() { document.getElementById('stampPopup').classList.add('hidden'); }
+        async function checkForNewStamps(customerId) {
+            try {
+                const { data } = await supabase.from('customers').select('stamps, free_rewards').eq('id', customerId).single();
+                if (data && data.stamps !== lastStampCount && lastStampCount > 0) {
+                    const required = parseInt(document.getElementById('stampTarget').textContent) || 6;
+                    showStampPopup(data.stamps, required, data.free_rewards > 0);
+                    document.getElementById('stampCount').textContent = data.stamps;
+                    document.getElementById('stampsGrid').innerHTML = Array.from({length: required}, (_, i) => `<span style="font-size:1.5rem; opacity:${i < data.stamps ? '1' : '0.2'}">☕</span>`).join('');
+                    document.getElementById('stampProgressBar').style.width = (data.stamps / required * 100) + '%';
+                    document.getElementById('rewardCount').textContent = data.free_rewards || 0;
+                }
+                if (data) lastStampCount = data.stamps;
+            } catch (err) {}
+        }
     </script>
 </body>
 </html>

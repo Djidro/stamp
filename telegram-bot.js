@@ -22,11 +22,8 @@ async function sendTelegramMessage(chatId, text) {
         return null;
     }
 }
-
-// Send broadcast to ALL customers via Telegram
 async function sendTelegramBroadcast(title, message, shopId) {
     try {
-        // Get all customers of this shop who have Telegram
         const { data: customers } = await supabase
             .from('customers')
             .select('id, name, telegram_chat_id')
@@ -34,19 +31,32 @@ async function sendTelegramBroadcast(title, message, shopId) {
             .not('telegram_chat_id', 'is', null);
 
         if (!customers?.length) {
-            console.log('No Telegram subscribers for this shop');
+            console.log('No Telegram subscribers');
             return { sent: 0 };
         }
 
-        const fullMessage = `📢 <b>${title}</b>\n\n${message}\n\n🏪 From: LoyaltySip`;
-        let sent = 0;
-
-        for (const customer of customers) {
-            const result = await sendTelegramMessage(customer.telegram_chat_id, fullMessage);
-            if (result?.ok) sent++;
+        // 🔧 DEDUPLICATE by chat_id
+        const unique = [];
+        const seen = new Set();
+        for (const c of customers) {
+            if (!seen.has(c.telegram_chat_id)) {
+                seen.add(c.telegram_chat_id);
+                unique.push(c);
+            }
         }
 
-        return { sent, total: customers.length };
+        const fullMessage = `📢 <b>${title}</b>\n\n${message}`;
+        let sent = 0;
+
+        // Send ONE at a time with delay to avoid rate limits
+        for (const customer of unique) {
+            const result = await sendTelegramMessage(customer.telegram_chat_id, fullMessage);
+            if (result?.ok) sent++;
+            await new Promise(r => setTimeout(r, 500)); // 0.5 second delay
+        }
+
+        console.log(`📊 Sent to ${sent}/${unique.length} customers`);
+        return { sent, total: unique.length };
     } catch (err) {
         console.error('Telegram broadcast error:', err);
         return { sent: 0, error: err.message };

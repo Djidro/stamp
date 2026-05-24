@@ -14,17 +14,23 @@
     <style>
         .dropdown { position: relative; display: inline-block; }
         .dropdown-btn { cursor: pointer; }
-        .dropdown-menu {
-            display: none; position: absolute; right: 0; top: 100%;
-            background: var(--surface); border-radius: var(--radius-sm);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15); z-index: 200;
-            min-width: 180px; padding: 0.5rem 0; margin-top: 0.25rem;
-        }
+        .dropdown-menu { display: none; position: absolute; right: 0; top: 100%; background: var(--surface); border-radius: var(--radius-sm); box-shadow: 0 8px 30px rgba(0,0,0,0.15); z-index: 200; min-width: 180px; padding: 0.5rem 0; margin-top: 0.25rem; }
         .dropdown-menu.show { display: block; }
         .dropdown-menu a { display: block; padding: 0.75rem 1rem; color: var(--text); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
         .dropdown-menu a:hover { background: rgba(111,78,55,0.08); }
         .nav-links { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-        
+
+        /* Dark mode toggle */
+        .theme-toggle { background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 0.25rem; min-width: 44px; min-height: 44px; }
+
+        /* Gradient sections */
+        .section-alt { background: linear-gradient(135deg, #faf7f2 0%, #f0e6d8 100%); }
+        [data-theme="dark"] .section-alt { background: linear-gradient(135deg, #1a1a2e 0%, #1a1410 100%); }
+
+        /* Smooth section transitions */
+        .section-fade { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
+        .section-fade.visible { opacity: 1; transform: translateY(0); }
+
         /* Interactive Demo */
         .demo-phone { background: var(--primary); padding: 0.75rem; border-radius: 2rem; box-shadow: var(--shadow); max-width: 280px; margin: 0 auto; }
         .demo-screen { background: var(--surface); border-radius: 1.5rem; padding: 1rem; text-align: center; min-height: 350px; }
@@ -42,17 +48,26 @@
         .demo-buttons { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; justify-content: center; }
         .demo-btn { padding: 0.4rem 0.75rem; border-radius: 20px; border: none; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         .demo-btn-stamp { background: #FFD700; color: #000; }
-        .demo-btn-stamp:hover { background: #FFC107; transform: scale(1.05); }
         .demo-btn-redeem { background: #4CAF50; color: white; }
-        .demo-btn-redeem:hover { background: #388E3C; transform: scale(1.05); }
-        .demo-btn-redeem:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        .demo-btn-redeem:disabled { background: #ccc; cursor: not-allowed; }
         .demo-btn-reset { background: rgba(255,255,255,0.3); color: white; }
-        .demo-btn-reset:hover { background: rgba(255,255,255,0.5); }
         .demo-label { font-size: 0.65rem; color: #888; margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px; }
         @keyframes popIn { from { transform: scale(0); } to { transform: scale(1.1); } }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
         .demo-confetti { position: absolute; font-size: 1rem; animation: confettiFall 1s ease forwards; pointer-events: none; z-index: 10; }
         @keyframes confettiFall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(-80px) rotate(360deg); opacity: 0; } }
+
+        /* Footer columns */
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; max-width: 1000px; margin: 0 auto; padding: 2rem 1rem; text-align: left; }
+        .footer-col h4 { color: var(--primary); margin-bottom: 0.75rem; font-size: 1rem; }
+        .footer-col a { display: block; color: var(--text-light); text-decoration: none; font-size: 0.85rem; padding: 0.25rem 0; }
+        .footer-col a:hover { color: var(--primary); }
+        .footer-bottom { text-align: center; padding: 1rem; border-top: 1px solid var(--border); color: var(--text-light); font-size: 0.8rem; }
+
+        @media (max-width: 480px) {
+            .demo-phone { max-width: 240px; }
+            .demo-screen { min-height: 300px; padding: 0.75rem; }
+        }
     </style>
 </head>
 <body>
@@ -69,6 +84,7 @@
                     <a href="pricing.html">💰 Pricing</a>
                 </div>
             </div>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
         </div>
     </nav>
 
@@ -83,13 +99,9 @@
             </div>         
         </div>
         <div class="hero-visual">
-            <!-- INTERACTIVE DEMO -->
             <div class="demo-phone" id="demoPhone">
                 <div class="demo-screen">
-                    <div class="demo-header">
-                        <span> Live Preview</span>
-                        <span style="font-size:0.7rem; color:#888;">Try it!</span>
-                    </div>
+                    <div class="demo-header"><span>☕ Live Preview</span><span style="font-size:0.7rem; color:#888;">Try it!</span></div>
                     <div class="demo-card">
                         <p style="font-size:0.85rem; opacity:0.9;">👤 Guest Customer</p>
                         <p style="font-size:0.7rem; opacity:0.7;">#COFFEE-001</p>
@@ -107,13 +119,13 @@
                         <button class="demo-btn demo-btn-redeem" id="demoRedeemBtn" disabled onclick="demoRedeem()">🎁 Redeem</button>
                         <button class="demo-btn demo-btn-reset" onclick="demoReset()">🔄 Reset</button>
                     </div>
-                    <p class="demo-label"> Tap to see how it works!</p>
+                    <p class="demo-label">👇 Tap to see how it works!</p>
                 </div>
             </div>
         </div>
     </header>
 
-    <section id="how-it-works" class="how-it-works">
+    <section id="how-it-works" class="how-it-works section-alt section-fade">
         <h2>How It Works</h2>
         <p class="section-subtitle">Simple 4-step process for your customers</p>
         <div class="steps-container">
@@ -127,7 +139,7 @@
         </div>
     </section>
 
-    <section id="features" class="features">
+    <section id="features" class="features section-fade">
         <h2>Everything You Need</h2>
         <div class="feature-grid">
             <div class="feature-card"><div class="feature-icon">🏪</div><h3>Multi-Shop</h3><p>Each café gets complete data isolation. Your customers are yours alone.</p></div>
@@ -137,13 +149,64 @@
         </div>
     </section>
 
-    <footer class="footer"><p>© 2026 LoyaltySip. Built for cafés, by cafés.</p></footer>
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>☕ LoyaltySip</h4>
+                <p style="color:var(--text-light); font-size:0.85rem;">Digital loyalty cards for cafés. Built for cafés, by cafés.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="customer-register.html">Join Loyalty</a>
+                <a href="pricing.html">Pricing</a>
+                <a href="#how-it-works">How It Works</a>
+            </div>
+            <div class="footer-col">
+                <h4>For Shops</h4>
+                <a href="login.html">Shop Login</a>
+                <a href="register.html">Create Shop</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="scanner.html">QR Scanner</a>
+            </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <a href="mailto:nadjibaharera@gmail.com">📧 Email Us</a>
+                <a href="https://t.me/LoyaltySip_Bot">🤖 Telegram Bot</a>
+                <p style="color:var(--text-light); font-size:0.8rem; margin-top:0.5rem;">📍 Muscat, Oman</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 LoyaltySip. All rights reserved. Built with ☕ in Oman.</p>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script>
+        // Dropdown
         function toggleDropdown() { document.getElementById('dropdownMenu').classList.toggle('show'); }
         document.addEventListener('click', function(e) { if (!e.target.closest('.dropdown')) document.getElementById('dropdownMenu').classList.remove('show'); });
+        
+        // Dark Mode Toggle
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            updateThemeIcon();
+        }
+        function updateThemeIcon() {
+            const theme = document.documentElement.getAttribute('data-theme') || 'light';
+            const icon = document.querySelector('.theme-toggle');
+            if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon();
+
+        // Dashboard button for logged in shops
         if (typeof supabase !== 'undefined') {
             supabase.auth.getSession().then(({ data: { session } }) => {
                 if (session) {
@@ -152,31 +215,33 @@
                 }
             }).catch(() => {});
         }
-        const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { threshold: 0.3 });
-        document.querySelectorAll('.step-card').forEach(card => observer.observe(card));
+
+        // Smooth section transitions
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.section-fade').forEach(s => sectionObserver.observe(s));
+
+        // Step cards animation
+        const stepObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        }, { threshold: 0.3 });
+        document.querySelectorAll('.step-card').forEach(card => stepObserver.observe(card));
     </script>
 
     <!-- Interactive Demo Script -->
     <script>
-        let demoStamps = 0;
-        let demoRewards = 0;
+        let demoStamps = 0, demoRewards = 0;
         const totalRequired = 6;
 
         function updateDemoDisplay() {
-            // Update stamps
-            const stamps = document.querySelectorAll('#demoStamps .demo-stamp');
-            stamps.forEach((s, i) => s.classList.toggle('filled', i < demoStamps));
-            // Update counter
+            document.querySelectorAll('#demoStamps .demo-stamp').forEach((s, i) => s.classList.toggle('filled', i < demoStamps));
             document.getElementById('demoCount').textContent = demoStamps;
-            // Update progress bar
             document.getElementById('demoProgress').style.width = (demoStamps / totalRequired * 100) + '%';
-            // Update rewards
             document.getElementById('demoRewards').textContent = demoRewards;
-            // Update redeem button
             const redeemBtn = document.getElementById('demoRedeemBtn');
             redeemBtn.disabled = demoRewards < 1;
             redeemBtn.textContent = demoRewards > 0 ? `🎁 Redeem (${demoRewards})` : '🎁 Redeem';
-            // Show/hide reward message
             const rewardMsg = document.getElementById('demoRewardMsg');
             if (demoRewards > 0) { rewardMsg.classList.add('show'); rewardMsg.textContent = `🎁 ${demoRewards} Reward(s) Available!`; }
             else rewardMsg.classList.remove('show');
@@ -184,8 +249,7 @@
 
         function spawnConfetti() {
             const emojis = ['🎉','🎊','☕','⭐','🎁','✨'];
-            const phone = document.getElementById('demoPhone');
-            const rect = phone.getBoundingClientRect();
+            const phone = document.getElementById('demoPhone'), rect = phone.getBoundingClientRect();
             for (let i = 0; i < 15; i++) {
                 setTimeout(() => {
                     const piece = document.createElement('div');
@@ -199,30 +263,9 @@
             }
         }
 
-        function demoAddStamp() {
-            demoStamps++;
-            if (demoStamps >= totalRequired) {
-                demoStamps = 0;
-                demoRewards++;
-                spawnConfetti();
-            }
-            updateDemoDisplay();
-        }
-
-        function demoRedeem() {
-            if (demoRewards > 0) {
-                demoRewards--;
-                updateDemoDisplay();
-            }
-        }
-
-        function demoReset() {
-            demoStamps = 0;
-            demoRewards = 0;
-            updateDemoDisplay();
-        }
-
-        // Initialize
+        function demoAddStamp() { demoStamps++; if (demoStamps >= totalRequired) { demoStamps = 0; demoRewards++; spawnConfetti(); } updateDemoDisplay(); }
+        function demoRedeem() { if (demoRewards > 0) { demoRewards--; updateDemoDisplay(); } }
+        function demoReset() { demoStamps = 0; demoRewards = 0; updateDemoDisplay(); }
         updateDemoDisplay();
     </script>
 </body>

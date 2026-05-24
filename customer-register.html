@@ -22,7 +22,7 @@
                     <select id="shopSelect" required>
                         <option value="">⏳ Loading shops...</option>
                     </select>
-                    <button type="button" onclick="loadShops()" style="font-size:0.75rem; background:none; border:none; color:#6F4E37; cursor:pointer; text-decoration:underline;">🔄 Refresh</button>
+                    <button type="button" onclick="shopsLoaded=false; loadShops();" style="font-size:0.75rem; background:none; border:none; color:#6F4E37; cursor:pointer; text-decoration:underline;">🔄 Refresh</button>
                 </div>
                 
                 <div class="form-group">
@@ -50,58 +50,29 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <script>
-    let isSubmitting = false;
+        let isSubmitting = false;
+        let shopsLoaded = false;
 
-    // Auto-retry loading shops
-    async function loadShops(retries = 5) {
-        const select = document.getElementById('shopSelect');
-        if (!select) return;
-        select.innerHTML = '<option value="">⏳ Loading...</option>';
-        
-        // Wait for Supabase to be ready
-        if (typeof supabase === 'undefined') {
-            if (retries > 0) {
-                console.log('⏳ Waiting for Supabase...');
-                await new Promise(r => setTimeout(r, 1000));
-                return loadShops(retries - 1);
-            }
-            select.innerHTML = '<option value="">⚠️ Refresh page</option>';
-            return;
-        }
-        
-        try {
-            const { data: shops, error } = await supabase
-                .from('shops')
-                .select('id, shop_name')
-                .order('shop_name')
-                .limit(50);
+        async function loadShops() {
+            const select = document.getElementById('shopSelect');
+            if (!select || shopsLoaded) return;
             
-            if (error) throw error;
+            select.innerHTML = '<option value="">⏳ Loading...</option>';
             
-            if (!shops || shops.length === 0) {
-                select.innerHTML = '<option value="">No shops yet</option>';
-                return;
-            }
-            
-            select.innerHTML = '<option value="">Choose a shop...</option>';
-            shops.forEach(shop => {
-                const opt = document.createElement('option');
-                opt.value = shop.id;
-                opt.textContent = shop.shop_name;
-                select.appendChild(opt);
-            });
-            console.log('✅ ' + shops.length + ' shops loaded');
-            
-            // Save to cache for next time
-            localStorage.setItem('shopsCache', JSON.stringify(shops));
-            localStorage.setItem('shopsCacheTime', Date.now());
-            
-        } catch (err) {
-            console.error('Error:', err);
-            // Try loading from cache
-            const cached = localStorage.getItem('shopsCache');
-            if (cached) {
-                const shops = JSON.parse(cached);
+            try {
+                const { data: shops, error } = await supabase
+                    .from('shops')
+                    .select('id, shop_name')
+                    .order('shop_name')
+                    .limit(50);
+                
+                if (error) throw error;
+                
+                if (!shops || shops.length === 0) {
+                    select.innerHTML = '<option value="">No shops yet</option>';
+                    return;
+                }
+                
                 select.innerHTML = '<option value="">Choose a shop...</option>';
                 shops.forEach(shop => {
                     const opt = document.createElement('option');
@@ -109,16 +80,22 @@
                     opt.textContent = shop.shop_name;
                     select.appendChild(opt);
                 });
-                console.log('⚡ Loaded from cache');
-            } else {
-                select.innerHTML = '<option value="">⚠️ Tap refresh</option>';
+                
+                shopsLoaded = true;
+                console.log('✅ ' + shops.length + ' shops loaded');
+                
+            } catch (err) {
+                console.error('Error:', err);
+                select.innerHTML = '<option value="">⚠️ Error - Tap refresh</option>';
             }
         }
-    }
 
-    // Start loading immediately
-    loadShops();
-
+        // Call ONCE after Supabase is ready
+        setTimeout(() => {
+            if (typeof supabase !== 'undefined') {
+                loadShops();
+            }
+        }, 500);
     // Also load when DOM is ready
     window.addEventListener('DOMContentLoaded', () => {
         loadShops();

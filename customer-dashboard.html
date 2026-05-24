@@ -195,9 +195,9 @@
             setTimeout(() => closeStampPopup(), 4000);
         }
         function closeStampPopup() { document.getElementById('stampPopup').classList.add('hidden'); }
-              async function checkForNewStamps(customerId) {
+                async function checkForNewStamps(customerId) {
             try {
-                console.log('🔍 Checking for new stamps...');
+                console.log('🔍 Checking...');
                 const { data } = await supabase
                     .from('customers')
                     .select('stamps, free_rewards')
@@ -209,22 +209,30 @@
                     const newRewards = data.free_rewards || 0;
                     const required = parseInt(document.getElementById('stampTarget').textContent) || 6;
                     
-                    console.log(`📊 Last: ${lastStampCount}, New: ${newStamps}`);
+                    // Get OLD values from display
+                    const oldStamps = parseInt(document.getElementById('stampCount').textContent) || 0;
+                    const oldRewards = parseInt(document.getElementById('rewardCount').textContent) || 0;
+                    
+                    console.log(`📊 Stamps: ${oldStamps}→${newStamps}, Rewards: ${oldRewards}→${newRewards}`);
 
-                    if (newStamps > lastStampCount) {
-                        console.log('🎉 New stamp detected!');
-                        const isReward = newRewards > 0 && newStamps >= required;
-                        
-                        // Update display
-                        document.getElementById('stampCount').textContent = newStamps;
-                        document.getElementById('stampsGrid').innerHTML = Array.from({length: required}, (_, i) => 
-                            `<span style="font-size:1.5rem; opacity:${i < newStamps ? '1' : '0.2'}">☕</span>`
-                        ).join('');
-                        document.getElementById('stampProgressBar').style.width = (newStamps / required * 100) + '%';
-                        document.getElementById('rewardCount').textContent = newRewards;
-                        
-                        // Show popup
-                        showStampPopup(newStamps, required, isReward);
+                    // Update display FIRST
+                    document.getElementById('stampCount').textContent = newStamps;
+                    document.getElementById('stampsGrid').innerHTML = Array.from({length: required}, (_, i) => 
+                        `<span style="font-size:1.5rem; opacity:${i < newStamps ? '1' : '0.2'}">☕</span>`
+                    ).join('');
+                    document.getElementById('stampProgressBar').style.width = (newStamps / required * 100) + '%';
+                    document.getElementById('rewardCount').textContent = newRewards;
+
+                    // 🎉 New stamp detected
+                    if (newStamps > oldStamps && oldStamps > 0) {
+                        // Check if this stamp completed a reward
+                        if (newRewards > oldRewards) {
+                            console.log('🎁 REWARD EARNED!');
+                            showStampPopup(newStamps, required, true);
+                        } else {
+                            console.log('☕ Stamp added');
+                            showStampPopup(newStamps, required, false);
+                        }
                     }
                     
                     lastStampCount = newStamps;
@@ -232,7 +240,7 @@
             } catch (err) {
                 console.error('Check error:', err);
             }
-        }
+        } 
     </script>
 </body>
 </html>

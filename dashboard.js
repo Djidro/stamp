@@ -347,21 +347,27 @@ function updatePreview() {
     const box = document.getElementById('previewBox');
     if (box) box.innerHTML = `<strong>${title || 'No Title'}</strong><br>${msg || 'Your message will appear here...'}`;
 }
+
 async function sendBroadcast() {
-    // PREVENT DOUBLE CLICK
-    const btn = document.querySelector('#broadcast button');
+    const btn = document.getElementById('broadcastBtn');
+    
+    // PREVENT double click
     if (btn.disabled) return;
     
     const title = document.getElementById('broadcastTitle')?.value?.trim();
     const message = document.getElementById('broadcastMessage')?.value?.trim();
     
-    if (!title || !message) { showToast('Please fill title and message'); return; }
+    if (!title || !message) { 
+        showToast('Please fill title and message'); 
+        return; 
+    }
     
-    // DISABLE button immediately
+    // DISABLE immediately
     btn.disabled = true;
     btn.textContent = 'Sending...';
     
     try {
+        // Save ONE notification
         await supabase.from('notifications').insert({ 
             shop_id: currentShop.id, 
             title, 
@@ -369,24 +375,26 @@ async function sendBroadcast() {
             sent_at: new Date().toISOString() 
         });
         
+        // Send ONE Telegram broadcast
         const tg = await sendTelegramBroadcast(title, message, currentShop.id);
-        showToast(tg?.sent ? `✅ Sent! (Telegram: ${tg.sent})` : '✅ Saved!', 'success');
+        
+        showToast(tg?.sent ? `✅ Sent to ${tg.sent} customers!` : '✅ Saved!', 'success');
         
         document.getElementById('broadcastTitle').value = '';
         document.getElementById('broadcastMessage').value = '';
         updatePreview();
         loadBroadcasts();
+        
     } catch (err) { 
         showToast(err.message || 'Failed'); 
     } finally {
-        // RE-ENABLE button after 2 seconds
+        // Re-enable after 3 seconds
         setTimeout(() => {
             btn.disabled = false;
             btn.textContent = 'Send to All Customers';
-        }, 2000);
+        }, 3000);
     }
 }
-
 async function loadBroadcasts() {
     try {
         const { data } = await supabase

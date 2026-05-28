@@ -172,18 +172,50 @@
                 html += '</div>'; container.innerHTML = html;
             } catch (err) { document.getElementById('visitHistory').innerHTML = '<div class="empty-state"><span class="empty-icon">⚠️</span><p>Error loading</p></div>'; }
         }
-        
-        async function loadMessages(shopId) {
+                async function loadMessages(shopId) {
             try {
-                const { data } = await supabase.from('notifications').select('title, message, sent_at').eq('shop_id', shopId).order('sent_at', { ascending: false }).limit(5);
-                const container = document.getElementById('shopMessages'); const badge = document.getElementById('unreadBadge');
-                if (!data?.length) { container.innerHTML = '<div class="empty-state"><span class="empty-icon">📡</span><p>No messages yet</p></div>'; return; }
+                const { data } = await supabase
+                    .from('notifications')
+                    .select('title, message, sent_at')
+                    .eq('shop_id', shopId)
+                    .order('sent_at', { ascending: false })
+                    .limit(20); // Get more so we can filter
+                
+                const container = document.getElementById('shopMessages');
+                const badge = document.getElementById('unreadBadge');
+                
+                // 🔥 FILTER: Only show messages from last 3 days
+                const threeDaysAgo = new Date();
+                threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+                
+                const recentMessages = data?.filter(m => {
+                    const msgDate = new Date(m.sent_at);
+                    return msgDate >= threeDaysAgo;
+                }) || [];
+                
+                if (!recentMessages.length) {
+                    container.innerHTML = '<div class="empty-state"><span class="empty-icon">📡</span><p>No recent messages</p><p style="font-size:0.8rem;">Messages older than 3 days are automatically removed</p></div>';
+                    badge.style.display = 'none';
+                    return;
+                }
+                
                 badge.style.display = 'inline-block';
-                let html = ''; data.forEach((m, i) => { html += `<div class="message-bubble shop" style="animation-delay:${i * 0.05}s"><div class="message-title">📢 ${m.title}</div><div class="message-text">${m.message}</div><div class="message-time">${getTimeAgo(m.sent_at)}</div></div>`; });
+                badge.textContent = recentMessages.length;
+                
+                let html = '';
+                recentMessages.slice(0, 5).forEach((m, i) => {
+                    html += `<div class="message-bubble shop" style="animation-delay:${i * 0.05}s">
+                        <div class="message-title">📢 ${m.title}</div>
+                        <div class="message-text">${m.message}</div>
+                        <div class="message-time">${getTimeAgo(m.sent_at)} • Auto-deletes after 3 days</div>
+                    </div>`;
+                });
                 container.innerHTML = html;
-            } catch (err) { document.getElementById('shopMessages').innerHTML = '<div class="empty-state"><span class="empty-icon">⚠️</span><p>Error loading</p></div>'; }
+                
+            } catch (err) {
+                document.getElementById('shopMessages').innerHTML = '<div class="empty-state"><span class="empty-icon">⚠️</span><p>Error loading</p></div>';
+            }
         }
-        
         function logoutCustomer() { localStorage.removeItem('customerCode'); localStorage.removeItem('customerPhone'); location.reload(); }
         function showToast(message, type = 'error') { const t = document.getElementById('toast'); t.textContent = message; t.className = `toast ${type}`; setTimeout(() => t.className = 'toast hidden', 3000); }
 

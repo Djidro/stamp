@@ -147,11 +147,16 @@
             
             const prefix = shop.shop_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 3);
             const code = prefix + '-' + String((count || 0) + 1).padStart(3, '0');
+                        // Check if referral - start with 1 bonus stamp
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+            const bonusStamps = refCode ? 1 : 0;
             
             const { error } = await supabase.from('customers').insert({
                 shop_id: shopId, customer_code: code, name, phone,
-                stamps: 0, free_rewards: 0, total_visits: 0
+                stamps: bonusStamps, free_rewards: 0, total_visits: 0
             });
+            
             
             if (error) throw error;
             
@@ -159,7 +164,20 @@
             localStorage.setItem('customerPhone', phone);
             showToast('Welcome! 🎉', 'success');
             setTimeout(() => location.href = 'customer-dashboard.html', 800);
-            
+                        
+            // 👥 Give +1 stamp to referrer
+            if (refCode) {
+                const { data: referrer } = await supabase
+                    .from('customers')
+                    .select('id, stamps')
+                    .eq('customer_code', refCode)
+                    .single();
+                if (referrer) {
+                    await supabase.from('customers')
+                        .update({ stamps: (referrer.stamps || 0) + 1 })
+                        .eq('id', referrer.id);
+                }
+            }
         } catch (err) {
             console.error(err);
             showToast(err.message || 'Failed');

@@ -126,11 +126,15 @@
                 .eq('phone', phone)
                 .maybeSingle();
             
-            if (existing) {
+                      if (existing) {
                 localStorage.setItem('customerCode', existing.customer_code);
                 localStorage.setItem('customerPhone', phone);
                 showToast('Welcome back! 🎉', 'success');
-                setTimeout(() => location.href = 'customer-dashboard.html', 800);
+                // Open Telegram too for returning customers
+                setTimeout(() => {
+                    window.open(`https://t.me/LoyaltySip_Bot?start=${existing.customer_code}`, '_blank');
+                    setTimeout(() => location.href = 'customer-dashboard.html', 500);
+                }, 800);
                 return;
             }
             
@@ -162,8 +166,12 @@
             
             localStorage.setItem('customerCode', code);
             localStorage.setItem('customerPhone', phone);
-            showToast('Welcome! 🎉', 'success');
-            setTimeout(() => location.href = 'customer-dashboard.html', 800);
+                        showToast('Welcome! 🎉 Connect to Telegram for updates!', 'success');
+            // Redirect to Telegram bot first, then dashboard
+            setTimeout(() => {
+                window.open(`https://t.me/LoyaltySip_Bot?start=${code}`, '_blank');
+                setTimeout(() => location.href = 'customer-dashboard.html', 500);
+            }, 800);
                         
             // 👥 Give +1 stamp to referrer
             if (refCode) {

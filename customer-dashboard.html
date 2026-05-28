@@ -63,7 +63,12 @@
                     <p style="font-weight:600; margin:0 0 0.5rem 0;">📱 Get updates on Telegram!</p>
                     <a href="https://t.me/LoyaltySip_Bot" id="telegramLink" target="_blank" style="display:inline-block; background:#0088cc; color:white; padding:0.75rem 1.5rem; border-radius:8px; text-decoration:none; font-weight:600;">🤖 Connect on Telegram</a>
                 </div>
-                
+                                <!-- 👥 Invite Friend -->
+                <div style="text-align:center; margin:1rem 0; padding:1rem; background:linear-gradient(135deg,#fff3e0,#ffe0b2); border-radius:8px;">
+                    <p style="font-weight:600; margin:0 0 0.5rem 0;">👥 Invite a Friend!</p>
+                    <p style="font-size:0.8rem; color:#666; margin-bottom:0.5rem;">Both get <strong>+1 free stamp</strong> when they join!</p>
+                    <button onclick="inviteFriend()" class="btn btn-sm btn-primary" style="background:#FF9800; border:none;">📤 Share Invite</button>
+                </div>
                 <div class="stamps-section" style="background:#faf7f2; padding:1rem; border-radius:10px; margin:1rem 0;">
                     <h4 style="margin:0 0 0.5rem 0;">☕ Stamps Progress</h4>
                     <div style="background:#e0d5c8; border-radius:20px; height:12px; margin:0.5rem 0; overflow:hidden;"><div id="stampProgressBar" style="background:linear-gradient(90deg,#6F4E37,#D4A574); height:100%; width:0%; border-radius:20px; transition:width 0.5s ease;"></div></div>
@@ -239,6 +244,18 @@
                 }
             } catch (err) {
                 console.error('Check error:', err);
+            }
+        } 
+               // 👥 Invite Friend
+        function inviteFriend() {
+            const shopName = document.getElementById('shopName').textContent;
+            const code = document.getElementById('customerCode').textContent.replace('#', '');
+            const link = `https://djidro.github.io/stamp/customer-register.html?ref=${code}`;
+            const text = `☕ Join me at ${shopName} and we both get a FREE stamp!\n\n👉 ${link}\n\nJoin the loyalty program! 🎉`;
+            if (navigator.share) {
+                navigator.share({ title: `Join ${shopName} Loyalty`, text: text, url: link }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(text).then(() => showToast('✅ Link copied! Share with friends!', 'success')).catch(() => {});
             }
         } 
     </script>

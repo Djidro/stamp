@@ -7,39 +7,27 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
-        /* Animated Scan Line */
         .scanner-wrapper { position: relative; overflow: hidden; }
         .scan-line {
             position: absolute; left: 10%; width: 80%; height: 3px;
             background: linear-gradient(90deg, transparent, #00e676, transparent);
             box-shadow: 0 0 15px #00e676, 0 0 40px #00e676;
-            z-index: 10; animation: scanMove 2s ease-in-out infinite;
-            border-radius: 2px; pointer-events: none;
+            z-index: 10; animation: scanMove 2s ease-in-out infinite; border-radius: 2px; pointer-events: none;
         }
-        @keyframes scanMove {
-            0% { top: 10%; opacity: 0; }
-            20% { opacity: 1; }
-            80% { opacity: 1; }
-            100% { top: 85%; opacity: 0; }
-        }
-        /* Green Success Flash */
-        .success-flash {
-            position: fixed; inset: 0; background: rgba(0, 230, 118, 0.3);
-            z-index: 999; animation: flashGreen 0.6s ease forwards; pointer-events: none;
-        }
-        @keyframes flashGreen {
-            0% { opacity: 1; } 100% { opacity: 0; }
-        }
-        /* Scan frame corners */
+        @keyframes scanMove { 0% { top: 10%; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { top: 85%; opacity: 0; } }
+        .success-flash { position: fixed; inset: 0; background: rgba(0, 230, 118, 0.3); z-index: 999; animation: flashGreen 0.6s ease forwards; pointer-events: none; }
+        @keyframes flashGreen { 0% { opacity: 1; } 100% { opacity: 0; } }
         .scan-frame { position: absolute; inset: 15%; pointer-events: none; z-index: 5; }
-        .scan-corner {
-            position: absolute; width: 30px; height: 30px; border-color: #00e676;
-            border-style: solid; border-width: 0;
-        }
+        .scan-corner { position: absolute; width: 30px; height: 30px; border-color: #00e676; border-style: solid; border-width: 0; }
         .scan-corner.top-left { top: 0; left: 0; border-top-width: 4px; border-left-width: 4px; border-radius: 8px 0 0 0; }
         .scan-corner.top-right { top: 0; right: 0; border-top-width: 4px; border-right-width: 4px; border-radius: 0 8px 0 0; }
         .scan-corner.bottom-left { bottom: 0; left: 0; border-bottom-width: 4px; border-left-width: 4px; border-radius: 0 0 0 8px; }
         .scan-corner.bottom-right { bottom: 0; right: 0; border-bottom-width: 4px; border-right-width: 4px; border-radius: 0 0 8px 0; }
+        .customer-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin: 0.75rem 0; }
+        .mini-stat { background: #faf7f2; padding: 0.5rem; border-radius: 8px; text-align: center; }
+        .mini-stat .stat-num { font-size: 1.2rem; font-weight: 700; color: #6F4E37; }
+        .mini-stat .stat-lbl { font-size: 0.65rem; color: #888; text-transform: uppercase; }
+        .greeting { font-size: 0.9rem; color: #6F4E37; font-weight: 600; margin-bottom: 0.5rem; }
     </style>
 </head>
 <body class="scanner-page">
@@ -49,27 +37,31 @@
             <h1>Scan Customer QR</h1>
         </div>
 
-        <div id="loadingMessage" style="text-align:center; padding:2rem;">
-            <p>📷 Starting camera...</p>
-        </div>
+        <div id="loadingMessage" style="text-align:center; padding:2rem;"><p>📷 Starting camera...</p></div>
 
         <div class="scanner-wrapper" id="scannerWrapper" style="display:none;">
             <div id="reader" style="width:100%; max-width:400px; margin:0 auto;"></div>
             <div class="scan-line" id="scanLine"></div>
             <div class="scan-frame">
-                <div class="scan-corner top-left"></div>
-                <div class="scan-corner top-right"></div>
-                <div class="scan-corner bottom-left"></div>
-                <div class="scan-corner bottom-right"></div>
+                <div class="scan-corner top-left"></div><div class="scan-corner top-right"></div>
+                <div class="scan-corner bottom-left"></div><div class="scan-corner bottom-right"></div>
             </div>
         </div>
 
         <div id="scanResult" class="scan-result hidden">
             <div class="customer-found">
+                <div class="greeting" id="greetingText"></div>
                 <h3>👤 <span id="scannedName">Customer</span></h3>
-                <div class="stamp-display">
-                    <span id="currentStamps">0</span> / <span id="requiredStamps">6</span> stamps
+                <p style="font-size:0.8rem; color:#888;" id="memberSince"></p>
+                
+                <div class="customer-stats">
+                    <div class="mini-stat"><div class="stat-num" id="totalVisitsStat">0</div><div class="stat-lbl">Total Visits</div></div>
+                    <div class="mini-stat"><div class="stat-num" id="lastVisitStat">-</div><div class="stat-lbl">Last Visit</div></div>
+                    <div class="mini-stat"><div class="stat-num" id="avgVisitsStat">0</div><div class="stat-lbl">Avg/Week</div></div>
+                    <div class="mini-stat"><div class="stat-num" id="rewardsEarnedStat">0</div><div class="stat-lbl">Rewards Earned</div></div>
                 </div>
+
+                <div class="stamp-display"><span id="currentStamps">0</span> / <span id="requiredStamps">6</span> stamps</div>
                 <div class="stamp-visual" id="stampVisual"></div>
                 <div class="reward-badge hidden" id="rewardBadge">🎁 Reward Available!</div>
             </div>
@@ -79,24 +71,13 @@
                 <button onclick="redeemReward()" class="btn btn-success btn-large" id="redeemBtn">🎁 Redeem Reward</button>
                 <button onclick="scanAgain()" class="btn btn-outline" style="margin-top:0.5rem;">📷 Scan Next</button>
             </div>
-            
-            <!-- 👥 Invite Friend -->
-            <div style="margin-top:1.5rem; padding:1rem; background:#f0f8e8; border-radius:12px; text-align:center;">
-                <p style="font-weight:600; margin:0 0 0.5rem 0;">👥 Invite a Friend!</p>
-                <p style="font-size:0.85rem; color:#666; margin-bottom:0.5rem;">Both get <strong>1 free stamp</strong> when they join!</p>
-                <button onclick="inviteFriend()" class="btn btn-sm btn-outline">📤 Share Invite Link</button>
-            </div>
         </div>
 
         <div id="manualEntry" class="manual-entry">
             <p>Camera not working?</p>
-            <div class="form-group">
-                <input type="text" id="manualCode" placeholder="Enter customer code (e.g. RB-001)">
-                <button onclick="manualLookup()" class="btn btn-outline">Lookup</button>
-            </div>
+            <div class="form-group"><input type="text" id="manualCode" placeholder="Enter customer code (e.g. RB-001)"><button onclick="manualLookup()" class="btn btn-outline">Lookup</button></div>
         </div>
     </div>
-
     <div id="toast" class="toast hidden"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -104,176 +85,135 @@
     <script>
         let html5QrCode = null, currentCustomer = null, shopSettings = { stamps_required: 6 }, currentShop = null, isScanning = false;
         const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vZXdhbnNoZWt6cGpmZ3R5eXp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MjAwMjgsImV4cCI6MjA5NDM5NjAyOH0.AGd2ciUMPt1w4UqHpinJNQni08r0GPP-5-R7z_fvPn4';
-        
-        // 🔊 Scan sound effect
-        function playScanSound() {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
-                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-                oscillator.start(audioCtx.currentTime);
-                oscillator.stop(audioCtx.currentTime + 0.2);
-            } catch (e) {}
-        }
+
+        function playScanSound() { try { const a = new (window.AudioContext||window.webkitAudioContext)(), o = a.createOscillator(), g = a.createGain(); o.connect(g); g.connect(a.destination); o.frequency.setValueAtTime(800,a.currentTime); o.frequency.exponentialRampToValueAtTime(1200,a.currentTime+.1); g.gain.setValueAtTime(.3,a.currentTime); g.gain.exponentialRampToValueAtTime(.01,a.currentTime+.2); o.start(a.currentTime); o.stop(a.currentTime+.2); } catch(e){} }
+        function vibrate() { if (navigator.vibrate) navigator.vibrate([50,30,50]); }
+        function showSuccessFlash() { const f = document.createElement('div'); f.className='success-flash'; document.body.appendChild(f); setTimeout(()=>f.remove(),600); }
+
+        function getGreeting() { const h = new Date().getHours(); if (h<12) return '🌅 Good Morning'; if (h<17) return '☀️ Good Afternoon'; return '🌙 Good Evening'; }
+        function getTimeAgo(date) { const diff = (new Date()-new Date(date))/60000; if (diff<1) return 'Just now'; if (diff<60) return Math.floor(diff)+'m ago'; const hrs = Math.floor(diff/60); if (hrs<24) return hrs+'h ago'; const days = Math.floor(diff/1440); if (days===1) return 'Yesterday'; if (days<7) return days+'d ago'; return new Date(date).toLocaleDateString(); }
+
         initScanner();
-
-        // 📳 Vibration on scan
-        function vibrate() {
-            if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
-        }
-
-        // ✅ Green success flash
-        function showSuccessFlash() {
-            const flash = document.createElement('div');
-            flash.className = 'success-flash';
-            document.body.appendChild(flash);
-            setTimeout(() => flash.remove(), 600);
-        }
-
         async function initScanner() {
-            try {
-                currentShop = await window.getCurrentShop();
-                if (!currentShop) { window.location.href = 'login.html'; return; }
-                if (currentShop.settings) shopSettings = currentShop.settings;
-                startCamera();
-            } catch (err) {
-                document.getElementById('loadingMessage').innerHTML = '<p style="color:red;">⚠️ Error</p><p>Use manual entry</p>';
-            }
+            try { currentShop = await window.getCurrentShop(); if (!currentShop) { window.location.href='login.html'; return; } if (currentShop.settings) shopSettings = currentShop.settings; startCamera(); }
+            catch (err) { document.getElementById('loadingMessage').innerHTML='<p style="color:red;">⚠️ Error</p><p>Use manual entry</p>'; }
         }
 
         async function startCamera() {
             try {
-                if (html5QrCode) { await html5QrCode.stop().catch(() => {}); html5QrCode = null; }
-                document.getElementById('reader').innerHTML = '';
-                html5QrCode = new Html5Qrcode("reader");
-                
-                await html5QrCode.start(
-                    { facingMode: "environment" },
-                    { fps: 15, qrbox: { width: 280, height: 280 }, aspectRatio: 1 },
-                    (decodedText) => {
-                        if (!isScanning) return;
-                        isScanning = false;
-                        vibrate(); // 📳 Vibrate
-                        console.log('✅ QR DETECTED');
-                       playScanSound(); // 🔊 Sound effect
-                        document.getElementById('scanResult').classList.remove('hidden');
-                        document.getElementById('scannedName').textContent = 'Found!';
-                        try {
-                            const data = JSON.parse(decodedText);
-                            if (data.customer && data.shop) quickLookup(data.customer, data.shop);
-                            else quickLookupByCode(decodedText);
-                        } catch (e) { quickLookupByCode(decodedText); }
-                    },
-                    () => {}
-                );
-                document.getElementById('loadingMessage').style.display = 'none';
-                document.getElementById('scannerWrapper').style.display = 'block';
-                isScanning = true;
-                console.log('✅ Camera ready');
-            } catch (err) {
-                document.getElementById('loadingMessage').innerHTML = '<p style="color:red;">⚠️ Camera error</p><p>Use manual entry</p>';
-            }
+                if (html5QrCode) { await html5QrCode.stop().catch(()=>{}); html5QrCode=null; }
+                document.getElementById('reader').innerHTML=''; html5QrCode = new Html5Qrcode("reader");
+                await html5QrCode.start({ facingMode:"environment" }, { fps:15, qrbox:{width:280,height:280}, aspectRatio:1 },
+                    (decodedText) => { if(!isScanning) return; isScanning=false; vibrate(); playScanSound();
+                        document.getElementById('scanResult').classList.remove('hidden'); document.getElementById('scannedName').textContent='Found!';
+                        try { const data=JSON.parse(decodedText); if(data.customer&&data.shop) quickLookup(data.customer,data.shop); else quickLookupByCode(decodedText); }
+                        catch(e) { quickLookupByCode(decodedText); } }, ()=>{});
+                document.getElementById('loadingMessage').style.display='none'; document.getElementById('scannerWrapper').style.display='block'; isScanning=true;
+            } catch(err) { document.getElementById('loadingMessage').innerHTML='<p style="color:red;">⚠️ Camera error</p><p>Use manual entry</p>'; }
         }
 
         async function quickLookup(customerId, shopId) {
-            if (currentShop.id !== shopId) { showToast('❌ Not your customer'); scanAgain(); return; }
+            if(currentShop.id!==shopId) { showToast('❌ Not your customer'); scanAgain(); return; }
             try {
-                const response = await fetch(`https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?id=eq.${customerId}&limit=1`, { headers: { 'apikey': ANON_KEY } });
-                const data = await response.json();
-                if (data?.length > 0) { currentCustomer = data[0]; showSuccessFlash(); displayCustomer(); }
+                const r=await fetch(`https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?id=eq.${customerId}&limit=1`,{headers:{'apikey':ANON_KEY}});
+                const d=await r.json();
+                if(d?.length>0) { currentCustomer=d[0]; showSuccessFlash(); loadCustomerStats(customerId); displayCustomer(); }
                 else { showToast('Not found'); scanAgain(); }
-            } catch (err) { showToast('Error'); scanAgain(); }
+            } catch(err) { showToast('Error'); scanAgain(); }
         }
 
         async function quickLookupByCode(code) {
             try {
-                const response = await fetch(`https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?customer_code=eq.${code}&shop_id=eq.${currentShop.id}&limit=1`, { headers: { 'apikey': ANON_KEY } });
-                const data = await response.json();
-                if (data?.length > 0) { currentCustomer = data[0]; showSuccessFlash(); displayCustomer(); showToast('✅ Found!', 'success'); }
+                const r=await fetch(`https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?customer_code=eq.${code}&shop_id=eq.${currentShop.id}&limit=1`,{headers:{'apikey':ANON_KEY}});
+                const d=await r.json();
+                if(d?.length>0) { currentCustomer=d[0]; showSuccessFlash(); loadCustomerStats(d[0].id); displayCustomer(); showToast('✅ Found!','success'); }
                 else { showToast('Not found'); scanAgain(); }
-            } catch (err) { showToast('Error'); scanAgain(); }
+            } catch(err) { showToast('Error'); scanAgain(); }
         }
 
-        function scanAgain() { document.getElementById('scanResult').classList.add('hidden'); currentCustomer = null; isScanning = true; }
+        async function loadCustomerStats(customerId) {
+            try {
+                // Get all visits
+                const r = await fetch(`https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/visits?select=action,created_at&customer_id=eq.${customerId}&order=created_at.desc`, {headers:{'apikey':ANON_KEY}});
+                const visits = await r.json();
+                const totalVisits = visits?.length || 0;
+                
+                // Last visit
+                const lastVisit = visits?.length > 1 ? visits[1].created_at : null;
+                const lastVisitText = lastVisit ? getTimeAgo(lastVisit) : 'First visit!';
+                
+                // Member since
+                const firstVisit = visits?.length > 0 ? visits[visits.length-1].created_at : currentCustomer.created_at;
+                const memberSince = new Date(firstVisit).toLocaleDateString('en-US', { month:'short', year:'numeric' });
+                
+                // Rewards earned
+                const rewardsEarned = visits?.filter(v => v.action==='redeem').length || 0;
+                
+                // Avg per week
+                const daysSinceFirst = Math.max(1, (new Date() - new Date(firstVisit)) / 86400000);
+                const avgPerWeek = Math.round((totalVisits / (daysSinceFirst/7)) * 10) / 10;
+                
+                // Update UI
+                document.getElementById('totalVisitsStat').textContent = totalVisits;
+                document.getElementById('lastVisitStat').textContent = lastVisitText;
+                document.getElementById('avgVisitsStat').textContent = avgPerWeek;
+                document.getElementById('rewardsEarnedStat').textContent = rewardsEarned;
+                document.getElementById('memberSince').textContent = '📍 Member since: ' + memberSince;
+                document.getElementById('greetingText').textContent = getGreeting() + ', ' + currentCustomer.name + '!';
+            } catch(e) {}
+        }
+
+        function scanAgain() { document.getElementById('scanResult').classList.add('hidden'); currentCustomer=null; isScanning=true; }
 
         function displayCustomer() {
-            if (!currentCustomer) return;
-            const required = shopSettings.stamps_required || 6, stamps = currentCustomer.stamps || 0, freeRewards = currentCustomer.free_rewards || 0;
-            document.getElementById('scanResult').classList.remove('hidden');
-            document.getElementById('scannedName').textContent = currentCustomer.name;
-            document.getElementById('currentStamps').textContent = stamps;
-            document.getElementById('requiredStamps').textContent = required;
-            let html = '';
-            for (let i = 0; i < required; i++) html += `<span style="font-size:1.8rem; opacity:${i < stamps ? '1' : '0.3'}">☕</span>`;
-            document.getElementById('stampVisual').innerHTML = html;
-            const badge = document.getElementById('rewardBadge'), redeemBtn = document.getElementById('redeemBtn');
-            if (freeRewards > 0) { badge.classList.remove('hidden'); badge.textContent = `🎁 ${freeRewards} Reward(s)!`; redeemBtn.disabled = false; redeemBtn.textContent = '🎁 Redeem Reward'; }
-            else if (stamps >= required) { badge.classList.remove('hidden'); badge.textContent = '✅ Complete!'; redeemBtn.disabled = true; redeemBtn.textContent = 'Add stamp'; }
-            else { badge.classList.add('hidden'); redeemBtn.disabled = true; redeemBtn.textContent = `🔒 ${required - stamps} more`; }
+            if(!currentCustomer) return;
+            const required=shopSettings.stamps_required||6, stamps=currentCustomer.stamps||0, freeRewards=currentCustomer.free_rewards||0;
+            document.getElementById('scannedName').textContent=currentCustomer.name;
+            document.getElementById('currentStamps').textContent=stamps;
+            document.getElementById('requiredStamps').textContent=required;
+            let h=''; for(let i=0;i<required;i++) h+=`<span style="font-size:1.8rem; opacity:${i<stamps?'1':'0.3'}">☕</span>`;
+            document.getElementById('stampVisual').innerHTML=h;
+            const badge=document.getElementById('rewardBadge'), redeemBtn=document.getElementById('redeemBtn');
+            if(freeRewards>0) { badge.classList.remove('hidden'); badge.textContent=`🎁 ${freeRewards} Reward(s)!`; redeemBtn.disabled=false; redeemBtn.textContent='🎁 Redeem Reward'; }
+            else if(stamps>=required) { badge.classList.remove('hidden'); badge.textContent='✅ Complete!'; redeemBtn.disabled=true; redeemBtn.textContent='Add stamp'; }
+            else { badge.classList.add('hidden'); redeemBtn.disabled=true; redeemBtn.textContent=`🔒 ${required-stamps} more`; }
         }
 
         function manualLookup(code) {
-            const lookupCode = code || document.getElementById('manualCode')?.value?.trim();
-            if (!lookupCode) { showToast('Enter a code'); return; }
-            document.getElementById('scanResult').classList.remove('hidden');
-            document.getElementById('scannedName').textContent = 'Searching...';
-            quickLookupByCode(lookupCode);
+            const c=code||document.getElementById('manualCode')?.value?.trim();
+            if(!c) { showToast('Enter a code'); return; }
+            document.getElementById('scanResult').classList.remove('hidden'); document.getElementById('scannedName').textContent='Searching...';
+            quickLookupByCode(c);
         }
 
         async function addStamp() {
-            if (!currentCustomer) return;
-            const required = shopSettings.stamps_required || 6;
-            let newStamps = (currentCustomer.stamps || 0) + 1, newRewards = currentCustomer.free_rewards || 0;
-            if (newStamps >= required) { newStamps = 0; newRewards += 1; }
+            if(!currentCustomer) return;
+            const required=shopSettings.stamps_required||6;
+            let ns=(currentCustomer.stamps||0)+1, nr=currentCustomer.free_rewards||0;
+            if(ns>=required) { ns=0; nr+=1; }
             try {
-                await supabase.from('customers').update({ stamps: newStamps, free_rewards: newRewards, total_visits: (currentCustomer.total_visits || 0) + 1 }).eq('id', currentCustomer.id);
-                await supabase.from('visits').insert({ shop_id: currentShop.id, customer_id: currentCustomer.id, action: 'stamp', notes: '', created_at: new Date().toISOString() });
-                showToast(newRewards > (currentCustomer.free_rewards || 0) ? '🎉 Reward!' : '✅ Stamp!', 'success');
-                const response = await fetch(`https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?id=eq.${currentCustomer.id}&limit=1`, { headers: { 'apikey': ANON_KEY } });
-                const data = await response.json();
-                if (data?.length > 0) { currentCustomer = data[0]; displayCustomer(); }
-            } catch (err) { showToast(err.message); }
+                await supabase.from('customers').update({stamps:ns,free_rewards:nr,total_visits:(currentCustomer.total_visits||0)+1}).eq('id',currentCustomer.id);
+                await supabase.from('visits').insert({shop_id:currentShop.id,customer_id:currentCustomer.id,action:'stamp',notes:'',created_at:new Date().toISOString()});
+                showToast(nr>(currentCustomer.free_rewards||0)?'🎉 Reward!':'✅ Stamp!','success');
+                const r=await fetch(`https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?id=eq.${currentCustomer.id}&limit=1`,{headers:{'apikey':ANON_KEY}});
+                const d=await r.json(); if(d?.length>0) { currentCustomer=d[0]; loadCustomerStats(currentCustomer.id); displayCustomer(); }
+            } catch(err) { showToast(err.message); }
         }
 
         async function redeemReward() {
-            if (!currentCustomer || (currentCustomer.free_rewards || 0) < 1) { showToast('No rewards'); return; }
-            const btn = document.getElementById('redeemBtn'); btn.disabled = true; btn.textContent = '...';
+            if(!currentCustomer||(currentCustomer.free_rewards||0)<1) { showToast('No rewards'); return; }
+            const btn=document.getElementById('redeemBtn'); btn.disabled=true; btn.textContent='...';
             try {
-                await supabase.from('customers').update({ free_rewards: currentCustomer.free_rewards - 1 }).eq('id', currentCustomer.id);
-                await supabase.from('visits').insert({ shop_id: currentShop.id, customer_id: currentCustomer.id, action: 'redeem', notes: 'Redeemed', created_at: new Date().toISOString() });
-                showToast('🎁 Done!', 'success');
-                const response = await fetch(`https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?id=eq.${currentCustomer.id}&limit=1`, { headers: { 'apikey': ANON_KEY } });
-                const data = await response.json();
-                if (data?.length > 0) { currentCustomer = data[0]; displayCustomer(); }
-            } catch (err) { showToast(err.message); btn.disabled = false; }
+                await supabase.from('customers').update({free_rewards:currentCustomer.free_rewards-1}).eq('id',currentCustomer.id);
+                await supabase.from('visits').insert({shop_id:currentShop.id,customer_id:currentCustomer.id,action:'redeem',notes:'Redeemed',created_at:new Date().toISOString()});
+                showToast('🎁 Done!','success');
+                const r=await fetch(`https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?id=eq.${currentCustomer.id}&limit=1`,{headers:{'apikey':ANON_KEY}});
+                const d=await r.json(); if(d?.length>0) { currentCustomer=d[0]; loadCustomerStats(currentCustomer.id); displayCustomer(); }
+            } catch(err) { showToast(err.message); btn.disabled=false; }
         }
 
-        // 👥 Invite Friend
-        function inviteFriend() {
-            const shopName = currentShop?.shop_name || 'Our Café';
-            const link = `https://djidro.github.io/stamp/customer-register.html?ref=${currentShop.id}`;
-            const text = `☕ Join ${shopName}'s loyalty program and we both get a FREE stamp!\n\n👉 ${link}\n\nJoin now! 🎉`;
-
-            if (navigator.share) {
-                navigator.share({ title: `Join ${shopName} Loyalty`, text: text, url: link }).catch(() => {});
-            } else {
-                navigator.clipboard.writeText(text).then(() => showToast('✅ Invite link copied!', 'success')).catch(() => showToast('Could not copy'));
-            }
-        }
-
-        function showToast(message, type = 'error') {
-            const toast = document.getElementById('toast'); if (!toast) return;
-            toast.textContent = message; toast.className = `toast ${type}`;
-            setTimeout(() => toast.className = 'toast hidden', 2000);
-        }
-
-        window.addEventListener('beforeunload', () => { if (html5QrCode) html5QrCode.stop().catch(() => {}); });
+        function showToast(message, type='error') { const t=document.getElementById('toast'); if(!t) return; t.textContent=message; t.className=`toast ${type}`; setTimeout(()=>t.className='toast hidden',2000); }
+        window.addEventListener('beforeunload', () => { if(html5QrCode) html5QrCode.stop().catch(()=>{}); });
     </script>
 </body>
 </html>

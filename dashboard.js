@@ -347,7 +347,6 @@ function updatePreview() {
     const box = document.getElementById('previewBox');
     if (box) box.innerHTML = `<strong>${title || 'No Title'}</strong><br>${msg || 'Your message will appear here...'}`;
 }
-
 async function sendBroadcast() {
     const btn = document.getElementById('broadcastBtn');
     
@@ -374,6 +373,10 @@ async function sendBroadcast() {
             message, 
             sent_at: new Date().toISOString() 
         });
+        
+        // 🗑️ Delete old messages (older than 3 days)
+        const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+        await supabase.from('notifications').delete().lt('sent_at', threeDaysAgo);
         
         // Send ONE Telegram broadcast
         const tg = await sendTelegramBroadcast(title, message, currentShop.id);

@@ -186,7 +186,7 @@
             quickLookupByCode(c);
         }
 
-        async function addStamp() {
+              async function addStamp() {
             if(!currentCustomer) return;
             const required=shopSettings.stamps_required||6;
             let ns=(currentCustomer.stamps||0)+1, nr=currentCustomer.free_rewards||0;
@@ -195,6 +195,20 @@
                 await supabase.from('customers').update({stamps:ns,free_rewards:nr,total_visits:(currentCustomer.total_visits||0)+1}).eq('id',currentCustomer.id);
                 await supabase.from('visits').insert({shop_id:currentShop.id,customer_id:currentCustomer.id,action:'stamp',notes:'',created_at:new Date().toISOString()});
                 showToast(nr>(currentCustomer.free_rewards||0)?'🎉 Reward!':'✅ Stamp!','success');
+                
+                // 🔔 Notify customer via Telegram if they earned a reward
+                if (nr > (currentCustomer.free_rewards || 0) && currentCustomer.telegram_chat_id) {
+                    fetch(`https://api.telegram.org/bot8677502842:AAEzyIv9tkw_T6d-3K-kzVc_vCNBcMLpQG8/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: currentCustomer.telegram_chat_id,
+                            text: `🎉 <b>Congratulations!</b>\n\nYou earned a <b>free reward</b> at ${currentShop.shop_name}!\n\nVisit us to redeem your free drink! ☕`,
+                            parse_mode: 'HTML'
+                        })
+                    }).catch(() => {});
+                }
+                
                 const r=await fetch(`https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/customers?id=eq.${currentCustomer.id}&limit=1`,{headers:{'apikey':ANON_KEY}});
                 const d=await r.json(); if(d?.length>0) { currentCustomer=d[0]; loadCustomerStats(currentCustomer.id); displayCustomer(); }
             } catch(err) { showToast(err.message); }

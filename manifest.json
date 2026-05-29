@@ -1,7 +1,8 @@
 {
     "name": "LoyaltySip - Café Loyalty",
     "short_name": "LoyaltySip",
-    "start_url": "/index.html",
+    "start_url": "/stamp/index.html",
+    "scope": "/stamp/",
     "display": "standalone",
     "background_color": "#FAF7F2",
     "theme_color": "#6F4E37",
@@ -14,4 +15,3 @@
         }
     ]
 }
-

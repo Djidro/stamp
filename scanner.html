@@ -32,13 +32,8 @@
 </head>
 <body class="scanner-page">
     <div class="scanner-container">
-        <div class="scanner-header">
-            <a href="dashboard.html" class="btn btn-outline btn-sm">← Back</a>
-            <h1>Scan Customer QR</h1>
-        </div>
-
+        <div class="scanner-header"><a href="dashboard.html" class="btn btn-outline btn-sm">← Back</a><h1>Scan Customer QR</h1></div>
         <div id="loadingMessage" style="text-align:center; padding:2rem;"><p>📷 Starting camera...</p></div>
-
         <div class="scanner-wrapper" id="scannerWrapper" style="display:none;">
             <div id="reader" style="width:100%; max-width:400px; margin:0 auto;"></div>
             <div class="scan-line" id="scanLine"></div>
@@ -47,35 +42,30 @@
                 <div class="scan-corner bottom-left"></div><div class="scan-corner bottom-right"></div>
             </div>
         </div>
-
         <div id="scanResult" class="scan-result hidden">
             <div class="customer-found">
                 <div class="greeting" id="greetingText"></div>
                 <h3>👤 <span id="scannedName">Customer</span></h3>
                 <p style="font-size:0.8rem; color:#888;" id="memberSince"></p>
-                
                 <div class="customer-stats">
                     <div class="mini-stat"><div class="stat-num" id="totalVisitsStat">0</div><div class="stat-lbl">Total Visits</div></div>
                     <div class="mini-stat"><div class="stat-num" id="lastVisitStat">-</div><div class="stat-lbl">Last Visit</div></div>
                     <div class="mini-stat"><div class="stat-num" id="avgVisitsStat">0</div><div class="stat-lbl">Avg/Week</div></div>
                     <div class="mini-stat"><div class="stat-num" id="rewardsEarnedStat">0</div><div class="stat-lbl">Rewards Earned</div></div>
                 </div>
-
                 <div class="stamp-display"><span id="currentStamps">0</span> / <span id="requiredStamps">6</span> stamps</div>
                 <div class="stamp-visual" id="stampVisual"></div>
                 <div class="reward-badge hidden" id="rewardBadge">🎁 Reward Available!</div>
             </div>
-            
             <div class="action-buttons">
                 <button onclick="addStamp()" class="btn btn-primary btn-large">☕ Add Stamp</button>
                 <button onclick="redeemReward()" class="btn btn-success btn-large" id="redeemBtn">🎁 Redeem Reward</button>
                 <button onclick="scanAgain()" class="btn btn-outline" style="margin-top:0.5rem;">📷 Scan Next</button>
             </div>
         </div>
-
         <div id="manualEntry" class="manual-entry">
             <p>Camera not working?</p>
-            <div class="form-group"><input type="text" id="manualCode" placeholder="Enter customer code (e.g. RB-001)"><button onclick="manualLookup()" class="btn btn-outline">Lookup</button></div>
+            <div class="form-group"><input type="text" id="manualCode" placeholder="Enter customer code"><button onclick="manualLookup()" class="btn btn-outline">Lookup</button></div>
         </div>
     </div>
     <div id="toast" class="toast hidden"></div>
@@ -89,7 +79,6 @@
         function playScanSound() { try { const a = new (window.AudioContext||window.webkitAudioContext)(), o = a.createOscillator(), g = a.createGain(); o.connect(g); g.connect(a.destination); o.frequency.setValueAtTime(800,a.currentTime); o.frequency.exponentialRampToValueAtTime(1200,a.currentTime+.1); g.gain.setValueAtTime(.3,a.currentTime); g.gain.exponentialRampToValueAtTime(.01,a.currentTime+.2); o.start(a.currentTime); o.stop(a.currentTime+.2); } catch(e){} }
         function vibrate() { if (navigator.vibrate) navigator.vibrate([50,30,50]); }
         function showSuccessFlash() { const f = document.createElement('div'); f.className='success-flash'; document.body.appendChild(f); setTimeout(()=>f.remove(),600); }
-
         function getGreeting() { const h = new Date().getHours(); if (h<12) return '🌅 Good Morning'; if (h<17) return '☀️ Good Afternoon'; return '🌙 Good Evening'; }
         function getTimeAgo(date) { const diff = (new Date()-new Date(date))/60000; if (diff<1) return 'Just now'; if (diff<60) return Math.floor(diff)+'m ago'; const hrs = Math.floor(diff/60); if (hrs<24) return hrs+'h ago'; const days = Math.floor(diff/1440); if (days===1) return 'Yesterday'; if (days<7) return days+'d ago'; return new Date(date).toLocaleDateString(); }
 
@@ -133,27 +122,16 @@
 
         async function loadCustomerStats(customerId) {
             try {
-                // Get all visits
                 const r = await fetch(`https://ooewanshekzpjfgtyyzx.supabase.co/rest/v1/visits?select=action,created_at&customer_id=eq.${customerId}&order=created_at.desc`, {headers:{'apikey':ANON_KEY}});
                 const visits = await r.json();
                 const totalVisits = visits?.length || 0;
-                
-                // Last visit
                 const lastVisit = visits?.length > 1 ? visits[1].created_at : null;
                 const lastVisitText = lastVisit ? getTimeAgo(lastVisit) : 'First visit!';
-                
-                // Member since
                 const firstVisit = visits?.length > 0 ? visits[visits.length-1].created_at : currentCustomer.created_at;
                 const memberSince = new Date(firstVisit).toLocaleDateString('en-US', { month:'short', year:'numeric' });
-                
-                // Rewards earned
                 const rewardsEarned = visits?.filter(v => v.action==='redeem').length || 0;
-                
-                // Avg per week
                 const daysSinceFirst = Math.max(1, (new Date() - new Date(firstVisit)) / 86400000);
                 const avgPerWeek = Math.round((totalVisits / (daysSinceFirst/7)) * 10) / 10;
-                
-                // Update UI
                 document.getElementById('totalVisitsStat').textContent = totalVisits;
                 document.getElementById('lastVisitStat').textContent = lastVisitText;
                 document.getElementById('avgVisitsStat').textContent = avgPerWeek;
@@ -186,7 +164,7 @@
             quickLookupByCode(c);
         }
 
-              async function addStamp() {
+        async function addStamp() {
             if(!currentCustomer) return;
             const required=shopSettings.stamps_required||6;
             let ns=(currentCustomer.stamps||0)+1, nr=currentCustomer.free_rewards||0;
@@ -194,34 +172,16 @@
             try {
                 await supabase.from('customers').update({stamps:ns,free_rewards:nr,total_visits:(currentCustomer.total_visits||0)+1}).eq('id',currentCustomer.id);
                 await supabase.from('visits').insert({shop_id:currentShop.id,customer_id:currentCustomer.id,action:'stamp',notes:'',created_at:new Date().toISOString()});
-                               showToast(nr>(currentCustomer.free_rewards||0)?'🎉 Reward!':'✅ Stamp!','success');
+                showToast(nr>(currentCustomer.free_rewards||0)?'🎉 Reward!':'✅ Stamp!','success');
                 
                 // 🔔 Notify customer via Telegram
                 if (currentCustomer.telegram_chat_id) {
                     const stampMsg = `☕ <b>Stamp Added!</b>\n\nYou now have <b>${ns}/${required}</b> stamps at ${currentShop.shop_name}.\n\n${(required-ns) > 0 ? (required-ns) + ' more for a free reward!' : '🎉 You earned a reward!'}`;
-                    
                     const rewardMsg = `🎉 <b>Congratulations!</b>\n\nYou earned a <b>free reward</b> at ${currentShop.shop_name}!\n\nVisit us to redeem your free drink! ☕`;
-                    
                     const msg = (nr > (currentCustomer.free_rewards || 0)) ? rewardMsg : stampMsg;
-                    
                     fetch(`https://api.telegram.org/bot8677502842:AAEzyIv9tkw_T6d-3K-kzVc_vCNBcMLpQG8/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: currentCustomer.telegram_chat_id,
-                            text: msg,
-                            parse_mode: 'HTML'
-                        })
-                    }).catch(() => {});
-                }
-                    fetch(`https://api.telegram.org/bot8677502842:AAEzyIv9tkw_T6d-3K-kzVc_vCNBcMLpQG8/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: currentCustomer.telegram_chat_id,
-                            text: `🎉 <b>Congratulations!</b>\n\nYou earned a <b>free reward</b> at ${currentShop.shop_name}!\n\nVisit us to redeem your free drink! ☕`,
-                            parse_mode: 'HTML'
-                        })
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ chat_id: currentCustomer.telegram_chat_id, text: msg, parse_mode: 'HTML' })
                     }).catch(() => {});
                 }
                 

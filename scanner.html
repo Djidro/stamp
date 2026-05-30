@@ -194,10 +194,26 @@
             try {
                 await supabase.from('customers').update({stamps:ns,free_rewards:nr,total_visits:(currentCustomer.total_visits||0)+1}).eq('id',currentCustomer.id);
                 await supabase.from('visits').insert({shop_id:currentShop.id,customer_id:currentCustomer.id,action:'stamp',notes:'',created_at:new Date().toISOString()});
-                showToast(nr>(currentCustomer.free_rewards||0)?'🎉 Reward!':'✅ Stamp!','success');
+                               showToast(nr>(currentCustomer.free_rewards||0)?'🎉 Reward!':'✅ Stamp!','success');
                 
-                // 🔔 Notify customer via Telegram if they earned a reward
-                if (nr > (currentCustomer.free_rewards || 0) && currentCustomer.telegram_chat_id) {
+                // 🔔 Notify customer via Telegram
+                if (currentCustomer.telegram_chat_id) {
+                    const stampMsg = `☕ <b>Stamp Added!</b>\n\nYou now have <b>${ns}/${required}</b> stamps at ${currentShop.shop_name}.\n\n${(required-ns) > 0 ? (required-ns) + ' more for a free reward!' : '🎉 You earned a reward!'}`;
+                    
+                    const rewardMsg = `🎉 <b>Congratulations!</b>\n\nYou earned a <b>free reward</b> at ${currentShop.shop_name}!\n\nVisit us to redeem your free drink! ☕`;
+                    
+                    const msg = (nr > (currentCustomer.free_rewards || 0)) ? rewardMsg : stampMsg;
+                    
+                    fetch(`https://api.telegram.org/bot8677502842:AAEzyIv9tkw_T6d-3K-kzVc_vCNBcMLpQG8/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: currentCustomer.telegram_chat_id,
+                            text: msg,
+                            parse_mode: 'HTML'
+                        })
+                    }).catch(() => {});
+                }
                     fetch(`https://api.telegram.org/bot8677502842:AAEzyIv9tkw_T6d-3K-kzVc_vCNBcMLpQG8/sendMessage`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },

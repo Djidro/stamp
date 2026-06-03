@@ -88,17 +88,63 @@
             catch (err) { document.getElementById('loadingMessage').innerHTML='<p style="color:red;">⚠️ Error</p><p>Use manual entry</p>'; }
         }
 
-        async function startCamera() {
+         async function startCamera() {
             try {
                 if (html5QrCode) { await html5QrCode.stop().catch(()=>{}); html5QrCode=null; }
-                document.getElementById('reader').innerHTML=''; html5QrCode = new Html5Qrcode("reader");
-                await html5QrCode.start({ facingMode:"environment" }, { fps:15, qrbox:{width:280,height:280}, aspectRatio:1 },
-                    (decodedText) => { if(!isScanning) return; isScanning=false; vibrate(); playScanSound();
-                        document.getElementById('scanResult').classList.remove('hidden'); document.getElementById('scannedName').textContent='Found!';
-                        try { const data=JSON.parse(decodedText); if(data.customer&&data.shop) quickLookup(data.customer,data.shop); else quickLookupByCode(decodedText); }
-                        catch(e) { quickLookupByCode(decodedText); } }, ()=>{});
-                document.getElementById('loadingMessage').style.display='none'; document.getElementById('scannerWrapper').style.display='block'; isScanning=true;
-            } catch(err) { document.getElementById('loadingMessage').innerHTML='<p style="color:red;">⚠️ Camera error</p><p>Use manual entry</p>'; }
+                document.getElementById('reader').innerHTML='';
+                html5QrCode = new Html5Qrcode("reader");
+                
+                await html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1 },
+                    (decodedText) => { 
+                        if(!isScanning) return; 
+                        isScanning=false; 
+                        vibrate(); 
+                        playScanSound();
+                        document.getElementById('scanResult').classList.remove('hidden'); 
+                        document.getElementById('scannedName').textContent='Found!';
+                        try { 
+                            const data=JSON.parse(decodedText); 
+                            if(data.customer&&data.shop) quickLookup(data.customer,data.shop); 
+                            else quickLookupByCode(decodedText); 
+                        } catch(e) { quickLookupByCode(decodedText); } 
+                    }, 
+                    (error) => {
+                        // Silently ignore scan failures
+                    }
+                );
+                
+                document.getElementById('loadingMessage').style.display='none'; 
+                document.getElementById('scannerWrapper').style.display='block'; 
+                isScanning=true;
+                
+            } catch(err) {
+                console.error('Camera error:', err.message);
+                let errorMsg = '⚠️ Camera error. ';
+                
+                if (err.message.includes('NotAllowed') || err.message.includes('Permission')) {
+                    errorMsg += 'Camera permission denied. Please allow camera access in your browser settings.';
+                } else if (err.message.includes('NotFound')) {
+                    errorMsg += 'No camera found on this device.';
+                } else if (err.message.includes('NotReadable')) {
+                    errorMsg += 'Camera is in use by another app.';
+                } else {
+                    errorMsg += 'Use manual entry below.';
+                }
+                
+                document.getElementById('loadingMessage').innerHTML = 
+                    `<p style="color:red;">${errorMsg}</p>
+                     <p>Use manual entry below</p>
+                     <button onclick="retryCamera()" style="margin-top:0.5rem; padding:0.5rem 1rem; background:#6F4E37; color:white; border:none; border-radius:8px; cursor:pointer;">🔄 Try Again</button>`;
+            }
+        }
+        
+        function retryCamera() {
+            document.getElementById('loadingMessage').innerHTML = '<p>📷 Starting camera...</p>';
+            document.getElementById('loadingMessage').style.display = 'block';
+            document.getElementById('scannerWrapper').style.display = 'none';
+            startCamera();
         }
 
         async function quickLookup(customerId, shopId) {

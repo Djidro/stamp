@@ -5,38 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - LoyaltySip</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-                z-index: 1000;
-                width: 280px;
-                box-shadow: 0 0 30px rgba(0,0,0,0.3);
-            }
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; z-index: 1000; width: 280px; box-shadow: 0 0 30px rgba(0,0,0,0.3); }
             .sidebar.open { transform: translateX(0); }
             .main-content { margin-left: 0; width: 100%; }
-            .sidebar-overlay {
-                display: none;
-                position: fixed;
-                inset: 0;
-                background: rgba(0,0,0,0.5);
-                z-index: 999;
-            }
+            .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; }
             .sidebar-overlay.active { display: block; }
         }
     </style>
 </head>
 <body class="dashboard-page">
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-    
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-brand">
-            <span class="logo">☕</span>
-            <span class="brand-text">LoyaltySip</span>
-        </div>
+        <div class="sidebar-brand"><span class="logo">☕</span><span class="brand-text">LoyaltySip</span></div>
         <nav class="sidebar-nav">
             <a href="#overview" class="nav-item active" data-section="overview"><span>📊</span> Overview</a>
             <a href="#customers" class="nav-item" data-section="customers"><span>👥</span> Customers</a>
@@ -46,114 +28,61 @@
             <a href="pricing.html" class="nav-item" style="background: rgba(111,78,55,0.1); border-left: 3px solid #6F4E37;"><span>💳</span> Upgrade Plan</a>
         </nav>
         <div class="sidebar-footer">
-            <div class="shop-info">
-                <div class="shop-name" id="shopNameDisplay">Loading...</div>
-                <div class="shop-role">Admin</div>
-            </div>
+            <div class="shop-info"><div class="shop-name" id="shopNameDisplay">Loading...</div><div class="shop-role">Admin</div></div>
             <button onclick="logout()" class="btn btn-sm btn-outline">Logout</button>
         </div>
     </aside>
-
     <main class="main-content" id="mainContent" onclick="closeSidebar()">
         <header class="top-bar">
             <button class="menu-toggle" onclick="event.stopPropagation(); toggleSidebar()">☰</button>
             <h2 id="pageTitle">Dashboard</h2>
             <button onclick="toggleDarkMode()" class="btn btn-icon">🌙</button>
         </header>
-
         <section id="overview" class="section active">
             <div class="stats-grid">
-                <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="totalCustomers">0</div><div class="stat-label">Total Customers</div></div>
-                <div class="stat-card"><div class="stat-icon">☕</div><div class="stat-value" id="totalVisits">0</div><div class="stat-label">Total Visits</div></div>
-                <div class="stat-card"><div class="stat-icon">🎁</div><div class="stat-value" id="totalRedemptions">0</div><div class="stat-label">Rewards Redeemed</div></div>
-                <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-value" id="todayVisits">0</div><div class="stat-label">Today</div></div>
+                <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="totalCustomers">-</div><div class="stat-label">Total Customers</div></div>
+                <div class="stat-card"><div class="stat-icon">☕</div><div class="stat-value" id="totalVisits">-</div><div class="stat-label">Total Visits</div></div>
+                <div class="stat-card"><div class="stat-icon">🎁</div><div class="stat-value" id="totalRedemptions">-</div><div class="stat-label">Rewards Redeemed</div></div>
+                <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-value" id="todayVisits">-</div><div class="stat-label">Today</div></div>
             </div>
             <div class="charts-row">
                 <div class="chart-card"><h3>Weekly Visits</h3><canvas id="visitsChart"></canvas></div>
-                <div class="chart-card"><h3>Recent Activity</h3><div class="activity-list" id="activityList"><p class="empty">No recent activity</p></div></div>
+                <div class="chart-card"><h3>Recent Activity</h3><div class="activity-list" id="activityList"><p class="empty">Loading...</p></div></div>
             </div>
         </section>
-
         <section id="customers" class="section">
             <div class="section-header"><h3>Customer Management</h3><button onclick="openAddCustomer()" class="btn btn-primary">+ Add Customer</button></div>
             <div class="search-bar"><input type="text" id="customerSearch" placeholder="Search customers..." oninput="searchCustomers()"></div>
-            <div class="table-container">
-                <table class="data-table">
-                    <thead><tr><th>Code</th><th>Name</th><th>Phone</th><th>Stamps</th><th>Rewards</th><th>Visits</th><th>QR Code</th><th>Actions</th></tr></thead>
-                    <tbody id="customersTableBody"></tbody>
-                </table>
-            </div>
+            <div class="table-container"><table class="data-table"><thead><tr><th>Code</th><th>Name</th><th>Phone</th><th>Stamps</th><th>Rewards</th><th>Visits</th><th>QR Code</th><th>Actions</th></tr></thead><tbody id="customersTableBody"></tbody></table></div>
         </section>
-
         <section id="broadcast" class="section">
             <div class="broadcast-card">
                 <h3>📡 Send Broadcast</h3>
-                <p class="help-text">Message all your customers via Telegram </p>
+                <p class="help-text">Message all your customers via Telegram 🤖</p>
                 <div class="form-group"><label>Title</label><input type="text" id="broadcastTitle" placeholder="e.g. Weekend Special!"></div>
                 <div class="form-group"><label>Message</label><textarea id="broadcastMessage" rows="4" placeholder="☕ Buy 2 get 1 free today!"></textarea></div>
                 <div class="broadcast-preview"><strong>Preview:</strong><div class="preview-box" id="previewBox">Your message will appear here...</div></div>
-                <button id="broadcastBtn" onclick="sendBroadcast()" class="btn btn-primary btn-block btn-large">
-    Send to All Customers
-</button>
+                <button id="broadcastBtn" onclick="sendBroadcast()" class="btn btn-primary btn-block btn-large">Send to All Customers</button>
                 <div id="broadcastHistory" class="history-list"><h4>Recent Broadcasts</h4></div>
             </div>
         </section>
-
         <section id="settings" class="section">
-            <div class="settings-card">
-                <h3>⚙️ Loyalty Settings</h3>
-                <div class="form-group"><label>Stamps Required for Reward</label><input type="number" id="stampsRequired" value="6" min="1"></div>
-                <div class="form-group"><label>Reward Name</label><input type="text" id="rewardName" value="Free Drink"></div>
-                <button onclick="saveSettings()" class="btn btn-primary">Save Settings</button>
-            </div>
+            <div class="settings-card"><h3>⚙️ Loyalty Settings</h3><div class="form-group"><label>Stamps Required for Reward</label><input type="number" id="stampsRequired" value="6" min="1"></div><div class="form-group"><label>Reward Name</label><input type="text" id="rewardName" value="Free Drink"></div><button onclick="saveSettings()" class="btn btn-primary">Save Settings</button></div>
         </section>
-
-        <div id="customerModal" class="modal hidden">
-            <div class="modal-content">
-                <h3>Add New Customer</h3>
-                <div class="form-group"><label>Name</label><input type="text" id="newCustomerName" placeholder="Customer name"></div>
-                <div class="form-group"><label>Phone</label><input type="tel" id="newCustomerPhone" placeholder="Phone number"></div>
-                <div class="modal-actions"><button onclick="closeModal()" class="btn btn-outline">Cancel</button><button onclick="addCustomer()" class="btn btn-primary">Add Customer</button></div>
-            </div>
-        </div>
-
-        <div id="qrModal" class="modal hidden">
-            <div class="modal-content qr-modal">
-                <h3>Customer QR Code</h3>
-                <canvas id="qrCanvas"></canvas>
-                <p id="qrCustomerName"></p>
-                <button onclick="downloadQR()" class="btn btn-primary">Download QR</button>
-                <button onclick="closeQrModal()" class="btn btn-outline">Close</button>
-            </div>
-        </div>
-
+        <div id="customerModal" class="modal hidden"><div class="modal-content"><h3>Add New Customer</h3><div class="form-group"><label>Name</label><input type="text" id="newCustomerName" placeholder="Customer name"></div><div class="form-group"><label>Phone</label><input type="tel" id="newCustomerPhone" placeholder="Phone number"></div><div class="modal-actions"><button onclick="closeModal()" class="btn btn-outline">Cancel</button><button onclick="addCustomer()" class="btn btn-primary">Add Customer</button></div></div></div>
+        <div id="qrModal" class="modal hidden"><div class="modal-content qr-modal"><h3>Customer QR Code</h3><canvas id="qrCanvas"></canvas><p id="qrCustomerName"></p><button onclick="downloadQR()" class="btn btn-primary">Download QR</button><button onclick="closeQrModal()" class="btn btn-outline">Close</button></div></div>
         <div id="toast" class="toast hidden"></div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="telegram-bot.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script src="dashboard.js"></script>
-    
     <script>
-        window.closeSidebar = function() {
-            document.getElementById('sidebar')?.classList.remove('open');
-            document.getElementById('sidebarOverlay')?.classList.remove('active');
-        };
-        window.toggleSidebar = function() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            if (sidebar.classList.contains('open')) {
-                sidebar.classList.remove('open');
-                overlay.classList.remove('active');
-            } else {
-                sidebar.classList.add('open');
-                overlay.classList.add('active');
-            }
-        };
-        document.querySelectorAll('.nav-item[data-section]').forEach(item => {
-            item.addEventListener('click', () => closeSidebar());
-        });
+        window.closeSidebar = function() { document.getElementById('sidebar')?.classList.remove('open'); document.getElementById('sidebarOverlay')?.classList.remove('active'); };
+        window.toggleSidebar = function() { const s=document.getElementById('sidebar'),o=document.getElementById('sidebarOverlay'); s.classList.contains('open')?(s.classList.remove('open'),o.classList.remove('active')):(s.classList.add('open'),o.classList.add('active')); };
+        document.querySelectorAll('.nav-item[data-section]').forEach(i=>i.addEventListener('click',()=>closeSidebar()));
     </script>
 </body>
 </html>

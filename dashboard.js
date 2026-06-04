@@ -48,7 +48,7 @@ function showTrialBanner() {
     const daysLeft = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
     
     banner.style.display = 'block';
-    
+  banner.classList.remove('hidden');
     if (daysLeft <= 0) {
         banner.style.background = '#FFEBEE';
         banner.style.border = '2px solid #f44336';

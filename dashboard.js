@@ -26,7 +26,8 @@ async function initDashboard() {
     document.getElementById('shopNameDisplay').textContent = currentShop.shop_name || 'My Shop';
     document.getElementById('stampsRequired').value = currentShop.settings?.stamps_required || 6;
     document.getElementById('rewardName').value = currentShop.settings?.reward_type || 'Free Drink';
-    
+        // ⚠️ Show trial banner
+    showTrialBanner();
     // ⚡ Load overview + customers in PARALLEL
     Promise.all([loadOverview(), loadCustomers(), loadBroadcasts()]);
     
@@ -36,7 +37,35 @@ async function initDashboard() {
     document.getElementById('broadcastMessage').addEventListener('input', updatePreview);
     document.getElementById('broadcastTitle').addEventListener('input', updatePreview);
 }
-
+function showTrialBanner() {
+    const banner = document.getElementById('trialBanner');
+    if (!banner || !currentShop) return;
+    
+    const trialEnd = currentShop.trial_ends_at ? new Date(currentShop.trial_ends_at) : null;
+    if (!trialEnd || currentShop.payment_status === 'approved') return;
+    
+    const now = new Date();
+    const daysLeft = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
+    
+    banner.style.display = 'block';
+    
+    if (daysLeft <= 0) {
+        banner.style.background = '#FFEBEE';
+        banner.style.border = '2px solid #f44336';
+        banner.style.color = '#c62828';
+        banner.innerHTML = `⚠️ <b>Trial Expired!</b> Please <a href="pricing.html" style="color:#c62828;font-weight:700;">upgrade now</a> to continue.`;
+    } else if (daysLeft <= 3) {
+        banner.style.background = '#FFF8E1';
+        banner.style.border = '2px solid #FF9800';
+        banner.style.color = '#E65100';
+        banner.innerHTML = `⏳ <b>${daysLeft} day${daysLeft > 1 ? 's' : ''} left!</b> Your trial ends soon. <a href="pricing.html" style="color:#E65100;font-weight:700;">Upgrade now →</a>`;
+    } else {
+        banner.style.background = '#E8F5E9';
+        banner.style.border = '2px solid #4CAF50';
+        banner.style.color = '#2E7D32';
+        banner.innerHTML = `✅ <b>${daysLeft} days left</b> in your free trial. <a href="pricing.html" style="color:#2E7D32;font-weight:700;">Choose a plan →</a>`;
+    }
+}
 function showSection(id) { document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); const t=document.getElementById(id); if(t) t.classList.add('active'); document.getElementById('pageTitle').textContent=id.charAt(0).toUpperCase()+id.slice(1); }
 function showToast(message, type='error') { const t=document.getElementById('toast'); if(!t) return; t.textContent=message; t.className=`toast ${type}`; setTimeout(()=>t.className='toast hidden',4000); }
 

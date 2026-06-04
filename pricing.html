@@ -13,44 +13,28 @@
     </nav>
 
     <section class="pricing-page">
-        <div class="pricing-header">
-            <h1>Choose Your Plan</h1>
-            <p>All plans in Omani Rial. Start with a 15-day free trial.</p>
-        </div>
-
+        <div class="pricing-header"><h1>Choose Your Plan</h1><p>All plans in Omani Rial. Start with a 15-day free trial.</p></div>
         <div class="pricing-grid">
             <div class="pricing-card">
                 <div class="plan-header"><h3>🆓 Trial</h3><div class="plan-price"><span class="amount">Free</span></div><p>15 days trial</p></div>
-                <ul class="plan-features">
-                    <li>✅ Up to 50 customers</li><li>✅ Digital stamp cards</li><li>✅ QR code scanner</li>
-                    <li>✅ Basic analytics</li><li>❌ Broadcast messages</li><li>❌ Custom branding</li><li>❌ Own domain name</li>
-                </ul>
+                <ul class="plan-features"><li>✅ Up to 50 customers</li><li>✅ Digital stamp cards</li><li>✅ QR code scanner</li><li>✅ Basic analytics</li><li>❌ Broadcast messages</li><li>❌ Custom branding</li><li>❌ Own domain name</li></ul>
                 <a href="register.html" class="btn btn-outline btn-block btn-large">Start Free Trial</a>
             </div>
-
             <div class="pricing-card popular">
                 <div class="popular-badge">🌟 Most Popular</div>
                 <div style="text-align:center; margin:0.5rem 0; color:#4CAF50; font-weight:600; font-size:0.85rem;">🔒 7-Day Money Back Guarantee</div>
                 <div class="plan-header"><h3>💳 Monthly</h3><div class="plan-price"><span class="currency">OMR</span><span class="amount">10</span><span class="period">/month</span></div><p>For growing cafés</p></div>
-                <ul class="plan-features">
-                    <li>✅ Unlimited customers</li><li>✅ Digital stamp cards</li><li>✅ QR code scanner</li>
-                    <li>✅ Broadcast messages</li><li>✅ Full analytics dashboard</li><li>✅ Customer visit history</li><li>✅ Priority WhatsApp support</li>
-                </ul>
+                <ul class="plan-features"><li>✅ Unlimited customers</li><li>✅ Digital stamp cards</li><li>✅ QR code scanner</li><li>✅ Broadcast messages</li><li>✅ Full analytics dashboard</li><li>✅ Customer visit history</li><li>✅ Priority WhatsApp support</li></ul>
                 <button onclick="selectPlan('monthly', 10)" class="btn btn-primary btn-block btn-large">Choose Monthly</button>
             </div>
-
             <div class="pricing-card">
                 <div class="plan-header"><h3>🏢 Own Brand</h3><div class="plan-price"><span class="currency">OMR</span><span class="amount">90</span><span class="period">/year</span></div><p>Your own loyalty platform</p></div>
-                <ul class="plan-features">
-                    <li>✅ Everything in Monthly</li><li>✅ Remove "StampFlow" name</li><li>✅ Your café logo & colors</li>
-                    <li>✅ Your own domain name</li><li>✅ Custom QR code design</li><li>✅ Multi-staff accounts</li><li>✅ Dedicated phone support</li>
-                </ul>
+                <ul class="plan-features"><li>✅ Everything in Monthly</li><li>✅ Remove "StampFlow" name</li><li>✅ Your café logo & colors</li><li>✅ Your own domain name</li><li>✅ Custom QR code design</li><li>✅ Multi-staff accounts</li><li>✅ Dedicated phone support</li></ul>
                 <button onclick="selectPlan('ownbrand', 90)" class="btn btn-primary btn-block btn-large">Choose Own Brand</button>
             </div>
         </div>
     </section>
 
-    <!-- FAQ Section -->
     <section style="max-width:800px; margin:3rem auto; padding:0 1rem;">
         <h2 style="text-align:center; margin-bottom:2rem; color:var(--primary-dark);">❓ Frequently Asked Questions</h2>
         <div style="background:var(--surface); padding:1.5rem; border-radius:12px; margin-bottom:1rem; box-shadow:var(--shadow);"><h4 style="color:var(--primary);">🔄 Can I switch plans later?</h4><p style="color:var(--text-light); margin-top:0.5rem;">Yes! Upgrade or downgrade anytime. Changes apply immediately.</p></div>
@@ -60,14 +44,12 @@
         <div style="background:var(--surface); padding:1.5rem; border-radius:12px; margin-bottom:1rem; box-shadow:var(--shadow);"><h4 style="color:var(--primary);">🔒 Is my data safe?</h4><p style="color:var(--text-light); margin-top:0.5rem;">Yes! Each shop's data is completely isolated. Your customers are yours alone.</p></div>
     </section>
 
-    <!-- Contact Us -->
     <div style="text-align:center; margin:2rem auto; padding:2rem; max-width:600px; background:linear-gradient(135deg,#faf7f2,#e8dfd0); border-radius:12px;">
         <h3 style="color:var(--primary-dark);">🏢 Need a custom plan?</h3>
         <p style="color:var(--text-light); margin-bottom:1rem;">Multiple locations? Large customer base? We'll create a plan for you.</p>
         <a href="mailto:nadjibharera@gmail.com?subject=StampFlow%20Custom%20Plan" class="btn btn-outline btn-large">📧 Contact Us</a>
     </div>
 
-    <!-- Payment Modal -->
     <div id="paymentModal" class="modal hidden">
         <div class="modal-content payment-modal">
             <h2>💳 Complete Payment</h2>
@@ -82,9 +64,7 @@
                 </div>
                 <div class="or-divider"><span>OR</span></div>
                 <h4>📱 Mobile Wallet:</h4>
-                <div class="bank-details">
-                    <div class="detail-row"><span class="detail-label">Thawani / Phone:</span><span class="detail-value copyable" onclick="copyText(this)">+968 7844 0900</span></div>
-                </div>
+                <div class="bank-details"><div class="detail-row"><span class="detail-label">Thawani / Phone:</span><span class="detail-value copyable" onclick="copyText(this)">+968 7844 0900</span></div></div>
             </div>
             <div class="upload-section">
                 <h4>📸 Upload Payment Screenshot</h4>
@@ -100,15 +80,20 @@
         </div>
     </div>
 
-    <!-- Success Modal -->
     <div id="successModal" class="modal hidden">
         <div class="modal-content" style="text-align:center;">
-            <span style="font-size:4rem;">🎉</span>
-            <h2>Payment Submitted!</h2>
-            <p>Your receipt is being verified.</p>
-            <p style="color:#888;">You'll get confirmation within 24 hours.</p>
-            <p style="font-weight:600;">15-day trial starts now!</p>
-            <button onclick="goToDashboard()" class="btn btn-primary btn-block" style="margin-top:1rem;">Go to Dashboard</button>
+            <span style="font-size:4rem;">⏳</span>
+            <h2>Verification Pending</h2>
+            <p>Your receipt has been submitted.</p>
+            <div style="background:#FFF3E0; padding:1rem; border-radius:8px; margin:1rem 0; text-align:left;">
+                <p style="font-weight:600;">📋 Next steps:</p>
+                <p style="font-size:0.9rem;">1. We'll verify your payment (24 hours)</p>
+                <p style="font-size:0.9rem;">2. You'll receive a confirmation</p>
+                <p style="font-size:0.9rem;">3. Your dashboard will be activated</p>
+            </div>
+            <p style="font-weight:600;">Want faster activation?</p>
+            <a href="https://wa.me/96878440900" class="btn btn-success btn-block" style="margin-top:0.5rem;">📱 WhatsApp: +968 7844 0900</a>
+            <button onclick="document.getElementById('successModal').classList.add('hidden')" class="btn btn-outline btn-block" style="margin-top:0.5rem;">Close</button>
         </div>
     </div>
 
@@ -145,6 +130,18 @@
                 await supabase.from('payments').insert({ shop_id: session.user.id, plan: selectedPlan, amount: selectedAmount, receipt_url: publicUrl, status: 'pending', created_at: new Date().toISOString() });
                 const trialEnd = new Date(); trialEnd.setDate(trialEnd.getDate() + 15);
                 await supabase.from('shops').update({ plan: selectedPlan, trial_ends_at: trialEnd.toISOString(), payment_status: 'pending' }).eq('id', session.user.id);
+                
+                // 🔔 Notify admin via Telegram
+                const { data: shopData } = await supabase.from('shops').select('shop_name, owner_name, email, phone').eq('id', session.user.id).single();
+                fetch(`https://api.telegram.org/bot8677502842:AAEzyIv9tkw_T6d-3K-kzVc_vCNBcMLpQG8/sendMessage`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: '6514637205',
+                        text: `💰 <b>New Payment!</b>\n\n🏪 Shop: ${shopData?.shop_name || 'Unknown'}\n👤 Owner: ${shopData?.owner_name || 'Unknown'}\n📧 Email: ${shopData?.email || 'Unknown'}\n📱 Phone: ${shopData?.phone || 'Unknown'}\n\n💳 Plan: ${selectedPlan}\n💰 Amount: OMR ${selectedAmount}\n\n📋 Check admin panel.`,
+                        parse_mode: 'HTML'
+                    })
+                }).catch(() => {});
+                
                 document.getElementById('paymentModal').classList.add('hidden');
                 document.getElementById('successModal').classList.remove('hidden');
             } catch (err) { console.error('Error:', err); alert('Error: ' + err.message); btn.disabled = false; btn.textContent = "I've Paid - Submit"; }

@@ -18,7 +18,7 @@
             <div class="pricing-card">
                 <div class="plan-header"><h3>🆓 Trial</h3><div class="plan-price"><span class="amount">Free</span></div><p>15 days trial</p></div>
                 <ul class="plan-features"><li>✅ Up to 50 customers</li><li>✅ Digital stamp cards</li><li>✅ QR code scanner</li><li>✅ Basic analytics</li><li>❌ Broadcast messages</li><li>❌ Custom branding</li><li>❌ Own domain name</li></ul>
-                <button onclick="startFreeTrial()" class="btn btn-outline btn-block btn-large">Start Free Trial</button>
+                <button id="trialBtn" onclick="startFreeTrial()" class="btn btn-outline btn-block btn-large">Start Free Trial</button>
             </div>
             <div class="pricing-card popular">
                 <div class="popular-badge">🌟 Most Popular</div>
@@ -103,6 +103,15 @@
     <script src="supabase-config.js"></script>
     <script>
         let selectedPlan = null, selectedAmount = 0;
+        
+        function startFreeTrial() {
+            supabase.auth.getSession().then(({ data: { session } }) => {
+                if (!session) { window.location.href = 'register.html'; return; }
+                const trialEnd = new Date(); trialEnd.setDate(trialEnd.getDate() + 15);
+                supabase.from('shops').update({ plan: 'trial', trial_ends_at: trialEnd.toISOString(), payment_status: 'trial' }).eq('id', session.user.id).then(() => { window.location.href = 'dashboard.html'; });
+            });
+        }
+        
         function selectPlan(plan, amount) {
             supabase.auth.getSession().then(({ data: { session } }) => {
                 if (!session) { alert('Please create a shop account first'); window.location.href = 'register.html'; return; }
@@ -131,32 +140,24 @@
                 const trialEnd = new Date(); trialEnd.setDate(trialEnd.getDate() + 15);
                 await supabase.from('shops').update({ plan: selectedPlan, trial_ends_at: trialEnd.toISOString(), payment_status: 'pending' }).eq('id', session.user.id);
                 
-                // 🔔 Notify admin via Telegram
                 const { data: shopData } = await supabase.from('shops').select('shop_name, owner_name, email, phone').eq('id', session.user.id).single();
                 fetch(`https://api.telegram.org/bot8677502842:AAEzyIv9tkw_T6d-3K-kzVc_vCNBcMLpQG8/sendMessage`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: '6514637205',
-                        text: `💰 <b>New Payment!</b>\n\n🏪 Shop: ${shopData?.shop_name || 'Unknown'}\n👤 Owner: ${shopData?.owner_name || 'Unknown'}\n📧 Email: ${shopData?.email || 'Unknown'}\n📱 Phone: ${shopData?.phone || 'Unknown'}\n\n💳 Plan: ${selectedPlan}\n💰 Amount: OMR ${selectedAmount}\n\n📋 Check admin panel.`,
-                        parse_mode: 'HTML'
-                    })
+                    body: JSON.stringify({ chat_id: '6514637205', text: `💰 <b>New Payment!</b>\n\n🏪 Shop: ${shopData?.shop_name || 'Unknown'}\n👤 Owner: ${shopData?.owner_name || 'Unknown'}\n📧 Email: ${shopData?.email || 'Unknown'}\n📱 Phone: ${shopData?.phone || 'Unknown'}\n\n💳 Plan: ${selectedPlan}\n💰 Amount: OMR ${selectedAmount}\n\n📋 Check admin panel.`, parse_mode: 'HTML' })
                 }).catch(() => {});
                 
                 document.getElementById('paymentModal').classList.add('hidden');
                 document.getElementById('successModal').classList.remove('hidden');
             } catch (err) { console.error('Error:', err); alert('Error: ' + err.message); btn.disabled = false; btn.textContent = "I've Paid - Submit"; }
         }
-        function goToDashboard() { window.location.href = 'dashboard.html'; }
         function copyText(element) { navigator.clipboard.writeText(element.textContent).then(() => { const original = element.textContent; element.textContent = '✅ Copied!'; setTimeout(() => element.textContent = original, 2000); }); }
-              // If already logged in, change trial button to go to dashboard
+        
+        // Change trial button text if logged in
         if (typeof supabase !== 'undefined') {
             supabase.auth.getSession().then(({ data: { session } }) => {
                 if (session) {
-                    const trialBtn = document.getElementById('trialBtn');
-                    if (trialBtn) {
-                        trialBtn.href = 'dashboard.html';
-                        trialBtn.textContent = 'Go to Dashboard';
-                    }
+                    const btn = document.getElementById('trialBtn');
+                    if (btn) { btn.textContent = '📊 Go to Dashboard'; }
                 }
             }).catch(() => {});
         }

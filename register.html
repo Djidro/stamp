@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Shop - LoyaltySip</title>
-   <link rel="stylesheet" href="styles.css">
+    <title>Register Shop - StampFlow</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
- <body class="auth-page">
+<body class="auth-page">
     <a href="index.html" style="position:absolute; top:1rem; left:1rem; color:#6F4E37; text-decoration:none; font-weight:600; background:rgba(255,255,255,0.8); padding:0.5rem 0.75rem; border-radius:20px; z-index:10;">← Home</a>
     <div class="auth-container">
         <div class="auth-card">
@@ -17,83 +17,22 @@
             </div>
             
             <form id="registerForm" class="auth-form" autocomplete="on">
-                <div class="form-group">
-                    <label for="shopName">Shop Name</label>
-                    <input 
-                        type="text" 
-                        id="shopName" 
-                        name="shopName"
-                        autocomplete="organization"
-                        required 
-                        placeholder="e.g. Royal Bakes">
-                </div>
-                
-                <div class="form-group">
-                    <label for="ownerName">Owner Name</label>
-                    <input 
-                        type="text" 
-                        id="ownerName" 
-                        name="ownerName"
-                        autocomplete="name"
-                        required 
-                        placeholder="Full name">
-                </div>
-                
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email"
-                        autocomplete="email"
-                        required 
-                        placeholder="shop@example.com">
-                </div>
-                
-                <div class="form-group">
-                    <label for="phone">Phone</label>
-                    <input 
-                        type="tel" 
-                        id="phone" 
-                        name="phone"
-                        autocomplete="tel"
-                        placeholder="+1 234 567 890">
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password"
-                        autocomplete="new-password"
-                        required 
-                        minlength="6" 
-                        placeholder="Min 6 characters">
-                </div>
-                
-                <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
-                    <span class="btn-text">Create Account</span>
-                </button>
+                <div class="form-group"><label for="shopName">Shop Name</label><input type="text" id="shopName" name="shopName" autocomplete="organization" required placeholder="e.g. Royal Bakes"></div>
+                <div class="form-group"><label for="ownerName">Owner Name</label><input type="text" id="ownerName" name="ownerName" autocomplete="name" required placeholder="Full name"></div>
+                <div class="form-group"><label for="email">Email</label><input type="email" id="email" name="email" autocomplete="email" required placeholder="shop@example.com"></div>
+                <div class="form-group"><label for="phone">Phone</label><input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="+968 1234 5678"></div>
+                <div class="form-group"><label for="password">Password</label><input type="password" id="password" name="password" autocomplete="new-password" required minlength="6" placeholder="Min 6 characters"></div>
+                <button type="submit" class="btn btn-primary btn-block" id="submitBtn"><span class="btn-text">Create Account</span></button>
             </form>
-            
-            <div class="auth-footer">
-                <p>Already have an account? <a href="login.html">Sign in</a></p>
-            </div>
-            
+            <div class="auth-footer"><p>Already have an account? <a href="login.html">Sign in</a></p></div>
             <div id="toast" class="toast hidden"></div>
         </div>
     </div>
 
-    <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Your config -->
-   <script src="supabase-config.js"></script>
-    
+    <script src="supabase-config.js"></script>
     <script>
-        // ✅ Wait for everything to load
         window.addEventListener('DOMContentLoaded', () => {
-            
             const form = document.getElementById('registerForm');
             const toast = document.getElementById('toast');
             const submitBtn = document.getElementById('submitBtn');
@@ -106,12 +45,7 @@
             
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
-                // ✅ SAFETY CHECK - Make sure supabase exists
-                if (typeof supabase === 'undefined' || !supabase.auth) {
-                    showToast('System is loading. Please wait a moment and try again.');
-                    return;
-                }
+                if (typeof supabase === 'undefined' || !supabase.auth) { showToast('System loading...'); return; }
                 
                 submitBtn.disabled = true;
                 submitBtn.querySelector('.btn-text').textContent = 'Creating...';
@@ -123,31 +57,37 @@
                 const password = document.getElementById('password').value;
                 
                 try {
-                    // ✅ Now safe to use supabase
                     const { data, error } = await supabase.auth.signUp({
-                        email,
-                        password,
-                        options: {
-                            data: {
-                                shop_name: shopName,
-                                owner_name: ownerName,
-                                phone: phone
-                            }
-                        }
+                        email, password,
+                        options: { data: { shop_name: shopName, owner_name: ownerName, phone: phone } }
                     });
                     
                     if (error) throw error;
                     
-                    // Update shop phone
+                    // Set up trial for new shop
                     if (data?.user?.id) {
-                        await supabase.from('shops').update({ phone }).eq('id', data.user.id);
+                        const trialEnd = new Date();
+                        trialEnd.setDate(trialEnd.getDate() + 15);
+                        await supabase.from('shops').update({ 
+                            phone: phone,
+                            plan: 'trial',
+                            trial_ends_at: trialEnd.toISOString(),
+                            payment_status: 'trial'
+                        }).eq('id', data.user.id);
+                        
+                        // 🔔 Notify admin via Telegram
+                        fetch(`https://api.telegram.org/bot8677502842:AAEzyIv9tkw_T6d-3K-kzVc_vCNBcMLpQG8/sendMessage`, {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chat_id: '6514637205',
+                                text: `🏪 <b>New Shop Registered!</b>\n\n🏪 Shop: ${shopName}\n👤 Owner: ${ownerName}\n📧 Email: ${email}\n📱 Phone: ${phone}\n\n📋 Check admin panel.`,
+                                parse_mode: 'HTML'
+                            })
+                        }).catch(() => {});
                     }
                     
-                              showToast('Welcome! Choose your plan...', 'success');
-            
-            setTimeout(() => {
-                window.location.href = 'pricing.html';
-            }, 1000);
+                    showToast('🎉 Account created! Choose your plan.', 'success');
+                    setTimeout(() => { window.location.href = 'pricing.html'; }, 1000);
                     
                 } catch (err) {
                     console.error('Register error:', err);
@@ -160,4 +100,3 @@
     </script>
 </body>
 </html>
-

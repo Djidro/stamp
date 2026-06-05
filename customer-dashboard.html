@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Loyalty Card - LoyaltySip</title>
+    <title>My Loyalty Card - stampflow</title>
     <link rel="stylesheet" href="styles.css">
      <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
     <style>
@@ -282,7 +282,7 @@
         function inviteFriend() {
             const shopName = document.getElementById('shopName').textContent;
             const code = document.getElementById('customerCode').textContent.replace('#', '');
-            const link = `https://djidro.github.io/stamp/customer-register.html?ref=${code}`;
+           const link = `https://stampflow.net/customer-register.html?ref=${code}`;
             const text = `☕ Join me at ${shopName} and we both get a FREE stamp!\n\n👉 ${link}\n\nJoin the loyalty program! 🎉`;
             if (navigator.share) {
                 navigator.share({ title: `Join ${shopName} Loyalty`, text: text, url: link }).catch(() => {});

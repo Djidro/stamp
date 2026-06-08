@@ -6,7 +6,7 @@
     <title>StampFlow | Digital Loyalty Cards, QR Rewards & Customer Messaging</title>
     <link rel="canonical" href="https://stampflow.net/">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta name="description" content="Grow customer loyalty with digital stamp cards, QR rewards, and instant customer messaging. No app downloads required.">
+    <meta name="description" content="Digital loyalty cards, QR rewards, and instant customer messaging. No app downloads required.">
     <meta name="keywords" content="digital loyalty cards, QR rewards, loyalty platform, cafe loyalty program, coffee shop loyalty">
     <meta name="robots" content="index, follow">
     <meta property="og:title" content="StampFlow - Digital Loyalty Cards">
@@ -23,8 +23,6 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6F4E37">
     <style>
-        .nav-links { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-        .theme-toggle { background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 0.25rem; min-width: 44px; min-height: 44px; }
         .section-alt { background: linear-gradient(135deg, #faf7f2 0%, #f0e6d8 100%); }
         [data-theme="dark"] .section-alt { background: linear-gradient(135deg, #1a1a2e 0%, #1a1410 100%); }
         .section-fade { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
@@ -62,22 +60,12 @@
         /* 🕺 Dancing StampFlow */
         @keyframes dance {
             0%,100% { transform: translateY(0) rotate(0deg); }
-            25% { transform: translateY(-3px) rotate(-2deg); }
+            25% { transform: translateY(-4px) rotate(-2deg); }
             50% { transform: translateY(0) rotate(0deg); }
-            75% { transform: translateY(-3px) rotate(2deg); }
+            75% { transform: translateY(-4px) rotate(2deg); }
         }
         .dancing-text { display: inline-block; animation: dance 2s ease-in-out infinite; }
-        .dancing-text:nth-child(1) { animation-delay: 0s; }
-        .dancing-text:nth-child(2) { animation-delay: 0.1s; }
-        .dancing-text:nth-child(3) { animation-delay: 0.2s; }
-        .dancing-text:nth-child(4) { animation-delay: 0.3s; }
-        .dancing-text:nth-child(5) { animation-delay: 0.4s; }
-        .dancing-text:nth-child(6) { animation-delay: 0.5s; }
-        .dancing-text:nth-child(7) { animation-delay: 0.6s; }
-        .dancing-text:nth-child(8) { animation-delay: 0.7s; }
-        .dancing-text:nth-child(9) { animation-delay: 0.8s; }
-
-        /* Hero title smaller */
+        .dancing-text:nth-child(1){animation-delay:0s}.dancing-text:nth-child(2){animation-delay:.1s}.dancing-text:nth-child(3){animation-delay:.2s}.dancing-text:nth-child(4){animation-delay:.3s}.dancing-text:nth-child(5){animation-delay:.4s}.dancing-text:nth-child(6){animation-delay:.5s}.dancing-text:nth-child(7){animation-delay:.6s}.dancing-text:nth-child(8){animation-delay:.7s}.dancing-text:nth-child(9){animation-delay:.8s}
         .hero-title { font-size: 1.2rem; font-weight: 600; color: var(--text-light); margin-bottom: 1.5rem; line-height: 1.4; }
 
         /* STICKY BOTTOM NAV */
@@ -94,7 +82,7 @@
         }
         .bottom-nav a.active { color: var(--primary); background: rgba(111,78,55,0.08); }
         .bottom-nav a .nav-icon { font-size: 1.3rem; }
-        .bottom-nav .theme-toggle-bottom { background: none; border: none; cursor: pointer; font-size: 1.3rem; padding: 0.25rem; color: var(--text-light); }
+        .bottom-nav .theme-toggle-bottom { background: none; border: none; cursor: pointer; font-size: 1.3rem; padding: 0.25rem; color: var(--text-light); display: flex; flex-direction: column; align-items: center; gap: 0.2rem; font-weight: 600; font-size: 0.65rem; }
 
         @media (max-width: 768px) {
             .bottom-nav { display: flex; }
@@ -105,16 +93,15 @@
     </style>
 </head>
 <body>
-    <!-- TOP NAVBAR -->
+    <!-- TOP NAVBAR - Just Brand -->
     <nav class="navbar">
         <div class="nav-brand"><span class="logo">☕</span><span>StampFlow</span></div>
-        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
     </nav>
 
     <header class="hero">
         <div class="hero-content">
-            <!-- 🕺 Dancing StampFlow -->
-            <h1 style="font-size:3rem; margin-bottom:0.5rem; color:var(--primary-dark);">
+            <!-- 🕺 Dancing StampFlow Title -->
+            <h1 style="font-size:3.5rem; margin-bottom:0.5rem; color:var(--primary-dark);">
                 <span class="dancing-text">S</span><span class="dancing-text">t</span><span class="dancing-text">a</span><span class="dancing-text">m</span><span class="dancing-text">p</span><span class="dancing-text">F</span><span class="dancing-text">l</span><span class="dancing-text">o</span><span class="dancing-text">w</span>
             </h1>
             <p class="hero-title">Digital loyalty cards, QR rewards & customer messaging for cafés, restaurants and shops.</p>
@@ -122,9 +109,6 @@
                 <a href="customer-register.html" class="btn btn-large btn-primary">Join Loyalty Program</a>
                 <a href="register.html" class="btn btn-large btn-outline">Create Your Shop</a>
                 <a href="#how-it-works" class="btn btn-large btn-outline">How It Works</a>
-            </div>
-            <div style="margin-top:20px;font-size:0.9rem;font-weight:600;">
-                ✅ No App Download &nbsp; ✅ QR Rewards &nbsp; ✅ Multi-Shop
             </div>
         </div>
         <div class="hero-visual">
@@ -158,13 +142,13 @@
         <h2>How It Works</h2>
         <p class="section-subtitle">Simple 4-step process for your customers</p>
         <div class="steps-container">
-            <div class="step-card" data-step="1"><div class="step-number">1</div><div class="step-icon">🙋</div><h3>Customer Joins</h3><p>Customer visits your shop link, enters name & phone, and gets a unique loyalty card instantly.</p></div>
+            <div class="step-card" data-step="1"><div class="step-number">1</div><div class="step-icon">🙋</div><h3>Customer Joins</h3><p>Visits your shop link, enters name & phone, gets a unique loyalty card instantly.</p></div>
             <div class="step-arrow">→</div>
-            <div class="step-card" data-step="2"><div class="step-number">2</div><div class="step-icon">📷</div><h3>Staff Scans QR</h3><p>Your staff opens the scanner, points at the customer's QR code, and identifies them instantly.</p></div>
+            <div class="step-card" data-step="2"><div class="step-number">2</div><div class="step-icon">📷</div><h3>Staff Scans QR</h3><p>Staff opens scanner, points at customer's QR code, identifies them instantly.</p></div>
             <div class="step-arrow">→</div>
-            <div class="step-card" data-step="3"><div class="step-number">3</div><div class="step-icon">☕</div><h3>Collect Stamps</h3><p>Each purchase adds a digital stamp. Customers watch their progress toward a free reward!</p></div>
+            <div class="step-card" data-step="3"><div class="step-number">3</div><div class="step-icon">☕</div><h3>Collect Stamps</h3><p>Each purchase adds a digital stamp. Watch progress toward a free reward!</p></div>
             <div class="step-arrow">→</div>
-            <div class="step-card" data-step="4"><div class="step-number">4</div><div class="step-icon">🎁</div><h3>Redeem Rewards</h3><p>When stamps are complete, customers earn a free drink or reward. Staff redeems with one click!</p></div>
+            <div class="step-card" data-step="4"><div class="step-number">4</div><div class="step-icon">🎁</div><h3>Redeem Rewards</h3><p>When complete, customers earn a free drink. Staff redeems with one click!</p></div>
         </div>
     </section>
 
@@ -188,10 +172,12 @@
         <div class="footer-bottom"><p>© 2026 StampFlow. All rights reserved.</p></div>
     </footer>
 
+    <!-- STICKY BOTTOM NAVIGATION (Mobile Only) -->
     <nav class="bottom-nav" id="bottomNav">
         <a href="customer-register.html"><span class="nav-icon">🎫</span>Join</a>
         <a href="customer-dashboard.html"><span class="nav-icon">💳</span>Card</a>
-        <a href="pricing.html"><span class="nav-icon">💰</span>Pricing</a>
+        <a href="login.html"><span class="nav-icon">🔑</span>Login</a>
+        <a href="dashboard.html"><span class="nav-icon">📊</span>Dashboard</a>
         <button class="theme-toggle-bottom" onclick="toggleTheme()"><span class="nav-icon">🌙</span>Theme</button>
     </nav>
 
@@ -204,10 +190,13 @@
         }
         function updateThemeIcon() {
             const t=document.documentElement.getAttribute('data-theme')||'light';
-            document.querySelectorAll('.theme-toggle,.theme-toggle-bottom').forEach(i=>i.textContent=t==='dark'?'☀️':'🌙');
+            document.querySelectorAll('.theme-toggle-bottom').forEach(i=>i.innerHTML=`<span class="nav-icon">${t==='dark'?'☀️':'🌙'}</span>${t==='dark'?'Light':'Theme'}`);
         }
         const savedTheme=localStorage.getItem('theme'); if(savedTheme) document.documentElement.setAttribute('data-theme',savedTheme); updateThemeIcon();
-        if(typeof supabase!=='undefined'){supabase.auth.getSession().then(({data:{session}})=>{if(session){const b=document.getElementById('bottomNav');if(b)b.innerHTML=`<a href="customer-register.html"><span class="nav-icon">🎫</span>Join</a><a href="customer-dashboard.html"><span class="nav-icon">💳</span>Card</a><a href="dashboard.html" class="active"><span class="nav-icon">📊</span>Dashboard</a><button class="theme-toggle-bottom" onclick="toggleTheme()"><span class="nav-icon">🌙</span>Theme</button>`;}}).catch(()=>{});}
+
+        // Show Dashboard in bottom nav if logged in
+        if(typeof supabase!=='undefined'){supabase.auth.getSession().then(({data:{session}})=>{if(session){const b=document.getElementById('bottomNav');if(b)b.innerHTML=`<a href="customer-register.html"><span class="nav-icon">🎫</span>Join</a><a href="customer-dashboard.html"><span class="nav-icon">💳</span>Card</a><a href="dashboard.html" class="active"><span class="nav-icon">📊</span>Dashboard</a><a href="pricing.html"><span class="nav-icon">💰</span>Pricing</a><button class="theme-toggle-bottom" onclick="toggleTheme()"><span class="nav-icon">🌙</span>Theme</button>`;}}).catch(()=>{});}
+
         const so=new IntersectionObserver((e)=>{e.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
         document.querySelectorAll('.section-fade').forEach(s=>so.observe(s));
         const st=new IntersectionObserver((e)=>{e.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.3});

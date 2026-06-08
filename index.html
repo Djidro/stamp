@@ -6,11 +6,11 @@
     <title>StampFlow | Digital Loyalty Cards, QR Rewards & Customer Messaging</title>
     <link rel="canonical" href="https://stampflow.net/">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta name="description" content="Grow customer loyalty with digital stamp cards, QR rewards, and instant customer messaging. Send promotions to all customers at once, track visits, and increase repeat business. No app downloads required.">
-    <meta name="keywords" content="digital loyalty cards, loyalty cards, QR rewards, QR loyalty system, customer rewards, loyalty platform, customer retention, cafe loyalty program, restaurant loyalty program, coffee shop loyalty program, loyalty software">
+    <meta name="description" content="Grow customer loyalty with digital stamp cards, QR rewards, and instant customer messaging. No app downloads required.">
+    <meta name="keywords" content="digital loyalty cards, QR rewards, loyalty platform, cafe loyalty program, coffee shop loyalty">
     <meta name="robots" content="index, follow">
     <meta property="og:title" content="StampFlow - Digital Loyalty Cards">
-    <meta property="og:description" content="Digital loyalty cards, QR rewards, customer messaging, and loyalty programs for cafes, restaurants, and shops.">
+    <meta property="og:description" content="Digital loyalty cards, QR rewards, and customer messaging for cafes and shops.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://stampflow.net">
     <meta property="og:image" content="https://stampflow.net/preview.png">
@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="styles.css">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="stampflow">
+    <meta name="apple-mobile-web-app-title" content="StampFlow">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6F4E37">
@@ -59,10 +59,30 @@
         .footer-col a:hover { color: var(--primary); }
         .footer-bottom { text-align: center; padding: 1rem; border-top: 1px solid var(--border); color: var(--text-light); font-size: 0.8rem; }
 
+        /* 🕺 Dancing StampFlow */
+        @keyframes dance {
+            0%,100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-3px) rotate(-2deg); }
+            50% { transform: translateY(0) rotate(0deg); }
+            75% { transform: translateY(-3px) rotate(2deg); }
+        }
+        .dancing-text { display: inline-block; animation: dance 2s ease-in-out infinite; }
+        .dancing-text:nth-child(1) { animation-delay: 0s; }
+        .dancing-text:nth-child(2) { animation-delay: 0.1s; }
+        .dancing-text:nth-child(3) { animation-delay: 0.2s; }
+        .dancing-text:nth-child(4) { animation-delay: 0.3s; }
+        .dancing-text:nth-child(5) { animation-delay: 0.4s; }
+        .dancing-text:nth-child(6) { animation-delay: 0.5s; }
+        .dancing-text:nth-child(7) { animation-delay: 0.6s; }
+        .dancing-text:nth-child(8) { animation-delay: 0.7s; }
+        .dancing-text:nth-child(9) { animation-delay: 0.8s; }
+
+        /* Hero title smaller */
+        .hero-title { font-size: 1.2rem; font-weight: 600; color: var(--text-light); margin-bottom: 1.5rem; line-height: 1.4; }
+
         /* STICKY BOTTOM NAV */
         .bottom-nav {
-            display: none;
-            position: fixed; bottom: 0; left: 0; right: 0;
+            display: none; position: fixed; bottom: 0; left: 0; right: 0;
             background: var(--surface); border-top: 1px solid var(--border);
             z-index: 999; padding: 0.5rem; justify-content: space-around;
             box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
@@ -83,23 +103,9 @@
             .demo-screen { min-height: 300px; padding: 0.75rem; }
         }
     </style>
-    <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "StampFlow",
-  "applicationCategory": "BusinessApplication",
-  "operatingSystem": "Web",
-  "url": "https://stampflow.net",
-  "description": "Digital loyalty cards, QR rewards, customer messaging, and loyalty programs for cafes, restaurants, and shops.",
-  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-  "publisher": { "@type": "Organization", "name": "StampFlow" },
-  "image": "https://stampflow.net/preview.png"
-}
-</script>
 </head>
 <body>
-    <!-- TOP NAVBAR - Clean & Simple -->
+    <!-- TOP NAVBAR -->
     <nav class="navbar">
         <div class="nav-brand"><span class="logo">☕</span><span>StampFlow</span></div>
         <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
@@ -107,13 +113,19 @@
 
     <header class="hero">
         <div class="hero-content">
-            <h1>Digital Loyalty Cards, QR Rewards & Customer Messaging for Cafes, Restaurants and Shops</h1>
-            <p class="subtitle">Grow customer loyalty with digital stamp cards, QR rewards, and instant customer messaging. Send promotions to all customers at once, track visits, and increase repeat business. No app downloads required.</p>
+            <!-- 🕺 Dancing StampFlow -->
+            <h1 style="font-size:3rem; margin-bottom:0.5rem; color:var(--primary-dark);">
+                <span class="dancing-text">S</span><span class="dancing-text">t</span><span class="dancing-text">a</span><span class="dancing-text">m</span><span class="dancing-text">p</span><span class="dancing-text">F</span><span class="dancing-text">l</span><span class="dancing-text">o</span><span class="dancing-text">w</span>
+            </h1>
+            <p class="hero-title">Digital loyalty cards, QR rewards & customer messaging for cafés, restaurants and shops.</p>
             <div class="hero-cta">
                 <a href="customer-register.html" class="btn btn-large btn-primary">Join Loyalty Program</a>
                 <a href="register.html" class="btn btn-large btn-outline">Create Your Shop</a>
                 <a href="#how-it-works" class="btn btn-large btn-outline">How It Works</a>
-            </div> 
+            </div>
+            <div style="margin-top:20px;font-size:0.9rem;font-weight:600;">
+                ✅ No App Download &nbsp; ✅ QR Rewards &nbsp; ✅ Multi-Shop
+            </div>
         </div>
         <div class="hero-visual">
             <div class="demo-phone" id="demoPhone">
@@ -168,15 +180,14 @@
 
     <footer class="footer">
         <div class="footer-grid">
-            <div class="footer-col"><h4>stampflow</h4><p style="color:var(--text-light); font-size:0.85rem;">Digital loyalty cards for cafés. Built for cafés.</p></div>
+            <div class="footer-col"><h4>StampFlow</h4><p style="color:var(--text-light); font-size:0.85rem;">Digital loyalty cards for cafés. Built for cafés.</p></div>
             <div class="footer-col"><h4>Quick Links</h4><a href="index.html">Home</a><a href="customer-register.html">Join Loyalty</a><a href="pricing.html">Pricing</a><a href="#how-it-works">How It Works</a></div>
             <div class="footer-col"><h4>For Shops</h4><a href="login.html">Shop Login</a><a href="register.html">Create Shop</a><a href="dashboard.html">Dashboard</a><a href="scanner.html">QR Scanner</a></div>
             <div class="footer-col"><h4>Contact</h4><a href="mailto:nadjibharera@gmail.com">📧 Email Us</a><a href="https://t.me/LoyaltySip_Bot">Telegram Bot</a><p style="color:var(--text-light); font-size:0.8rem; margin-top:0.5rem;">📍 Muscat, Oman</p></div>
         </div>
-        <div class="footer-bottom"><p>© 2026 stampflow. All rights reserved.</p></div>
+        <div class="footer-bottom"><p>© 2026 StampFlow. All rights reserved.</p></div>
     </footer>
 
-    <!-- STICKY BOTTOM NAVIGATION (Mobile Only) -->
     <nav class="bottom-nav" id="bottomNav">
         <a href="customer-register.html"><span class="nav-icon">🎫</span>Join</a>
         <a href="customer-dashboard.html"><span class="nav-icon">💳</span>Card</a>
@@ -188,84 +199,28 @@
     <script src="supabase-config.js"></script>
     <script>
         function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-            updateThemeIcon();
+            const c=document.documentElement.getAttribute('data-theme'), n=c==='dark'?'light':'dark';
+            document.documentElement.setAttribute('data-theme',n); localStorage.setItem('theme',n); updateThemeIcon();
         }
         function updateThemeIcon() {
-            const theme = document.documentElement.getAttribute('data-theme') || 'light';
-            document.querySelectorAll('.theme-toggle, .theme-toggle-bottom').forEach(icon => {
-                icon.textContent = theme === 'dark' ? '☀️' : '🌙';
-            });
+            const t=document.documentElement.getAttribute('data-theme')||'light';
+            document.querySelectorAll('.theme-toggle,.theme-toggle-bottom').forEach(i=>i.textContent=t==='dark'?'☀️':'🌙');
         }
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
-        updateThemeIcon();
-
-        // Show Dashboard in bottom nav if logged in
-        if (typeof supabase !== 'undefined') {
-            supabase.auth.getSession().then(({ data: { session } }) => {
-                if (session) {
-                    const bottomNav = document.getElementById('bottomNav');
-                    if (bottomNav) {
-                        bottomNav.innerHTML = `
-                            <a href="customer-register.html"><span class="nav-icon">🎫</span>Join</a>
-                            <a href="customer-dashboard.html"><span class="nav-icon">💳</span>Card</a>
-                            <a href="dashboard.html" class="active"><span class="nav-icon">📊</span>Dashboard</a>
-                            <button class="theme-toggle-bottom" onclick="toggleTheme()"><span class="nav-icon">🌙</span>Theme</button>
-                        `;
-                    }
-                }
-            }).catch(() => {});
-        }
-
-        const sectionObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
-        }, { threshold: 0.15 });
-        document.querySelectorAll('.section-fade').forEach(s => sectionObserver.observe(s));
-
-        const stepObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
-        }, { threshold: 0.3 });
-        document.querySelectorAll('.step-card').forEach(card => stepObserver.observe(card));
+        const savedTheme=localStorage.getItem('theme'); if(savedTheme) document.documentElement.setAttribute('data-theme',savedTheme); updateThemeIcon();
+        if(typeof supabase!=='undefined'){supabase.auth.getSession().then(({data:{session}})=>{if(session){const b=document.getElementById('bottomNav');if(b)b.innerHTML=`<a href="customer-register.html"><span class="nav-icon">🎫</span>Join</a><a href="customer-dashboard.html"><span class="nav-icon">💳</span>Card</a><a href="dashboard.html" class="active"><span class="nav-icon">📊</span>Dashboard</a><button class="theme-toggle-bottom" onclick="toggleTheme()"><span class="nav-icon">🌙</span>Theme</button>`;}}).catch(()=>{});}
+        const so=new IntersectionObserver((e)=>{e.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+        document.querySelectorAll('.section-fade').forEach(s=>so.observe(s));
+        const st=new IntersectionObserver((e)=>{e.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.3});
+        document.querySelectorAll('.step-card').forEach(c=>st.observe(c));
     </script>
-
     <script>
-        let demoStamps = 0, demoRewards = 0;
-        const totalRequired = 6;
-        function updateDemoDisplay() {
-            document.querySelectorAll('#demoStamps .demo-stamp').forEach((s, i) => s.classList.toggle('filled', i < demoStamps));
-            document.getElementById('demoCount').textContent = demoStamps;
-            document.getElementById('demoProgress').style.width = (demoStamps / totalRequired * 100) + '%';
-            document.getElementById('demoRewards').textContent = demoRewards;
-            const redeemBtn = document.getElementById('demoRedeemBtn');
-            redeemBtn.disabled = demoRewards < 1;
-            redeemBtn.textContent = demoRewards > 0 ? `🎁 Redeem (${demoRewards})` : '🎁 Redeem';
-            const rewardMsg = document.getElementById('demoRewardMsg');
-            if (demoRewards > 0) { rewardMsg.classList.add('show'); rewardMsg.textContent = `🎁 ${demoRewards} Reward(s) Available!`; }
-            else rewardMsg.classList.remove('show');
-        }
-        function spawnConfetti() {
-            const emojis = ['🎉','🎊','☕','⭐','🎁','✨'];
-            const phone = document.getElementById('demoPhone'), rect = phone.getBoundingClientRect();
-            for (let i = 0; i < 15; i++) {
-                setTimeout(() => {
-                    const piece = document.createElement('div');
-                    piece.className = 'demo-confetti';
-                    piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                    piece.style.left = rect.left + Math.random() * rect.width + 'px';
-                    piece.style.top = rect.top + rect.height * 0.5 + 'px';
-                    document.body.appendChild(piece);
-                    setTimeout(() => piece.remove(), 1000);
-                }, i * 40);
-            }
-        }
-        function demoAddStamp() { demoStamps++; if (demoStamps >= totalRequired) { demoStamps = 0; demoRewards++; spawnConfetti(); } updateDemoDisplay(); }
-        function demoRedeem() { if (demoRewards > 0) { demoRewards--; updateDemoDisplay(); } }
-        function demoReset() { demoStamps = 0; demoRewards = 0; updateDemoDisplay(); }
-        updateDemoDisplay();
+        let ds=0,dr=0; const tr=6;
+        function ud(){document.querySelectorAll('#demoStamps .demo-stamp').forEach((s,i)=>s.classList.toggle('filled',i<ds));document.getElementById('demoCount').textContent=ds;document.getElementById('demoProgress').style.width=(ds/tr*100)+'%';document.getElementById('demoRewards').textContent=dr;const b=document.getElementById('demoRedeemBtn');b.disabled=dr<1;b.textContent=dr>0?`🎁 Redeem (${dr})`:'🎁 Redeem';const m=document.getElementById('demoRewardMsg');if(dr>0){m.classList.add('show');m.textContent=`🎁 ${dr} Reward(s)!`;}else m.classList.remove('show');}
+        function sc(){const e=['🎉','🎊','☕','⭐','🎁','✨'],p=document.getElementById('demoPhone'),r=p.getBoundingClientRect();for(let i=0;i<15;i++){setTimeout(()=>{const c=document.createElement('div');c.className='demo-confetti';c.textContent=e[Math.floor(Math.random()*e.length)];c.style.left=r.left+Math.random()*r.width+'px';c.style.top=r.top+r.height*.5+'px';document.body.appendChild(c);setTimeout(()=>c.remove(),1e3)},i*40)}}
+        function da(){ds++;if(ds>=tr){ds=0;dr++;sc();}ud();}
+        function dR(){if(dr>0){dr--;ud();}}
+        function dRe(){ds=0;dr=0;ud();}
+        ud();
     </script>
 </body>
 </html>

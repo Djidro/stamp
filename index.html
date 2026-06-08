@@ -162,7 +162,54 @@
             <div class="feature-card"><div class="feature-icon">📡</div><h3>Broadcasts</h3><p>Send push notifications to all your customers with one click.</p></div>
         </div>
     </section>
+        <!-- 🚀 Call-to-Action Banner -->
+    <div style="background:linear-gradient(135deg, #6F4E37, #8B6914); padding:3rem 1rem; text-align:center; color:white; margin-top:2rem;">
+        <h2 style="font-size:2rem; margin-bottom:0.5rem;">🚀 Ready to Grow Your Café?</h2>
+        <p style="font-size:1.1rem; opacity:0.9; margin-bottom:1.5rem;">Start your 15-day free trial today. No credit card required.</p>
+        <a href="register.html" class="btn btn-large" style="background:white; color:#6F4E37; font-weight:700; padding:1rem 2rem; border-radius:30px; text-decoration:none; display:inline-block;">🏪 Create Your Shop Free</a>
+        <p style="margin-top:1rem; font-size:0.85rem; opacity:0.7;">Join growing cafés using StampFlow</p>
+    </div>
 
+    <!-- Floating Social Proof Popup -->
+    <div id="socialProof" style="position:fixed; bottom:80px; left:20px; background:var(--surface); padding:0.75rem 1rem; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.2); z-index:998; font-size:0.85rem; animation:slideUp 0.5s ease, fadeOut 0.5s ease 4s forwards; display:none;">
+        <span id="socialProofText">🎉 Someone just joined!</span>
+    </div>
+
+    <style>
+        @keyframes slideUp { from { transform:translateY(20px);opacity:0; } to { transform:translateY(0);opacity:1; } }
+        @keyframes fadeOut { to { opacity:0; transform:translateY(-10px); } }
+    </style>
+
+    <script>
+        // Social Proof - Show random "just joined" messages
+        const proofMessages = [
+            "🎉 A new customer just joined a loyalty program!",
+            "☕ Someone just earned a free reward!",
+            "🏪 A new café just registered!",
+            "👥 A customer just invited a friend!",
+            "⭐ A shop just sent a broadcast to all customers!"
+        ];
+        
+        function showSocialProof() {
+            const el = document.getElementById('socialProof');
+            const txt = document.getElementById('socialProofText');
+            const msg = proofMessages[Math.floor(Math.random() * proofMessages.length)];
+            txt.textContent = msg;
+            el.style.display = 'block';
+            el.style.animation = 'none';
+            el.offsetHeight;
+            el.style.animation = 'slideUp 0.5s ease, fadeOut 0.5s ease 4s forwards';
+            setTimeout(() => { el.style.display = 'none'; }, 4500);
+        }
+        
+        // Show every 15-30 seconds
+        setInterval(() => {
+            if (Math.random() > 0.5) showSocialProof();
+        }, 20000);
+        
+        // Show first one after 5 seconds
+        setTimeout(showSocialProof, 5000);
+    </script>
     <footer class="footer">
         <div class="footer-grid">
             <div class="footer-col"><h4>StampFlow</h4><p style="color:var(--text-light); font-size:0.85rem;">Digital loyalty cards for cafés. Built for cafés.</p></div>

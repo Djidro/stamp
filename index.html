@@ -6,17 +6,15 @@
     <title>StampFlow | Digital Loyalty Cards, QR Rewards & Customer Messaging</title>
     <link rel="canonical" href="https://stampflow.net/">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <meta name="description" content="Grow customer loyalty with digital stamp cards, QR rewards, and instant customer messaging. Send promotions to all customers at once, track visits, and increase repeat business. No app downloads required.">
- <meta name="keywords" content="digital loyalty cards, loyalty cards, QR rewards, QR loyalty system, customer rewards, loyalty platform, customer retention, cafe loyalty program, restaurant loyalty program, coffee shop loyalty program, loyalty software">
-
-<meta name="robots" content="index, follow">
-
-<meta property="og:title" content="StampFlow - Digital Loyalty Cards">
-<meta property="og:description" content="Digital loyalty cards, QR rewards, customer messaging, and loyalty programs for cafes, restaurants, and shops.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://stampflow.net">
-<meta property="og:image" content="https://stampflow.net/preview.png">
-<meta property="og:site_name" content="StampFlow">
+    <meta name="description" content="Grow customer loyalty with digital stamp cards, QR rewards, and instant customer messaging. Send promotions to all customers at once, track visits, and increase repeat business. No app downloads required.">
+    <meta name="keywords" content="digital loyalty cards, loyalty cards, QR rewards, QR loyalty system, customer rewards, loyalty platform, customer retention, cafe loyalty program, restaurant loyalty program, coffee shop loyalty program, loyalty software">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="StampFlow - Digital Loyalty Cards">
+    <meta property="og:description" content="Digital loyalty cards, QR rewards, customer messaging, and loyalty programs for cafes, restaurants, and shops.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://stampflow.net">
+    <meta property="og:image" content="https://stampflow.net/preview.png">
+    <meta property="og:site_name" content="StampFlow">
     <link rel="stylesheet" href="styles.css">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -25,26 +23,12 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6F4E37">
     <style>
-        .dropdown { position: relative; display: inline-block; }
-        .dropdown-btn { cursor: pointer; }
-        .dropdown-menu { display: none; position: absolute; right: 0; top: 100%; background: var(--surface); border-radius: var(--radius-sm); box-shadow: 0 8px 30px rgba(0,0,0,0.15); z-index: 200; min-width: 180px; padding: 0.5rem 0; margin-top: 0.25rem; }
-        .dropdown-menu.show { display: block; }
-        .dropdown-menu a { display: block; padding: 0.75rem 1rem; color: var(--text); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
-        .dropdown-menu a:hover { background: rgba(111,78,55,0.08); }
         .nav-links { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-
-        /* Dark mode toggle */
         .theme-toggle { background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 0.25rem; min-width: 44px; min-height: 44px; }
-
-        /* Gradient sections */
         .section-alt { background: linear-gradient(135deg, #faf7f2 0%, #f0e6d8 100%); }
         [data-theme="dark"] .section-alt { background: linear-gradient(135deg, #1a1a2e 0%, #1a1410 100%); }
-
-        /* Smooth section transitions */
         .section-fade { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
         .section-fade.visible { opacity: 1; transform: translateY(0); }
-
-        /* Interactive Demo */
         .demo-phone { background: var(--primary); padding: 0.75rem; border-radius: 2rem; box-shadow: var(--shadow); max-width: 280px; margin: 0 auto; }
         .demo-screen { background: var(--surface); border-radius: 1.5rem; padding: 1rem; text-align: center; min-height: 350px; }
         .demo-header { font-weight: 700; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; }
@@ -69,15 +53,32 @@
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
         .demo-confetti { position: absolute; font-size: 1rem; animation: confettiFall 1s ease forwards; pointer-events: none; z-index: 10; }
         @keyframes confettiFall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(-80px) rotate(360deg); opacity: 0; } }
-
-        /* Footer columns */
         .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; max-width: 1000px; margin: 0 auto; padding: 2rem 1rem; text-align: left; }
         .footer-col h4 { color: var(--primary); margin-bottom: 0.75rem; font-size: 1rem; }
         .footer-col a { display: block; color: var(--text-light); text-decoration: none; font-size: 0.85rem; padding: 0.25rem 0; }
         .footer-col a:hover { color: var(--primary); }
         .footer-bottom { text-align: center; padding: 1rem; border-top: 1px solid var(--border); color: var(--text-light); font-size: 0.8rem; }
 
-        @media (max-width: 480px) {
+        /* STICKY BOTTOM NAV */
+        .bottom-nav {
+            display: none;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--surface); border-top: 1px solid var(--border);
+            z-index: 999; padding: 0.5rem; justify-content: space-around;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        }
+        .bottom-nav a {
+            display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+            text-decoration: none; color: var(--text-light); font-size: 0.65rem; font-weight: 600;
+            padding: 0.25rem; border-radius: 10px; transition: all 0.2s;
+        }
+        .bottom-nav a.active { color: var(--primary); background: rgba(111,78,55,0.08); }
+        .bottom-nav a .nav-icon { font-size: 1.3rem; }
+        .bottom-nav .theme-toggle-bottom { background: none; border: none; cursor: pointer; font-size: 1.3rem; padding: 0.25rem; color: var(--text-light); }
+
+        @media (max-width: 768px) {
+            .bottom-nav { display: flex; }
+            body { padding-bottom: 70px; }
             .demo-phone { max-width: 240px; }
             .demo-screen { min-height: 300px; padding: 0.75rem; }
         }
@@ -91,52 +92,28 @@
   "operatingSystem": "Web",
   "url": "https://stampflow.net",
   "description": "Digital loyalty cards, QR rewards, customer messaging, and loyalty programs for cafes, restaurants, and shops.",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "StampFlow"
-  },
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "publisher": { "@type": "Organization", "name": "StampFlow" },
   "image": "https://stampflow.net/preview.png"
 }
 </script>
 </head>
 <body>
+    <!-- TOP NAVBAR - Clean & Simple -->
     <nav class="navbar">
-        <div class="nav-brand"><span class="logo"></span><span>StampFlow</span></div>
-        <div class="nav-links" id="navLinks">
-            <a href="customer-register.html" class="btn btn-primary" title="Join Loyalty">🎫 Join</a>
-            <a href="customer-dashboard.html" class="btn btn-outline" title="My Card">💳 Card</a>
-            <div class="dropdown">
-                <button class="btn btn-outline dropdown-btn" onclick="toggleDropdown()" title="For Shops">🏪 Shops ▾</button>
-                <div class="dropdown-menu" id="dropdownMenu">
-                    <a href="login.html">🔑 Shop Login</a>
-                    <a href="register.html">🆕 Create Shop</a>
-                    <a href="pricing.html">💰 Pricing</a>
-                </div>
-            </div>
-            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
-        </div>
+        <div class="nav-brand"><span class="logo">☕</span><span>StampFlow</span></div>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
     </nav>
+
     <header class="hero">
         <div class="hero-content">
-          <h1>Digital Loyalty Cards, QR Rewards & Customer Messaging for Cafes, Restaurants and Shops</h1>
-            <p class="subtitle">Grow customer loyalty with digital stamp cards, QR rewards, and instant customer messaging. Send promotions to all customers at once, track visits, and increase repeat business. No app downloads required.
-</p>
+            <h1>Digital Loyalty Cards, QR Rewards & Customer Messaging for Cafes, Restaurants and Shops</h1>
+            <p class="subtitle">Grow customer loyalty with digital stamp cards, QR rewards, and instant customer messaging. Send promotions to all customers at once, track visits, and increase repeat business. No app downloads required.</p>
             <div class="hero-cta">
-                <a href="customer-register.html" class="btn btn-large btn-primary"> Join Loyalty Program</a>
+                <a href="customer-register.html" class="btn btn-large btn-primary">Join Loyalty Program</a>
                 <a href="register.html" class="btn btn-large btn-outline">Create Your Shop</a>
                 <a href="#how-it-works" class="btn btn-large btn-outline">How It Works</a>
             </div> 
-            <div style="margin-top:20px;font-size:0.95rem;font-weight:600;">
-✅ No App Downloads Required &nbsp;&nbsp;
-✅ QR Code Rewards &nbsp;&nbsp;
-✅ Message All Customers at Once &nbsp;&nbsp;
-✅ Multi-Shop Support
-</div>
         </div>
         <div class="hero-visual">
             <div class="demo-phone" id="demoPhone">
@@ -159,7 +136,7 @@
                         <button class="demo-btn demo-btn-redeem" id="demoRedeemBtn" disabled onclick="demoRedeem()">🎁 Redeem</button>
                         <button class="demo-btn demo-btn-reset" onclick="demoReset()">🔄 Reset</button>
                     </div>
-                    <p class="demo-label"> Tap to see how it works!</p>
+                    <p class="demo-label">Tap to see how it works!</p>
                 </div>
             </div>
         </div>
@@ -191,44 +168,25 @@
 
     <footer class="footer">
         <div class="footer-grid">
-            <div class="footer-col">
-                <h4>stampflow</h4>
-                <p style="color:var(--text-light); font-size:0.85rem;">Digital loyalty cards for cafés. Built for cafés.</p>
-            </div>
-            <div class="footer-col">
-                <h4>Quick Links</h4>
-                <a href="index.html">Home</a>
-                <a href="customer-register.html">Join Loyalty</a>
-                <a href="pricing.html">Pricing</a>
-                <a href="#how-it-works">How It Works</a>
-            </div>
-            <div class="footer-col">
-                <h4>For Shops</h4>
-                <a href="login.html">Shop Login</a>
-                <a href="register.html">Create Shop</a>
-                <a href="dashboard.html">Dashboard</a>
-                <a href="scanner.html">QR Scanner</a>
-            </div>
-            <div class="footer-col">
-                <h4>Contact</h4>
-                <a href="mailto:nadjibharera@gmail.com">📧 Email Us</a>
-                <a href="https://t.me/LoyaltySip_Bot"> Telegram Bot</a>
-                <p style="color:var(--text-light); font-size:0.8rem; margin-top:0.5rem;">📍 Muscat, Oman</p>
-            </div>
+            <div class="footer-col"><h4>stampflow</h4><p style="color:var(--text-light); font-size:0.85rem;">Digital loyalty cards for cafés. Built for cafés.</p></div>
+            <div class="footer-col"><h4>Quick Links</h4><a href="index.html">Home</a><a href="customer-register.html">Join Loyalty</a><a href="pricing.html">Pricing</a><a href="#how-it-works">How It Works</a></div>
+            <div class="footer-col"><h4>For Shops</h4><a href="login.html">Shop Login</a><a href="register.html">Create Shop</a><a href="dashboard.html">Dashboard</a><a href="scanner.html">QR Scanner</a></div>
+            <div class="footer-col"><h4>Contact</h4><a href="mailto:nadjibharera@gmail.com">📧 Email Us</a><a href="https://t.me/LoyaltySip_Bot">Telegram Bot</a><p style="color:var(--text-light); font-size:0.8rem; margin-top:0.5rem;">📍 Muscat, Oman</p></div>
         </div>
-        <div class="footer-bottom">
-            <p>© 2026 stampflow. All rights reserved.</p>
-        </div>
+        <div class="footer-bottom"><p>© 2026 stampflow. All rights reserved.</p></div>
     </footer>
+
+    <!-- STICKY BOTTOM NAVIGATION (Mobile Only) -->
+    <nav class="bottom-nav" id="bottomNav">
+        <a href="customer-register.html"><span class="nav-icon">🎫</span>Join</a>
+        <a href="customer-dashboard.html"><span class="nav-icon">💳</span>Card</a>
+        <a href="pricing.html"><span class="nav-icon">💰</span>Pricing</a>
+        <button class="theme-toggle-bottom" onclick="toggleTheme()"><span class="nav-icon">🌙</span>Theme</button>
+    </nav>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script>
-        // Dropdown
-        function toggleDropdown() { document.getElementById('dropdownMenu').classList.toggle('show'); }
-        document.addEventListener('click', function(e) { if (!e.target.closest('.dropdown')) document.getElementById('dropdownMenu').classList.remove('show'); });
-        
-        // Dark Mode Toggle
         function toggleTheme() {
             const current = document.documentElement.getAttribute('data-theme');
             const next = current === 'dark' ? 'light' : 'dark';
@@ -238,42 +196,45 @@
         }
         function updateThemeIcon() {
             const theme = document.documentElement.getAttribute('data-theme') || 'light';
-            const icon = document.querySelector('.theme-toggle');
-            if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+            document.querySelectorAll('.theme-toggle, .theme-toggle-bottom').forEach(icon => {
+                icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+            });
         }
-        // Load saved theme
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
         updateThemeIcon();
 
-        // Dashboard button for logged in shops
+        // Show Dashboard in bottom nav if logged in
         if (typeof supabase !== 'undefined') {
             supabase.auth.getSession().then(({ data: { session } }) => {
                 if (session) {
-                    const dropdown = document.getElementById('navLinks').querySelector('.dropdown');
-                    if (dropdown) dropdown.outerHTML = '<a href="dashboard.html" class="btn btn-primary">📊 Dashboard</a>';
+                    const bottomNav = document.getElementById('bottomNav');
+                    if (bottomNav) {
+                        bottomNav.innerHTML = `
+                            <a href="customer-register.html"><span class="nav-icon">🎫</span>Join</a>
+                            <a href="customer-dashboard.html"><span class="nav-icon">💳</span>Card</a>
+                            <a href="dashboard.html" class="active"><span class="nav-icon">📊</span>Dashboard</a>
+                            <button class="theme-toggle-bottom" onclick="toggleTheme()"><span class="nav-icon">🌙</span>Theme</button>
+                        `;
+                    }
                 }
             }).catch(() => {});
         }
 
-        // Smooth section transitions
         const sectionObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
         }, { threshold: 0.15 });
         document.querySelectorAll('.section-fade').forEach(s => sectionObserver.observe(s));
 
-        // Step cards animation
         const stepObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
         }, { threshold: 0.3 });
         document.querySelectorAll('.step-card').forEach(card => stepObserver.observe(card));
     </script>
 
-    <!-- Interactive Demo Script -->
     <script>
         let demoStamps = 0, demoRewards = 0;
         const totalRequired = 6;
-
         function updateDemoDisplay() {
             document.querySelectorAll('#demoStamps .demo-stamp').forEach((s, i) => s.classList.toggle('filled', i < demoStamps));
             document.getElementById('demoCount').textContent = demoStamps;
@@ -286,7 +247,6 @@
             if (demoRewards > 0) { rewardMsg.classList.add('show'); rewardMsg.textContent = `🎁 ${demoRewards} Reward(s) Available!`; }
             else rewardMsg.classList.remove('show');
         }
-
         function spawnConfetti() {
             const emojis = ['🎉','🎊','☕','⭐','🎁','✨'];
             const phone = document.getElementById('demoPhone'), rect = phone.getBoundingClientRect();
@@ -302,7 +262,6 @@
                 }, i * 40);
             }
         }
-
         function demoAddStamp() { demoStamps++; if (demoStamps >= totalRequired) { demoStamps = 0; demoRewards++; spawnConfetti(); } updateDemoDisplay(); }
         function demoRedeem() { if (demoRewards > 0) { demoRewards--; updateDemoDisplay(); } }
         function demoReset() { demoStamps = 0; demoRewards = 0; updateDemoDisplay(); }

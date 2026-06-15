@@ -97,14 +97,31 @@
             }
         }
 
-        async function startCamera() {
+                async function startCamera() {
             try {
                 if (html5QrCode) { await html5QrCode.stop().catch(()=>{}); html5QrCode=null; }
                 document.getElementById('reader').innerHTML='';
                 html5QrCode = new Html5Qrcode("reader");
                 
+                // 🔙 FORCE BACK CAMERA
+                const cameras = await Html5Qrcode.getCameras();
+                let cameraId = { facingMode: "environment" }; // default
+                
+                if (cameras && cameras.length > 0) {
+                    // Find back camera
+                    const backCamera = cameras.find(c => c.label.toLowerCase().includes('back') || c.label.toLowerCase().includes('rear') || c.label.toLowerCase().includes('environment'));
+                    if (backCamera) {
+                        cameraId = { deviceId: { exact: backCamera.id } };
+                        console.log('🔙 Using back camera:', backCamera.label);
+                    }
+                    // If only one camera, use it
+                    if (cameras.length === 1) {
+                        cameraId = { deviceId: { exact: cameras[0].id } };
+                    }
+                }
+                
                 await html5QrCode.start(
-                    { facingMode: "environment" }, 
+                    cameraId, 
                     { fps: 15, qrbox: { width: 280, height: 280 }, aspectRatio: 1 },
                     (decodedText) => { 
                         if(!isScanning) return; 
@@ -133,7 +150,6 @@
                     '<p style="color:red;">⚠️ Camera error</p><p>Use manual entry below</p>';
             }
         }
-
         function retryCamera() {
             document.getElementById('loadingMessage').innerHTML = '<p>📷 Starting camera...</p>';
             document.getElementById('loadingMessage').style.display = 'block';

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Scanner - stampflow</title>
+    <title>QR Scanner - StampFlow</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
@@ -33,7 +33,7 @@
 <body class="scanner-page">
     <div class="scanner-container">
         <div class="scanner-header"><a href="dashboard.html" class="btn btn-outline btn-sm">← Back</a><h1>Scan Customer QR</h1></div>
-        <div id="loadingMessage" style="text-align:center; padding:2rem;"><p>📷 Starting camera...</p></div>
+        <div id="loadingMessage" style="text-align:center; padding:2rem;"><p>📷 Starting back camera...</p></div>
         <div class="scanner-wrapper" id="scannerWrapper" style="display:none;">
             <div id="reader" style="width:100%; max-width:400px; margin:0 auto;"></div>
             <div class="scan-line" id="scanLine"></div>
@@ -82,7 +82,9 @@
         function getGreeting() { const h = new Date().getHours(); if (h<12) return '🌅 Good Morning'; if (h<17) return '☀️ Good Afternoon'; return '🌙 Good Evening'; }
         function getTimeAgo(date) { const diff = (new Date()-new Date(date))/60000; if (diff<1) return 'Just now'; if (diff<60) return Math.floor(diff)+'m ago'; const hrs = Math.floor(diff/60); if (hrs<24) return hrs+'h ago'; const days = Math.floor(diff/1440); if (days===1) return 'Yesterday'; if (days<7) return days+'d ago'; return new Date(date).toLocaleDateString(); }
 
-                initScanner();
+        // Start everything
+        initScanner();
+
         async function initScanner() {
             try { 
                 currentShop = await window.getCurrentShop(); 
@@ -94,30 +96,22 @@
                 document.getElementById('loadingMessage').innerHTML='<p style="color:red;">⚠️ Error</p><p>Use manual entry</p>'; 
             }
         }
-                 async function startCamera() {
+
+        async function startCamera() {
             try {
                 if (html5QrCode) { await html5QrCode.stop().catch(()=>{}); html5QrCode=null; }
                 document.getElementById('reader').innerHTML='';
                 html5QrCode = new Html5Qrcode("reader");
                 
                 await html5QrCode.start(
-                    { facingMode: { exact: "environment" } },  // 🔙 FORCE back camera
-                    { 
-                        fps: 30,
-                        qrbox: { width: 300, height: 300 },
-                        aspectRatio: 1,
-                        disableFlip: false,
-                        videoConstraints: {
-                            width: { ideal: 640 },
-                            height: { ideal: 640 }
-                        }
-                    },
+                    { facingMode: "environment" }, 
+                    { fps: 15, qrbox: { width: 280, height: 280 }, aspectRatio: 1 },
                     (decodedText) => { 
                         if(!isScanning) return; 
-                        isScanning=false;
-                        console.log('✅ QR DETECTED');
+                        isScanning=false; 
                         vibrate(); 
                         playScanSound();
+                        console.log('✅ QR DETECTED');
                         document.getElementById('scanResult').classList.remove('hidden'); 
                         document.getElementById('scannedName').textContent='Found!';
                         try { 
@@ -132,13 +126,14 @@
                 document.getElementById('loadingMessage').style.display='none'; 
                 document.getElementById('scannerWrapper').style.display='block'; 
                 isScanning=true;
-                console.log('✅ Camera ready - back camera');
+                console.log('✅ Camera ready');
                 
             } catch(err) {
                 document.getElementById('loadingMessage').innerHTML = 
-                    '<p style="color:red;">⚠️ Camera error</p><p>Use manual entry</p>';
+                    '<p style="color:red;">⚠️ Camera error</p><p>Use manual entry below</p>';
             }
-        }         
+        }
+
         function retryCamera() {
             document.getElementById('loadingMessage').innerHTML = '<p>📷 Starting camera...</p>';
             document.getElementById('loadingMessage').style.display = 'block';
@@ -219,7 +214,6 @@
                 await supabase.from('visits').insert({shop_id:currentShop.id,customer_id:currentCustomer.id,action:'stamp',notes:'',created_at:new Date().toISOString()});
                 showToast(nr>(currentCustomer.free_rewards||0)?'🎉 Reward!':'✅ Stamp!','success');
                 
-                // 🔔 Notify customer via Telegram
                 if (currentCustomer.telegram_chat_id) {
                     const stampMsg = `☕ <b>Stamp Added!</b>\n\nYou now have <b>${ns}/${required}</b> stamps at ${currentShop.shop_name}.\n\n${(required-ns) > 0 ? (required-ns) + ' more for a free reward!' : '🎉 You earned a reward!'}`;
                     const rewardMsg = `🎉 <b>Congratulations!</b>\n\nYou earned a <b>free reward</b> at ${currentShop.shop_name}!\n\nVisit us to redeem your free drink! ☕`;

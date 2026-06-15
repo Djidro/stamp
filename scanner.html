@@ -82,7 +82,18 @@
         function getGreeting() { const h = new Date().getHours(); if (h<12) return '🌅 Good Morning'; if (h<17) return '☀️ Good Afternoon'; return '🌙 Good Evening'; }
         function getTimeAgo(date) { const diff = (new Date()-new Date(date))/60000; if (diff<1) return 'Just now'; if (diff<60) return Math.floor(diff)+'m ago'; const hrs = Math.floor(diff/60); if (hrs<24) return hrs+'h ago'; const days = Math.floor(diff/1440); if (days===1) return 'Yesterday'; if (days<7) return days+'d ago'; return new Date(date).toLocaleDateString(); }
 
-        initScanner();
+                initScanner();
+        async function initScanner() {
+            try { 
+                currentShop = await window.getCurrentShop(); 
+                if (!currentShop) { window.location.href='login.html'; return; } 
+                if (currentShop.settings) shopSettings = currentShop.settings; 
+                startCamera(); 
+            }
+            catch (err) { 
+                document.getElementById('loadingMessage').innerHTML='<p style="color:red;">⚠️ Error</p><p>Use manual entry</p>'; 
+            }
+        }
                   async function startCamera() {
             try {
                 if (html5QrCode) { await html5QrCode.stop().catch(()=>{}); html5QrCode=null; }

@@ -64,11 +64,15 @@
             50% { transform: translateY(0) rotate(0deg); }
             75% { transform: translateY(-4px) rotate(2deg); }
         }
-        .dancing-text { display: inline-block; animation: dance 2s ease-in-out infinite; }
+        .dancing-text { display: inline-block; animation: dance 2s ease-in-out infinite; font-size: 3.5rem; }
         .dancing-text:nth-child(1){animation-delay:0s}.dancing-text:nth-child(2){animation-delay:.1s}.dancing-text:nth-child(3){animation-delay:.2s}.dancing-text:nth-child(4){animation-delay:.3s}.dancing-text:nth-child(5){animation-delay:.4s}.dancing-text:nth-child(6){animation-delay:.5s}.dancing-text:nth-child(7){animation-delay:.6s}.dancing-text:nth-child(8){animation-delay:.7s}.dancing-text:nth-child(9){animation-delay:.8s}
-        .hero-title { font-size: 1.2rem; font-weight: 600; color: var(--text-light); margin-bottom: 1.5rem; line-height: 1.4; }
+        .hero-title { font-size: 1rem; font-weight: 600; color: var(--text-light); margin-bottom: 1.5rem; line-height: 1.4; }
 
-               /* STICKY BOTTOM NAV */
+        /* Social Proof Animations */
+        @keyframes slideUp { from { transform:translateY(20px);opacity:0; } to { transform:translateY(0);opacity:1; } }
+        @keyframes fadeOut { to { opacity:0; transform:translateY(-10px); } }
+
+        /* STICKY BOTTOM NAV */
         .bottom-nav {
             display: none; position: fixed; bottom: 0; left: 0; right: 0;
             background: var(--surface); border-top: 1px solid var(--border);
@@ -84,28 +88,31 @@
         }
         .bottom-nav a.active { color: var(--primary); background: rgba(111,78,55,0.08); }
         .bottom-nav a .nav-icon, .bottom-nav .theme-toggle-bottom .nav-icon { font-size: 1.1rem; }
+
         @media (max-width: 768px) {
             .bottom-nav { display: flex; }
             body { padding-bottom: 70px; }
             .demo-phone { max-width: 240px; }
             .demo-screen { min-height: 300px; padding: 0.75rem; }
         }
+        @media (max-width: 480px) {
+            .dancing-text { font-size: 2.2rem; }
+            .hero-title { font-size: 0.85rem; }
+        }
     </style>
 </head>
 <body>
-    <!-- TOP NAVBAR - Just Brand -->
     <nav class="navbar">
-  <div class="nav-brand"><span>StampFlow</span></div>
+        <div class="nav-brand"><span>StampFlow</span></div>
     </nav>
 
     <header class="hero">
         <div class="hero-content">
-            <!-- 🕺 Dancing StampFlow Title -->
-            <h1 style="font-size:3.5rem; margin-bottom:0.5rem; color:var(--primary-dark);">
+            <h1 style="margin-bottom:0.5rem; color:var(--primary-dark);">
                 <span class="dancing-text">S</span><span class="dancing-text">t</span><span class="dancing-text">a</span><span class="dancing-text">m</span><span class="dancing-text">p</span><span class="dancing-text">F</span><span class="dancing-text">l</span><span class="dancing-text">o</span><span class="dancing-text">w</span>
             </h1>
             <p class="hero-title">Digital loyalty cards, QR rewards & customer messaging for cafés, restaurants and shops.</p>
-                      <div class="hero-cta">
+            <div class="hero-cta">
                 <a href="customer-register.html" class="btn btn-large btn-primary">🎫 Get Started Free</a>
                 <a href="register.html" class="btn btn-large btn-outline">🏪 For Shop Owners</a>
                 <a href="#demoPhone" class="btn btn-large btn-outline">👇 See Live Demo</a>
@@ -162,7 +169,7 @@
             <div class="feature-card"><div class="feature-icon">📡</div><h3>Broadcasts</h3><p>Send push notifications to all your customers with one click.</p></div>
         </div>
     </section>
-        <!-- 🚀 Call-to-Action Banner -->
+
     <div style="background:linear-gradient(135deg, #6F4E37, #8B6914); padding:3rem 1rem; text-align:center; color:white; margin-top:2rem;">
         <h2 style="font-size:2rem; margin-bottom:0.5rem;">🚀 Ready to Grow Your Café?</h2>
         <p style="font-size:1.1rem; opacity:0.9; margin-bottom:1.5rem;">Start your 15-day free trial today. No credit card required.</p>
@@ -170,46 +177,10 @@
         <p style="margin-top:1rem; font-size:0.85rem; opacity:0.7;">Join growing cafés using StampFlow</p>
     </div>
 
-    <!-- Floating Social Proof Popup -->
-    <div id="socialProof" style="position:fixed; bottom:80px; left:20px; background:var(--surface); padding:0.75rem 1rem; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.2); z-index:998; font-size:0.85rem; animation:slideUp 0.5s ease, fadeOut 0.5s ease 4s forwards; display:none;">
+    <div id="socialProof" style="position:fixed; bottom:80px; left:20px; background:var(--surface); padding:0.75rem 1rem; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.2); z-index:998; font-size:0.85rem; display:none;">
         <span id="socialProofText">🎉 Someone just joined!</span>
     </div>
 
-    <style>
-        @keyframes slideUp { from { transform:translateY(20px);opacity:0; } to { transform:translateY(0);opacity:1; } }
-        @keyframes fadeOut { to { opacity:0; transform:translateY(-10px); } }
-    </style>
-
-    <script>
-        // Social Proof - Show random "just joined" messages
-        const proofMessages = [
-            "🎉 A new customer just joined a loyalty program!",
-            "☕ Someone just earned a free reward!",
-            "🏪 A new café just registered!",
-            "👥 A customer just invited a friend!",
-            "⭐ A shop just sent a broadcast to all customers!"
-        ];
-        
-        function showSocialProof() {
-            const el = document.getElementById('socialProof');
-            const txt = document.getElementById('socialProofText');
-            const msg = proofMessages[Math.floor(Math.random() * proofMessages.length)];
-            txt.textContent = msg;
-            el.style.display = 'block';
-            el.style.animation = 'none';
-            el.offsetHeight;
-            el.style.animation = 'slideUp 0.5s ease, fadeOut 0.5s ease 4s forwards';
-            setTimeout(() => { el.style.display = 'none'; }, 4500);
-        }
-        
-        // Show every 15-30 seconds
-        setInterval(() => {
-            if (Math.random() > 0.5) showSocialProof();
-        }, 20000);
-        
-        // Show first one after 5 seconds
-        setTimeout(showSocialProof, 5000);
-    </script>
     <footer class="footer">
         <div class="footer-grid">
             <div class="footer-col"><h4>StampFlow</h4><p style="color:var(--text-light); font-size:0.85rem;">Digital loyalty cards for cafés. Built for cafés.</p></div>
@@ -220,7 +191,6 @@
         <div class="footer-bottom"><p>© 2026 StampFlow. All rights reserved.</p></div>
     </footer>
 
-    <!-- STICKY BOTTOM NAVIGATION (Mobile Only) -->
     <nav class="bottom-nav" id="bottomNav">
         <a href="customer-register.html"><span class="nav-icon">🎫</span>Join</a>
         <a href="customer-dashboard.html"><span class="nav-icon">💳</span>Card</a>
@@ -242,21 +212,25 @@
         }
         const savedTheme=localStorage.getItem('theme'); if(savedTheme) document.documentElement.setAttribute('data-theme',savedTheme); updateThemeIcon();
 
-        // Show Dashboard in bottom nav if logged in
         if(typeof supabase!=='undefined'){supabase.auth.getSession().then(({data:{session}})=>{if(session){const b=document.getElementById('bottomNav');if(b)b.innerHTML=`<a href="customer-register.html"><span class="nav-icon">🎫</span>Join</a><a href="customer-dashboard.html"><span class="nav-icon">💳</span>Card</a><a href="dashboard.html" class="active"><span class="nav-icon">📊</span>Dashboard</a><a href="pricing.html"><span class="nav-icon">💰</span>Pricing</a><button class="theme-toggle-bottom" onclick="toggleTheme()"><span class="nav-icon">🌙</span>Theme</button>`;}}).catch(()=>{});}
 
         const so=new IntersectionObserver((e)=>{e.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
         document.querySelectorAll('.section-fade').forEach(s=>so.observe(s));
         const st=new IntersectionObserver((e)=>{e.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.3});
         document.querySelectorAll('.step-card').forEach(c=>st.observe(c));
+
+        const proofMessages=["🎉 A new customer just joined!","☕ Someone just earned a free reward!","🏪 A new café just registered!","👥 A customer just invited a friend!","⭐ A shop just sent a broadcast!"];
+        function showSocialProof(){const e=document.getElementById('socialProof'),t=document.getElementById('socialProofText'),s=proofMessages[Math.floor(Math.random()*proofMessages.length)];t.textContent=s;e.style.display='block';e.style.animation='none';e.offsetHeight;e.style.animation='slideUp 0.5s ease, fadeOut 0.5s ease 4s forwards';setTimeout(()=>{e.style.display='none'},4500)}
+        setInterval(()=>{if(Math.random()>.5)showSocialProof()},20000);
+        setTimeout(showSocialProof,5000);
     </script>
     <script>
-        let ds=0,dr=0; const tr=6;
-        function ud(){document.querySelectorAll('#demoStamps .demo-stamp').forEach((s,i)=>s.classList.toggle('filled',i<ds));document.getElementById('demoCount').textContent=ds;document.getElementById('demoProgress').style.width=(ds/tr*100)+'%';document.getElementById('demoRewards').textContent=dr;const b=document.getElementById('demoRedeemBtn');b.disabled=dr<1;b.textContent=dr>0?`🎁 Redeem (${dr})`:'🎁 Redeem';const m=document.getElementById('demoRewardMsg');if(dr>0){m.classList.add('show');m.textContent=`🎁 ${dr} Reward(s)!`;}else m.classList.remove('show');}
+        let ds=0,dr=0;const tr=6;
+        function ud(){document.querySelectorAll('#demoStamps .demo-stamp').forEach((s,i)=>s.classList.toggle('filled',i<ds));document.getElementById('demoCount').textContent=ds;document.getElementById('demoProgress').style.width=(ds/tr*100)+'%';document.getElementById('demoRewards').textContent=dr;const b=document.getElementById('demoRedeemBtn');b.disabled=dr<1;b.textContent=dr>0?`🎁 Redeem (${dr})`:'🎁 Redeem';const m=document.getElementById('demoRewardMsg');if(dr>0){m.classList.add('show');m.textContent=`🎁 ${dr} Reward(s)!`;}else m.classList.remove('show')}
         function sc(){const e=['🎉','🎊','☕','⭐','🎁','✨'],p=document.getElementById('demoPhone'),r=p.getBoundingClientRect();for(let i=0;i<15;i++){setTimeout(()=>{const c=document.createElement('div');c.className='demo-confetti';c.textContent=e[Math.floor(Math.random()*e.length)];c.style.left=r.left+Math.random()*r.width+'px';c.style.top=r.top+r.height*.5+'px';document.body.appendChild(c);setTimeout(()=>c.remove(),1e3)},i*40)}}
-        function da(){ds++;if(ds>=tr){ds=0;dr++;sc();}ud();}
-        function dR(){if(dr>0){dr--;ud();}}
-        function dRe(){ds=0;dr=0;ud();}
+        function da(){ds++;if(ds>=tr){ds=0;dr++;sc()}ud()}
+        function dR(){if(dr>0){dr--;ud()}}
+        function dRe(){ds=0;dr=0;ud()}
         ud();
     </script>
 </body>

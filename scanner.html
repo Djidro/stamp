@@ -94,7 +94,7 @@
                 document.getElementById('loadingMessage').innerHTML='<p style="color:red;">⚠️ Error</p><p>Use manual entry</p>'; 
             }
         }
-                  async function startCamera() {
+                   async function startCamera() {
             try {
                 if (html5QrCode) { await html5QrCode.stop().catch(()=>{}); html5QrCode=null; }
                 document.getElementById('reader').innerHTML='';
@@ -102,13 +102,22 @@
                 
                 await html5QrCode.start(
                     { facingMode: "environment" }, 
-                    { fps: 15, qrbox: { width: 280, height: 280 }, aspectRatio: 1 },
+                    { 
+                        fps: 30,                    // ⚡ Faster FPS
+                        qrbox: { width: 300, height: 300 },  // 🔍 Bigger scan area
+                        aspectRatio: 1,
+                        disableFlip: false,
+                        videoConstraints: {
+                            width: { ideal: 640 },   // Lower resolution = faster
+                            height: { ideal: 640 }
+                        }
+                    },
                     (decodedText) => { 
                         if(!isScanning) return; 
-                        isScanning=false; 
+                        isScanning=false;
+                        console.log('✅ QR DETECTED');
                         vibrate(); 
                         playScanSound();
-                        console.log('✅ QR DETECTED:', decodedText);
                         document.getElementById('scanResult').classList.remove('hidden'); 
                         document.getElementById('scannedName').textContent='Found!';
                         try { 
@@ -117,19 +126,19 @@
                             else quickLookupByCode(decodedText); 
                         } catch(e) { quickLookupByCode(decodedText); } 
                     }, 
-                    () => {}
+                    () => {}  // Silent errors for speed
                 );
                 
                 document.getElementById('loadingMessage').style.display='none'; 
                 document.getElementById('scannerWrapper').style.display='block'; 
                 isScanning=true;
-                console.log('✅ Camera ready');
+                console.log('✅ Camera ready - fast mode');
                 
             } catch(err) {
                 document.getElementById('loadingMessage').innerHTML = 
                     '<p style="color:red;">⚠️ Camera error</p><p>Use manual entry</p>';
             }
-        } 
+        }   
         function retryCamera() {
             document.getElementById('loadingMessage').innerHTML = '<p>📷 Starting camera...</p>';
             document.getElementById('loadingMessage').style.display = 'block';

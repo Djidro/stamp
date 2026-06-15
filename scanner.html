@@ -123,19 +123,26 @@
                 await html5QrCode.start(
                     cameraId, 
                     { fps: 15, qrbox: { width: 280, height: 280 }, aspectRatio: 1 },
-                    (decodedText) => { 
+                                       (decodedText) => { 
                         if(!isScanning) return; 
                         isScanning=false; 
                         vibrate(); 
                         playScanSound();
-                        console.log('✅ QR DETECTED');
+                        console.log('✅ QR DETECTED:', decodedText);
                         document.getElementById('scanResult').classList.remove('hidden'); 
-                        document.getElementById('scannedName').textContent='Found!';
+                        document.getElementById('scannedName').textContent='Searching...';
+                        
+                        // Try JSON first
                         try { 
                             const data=JSON.parse(decodedText); 
-                            if(data.customer&&data.shop) quickLookup(data.customer,data.shop); 
-                            else quickLookupByCode(decodedText); 
-                        } catch(e) { quickLookupByCode(decodedText); } 
+                            if(data.customer&&data.shop) {
+                                quickLookup(data.customer,data.shop); 
+                                return;
+                            }
+                        } catch(e) {}
+                        
+                        // Try as customer code
+                        quickLookupByCode(decodedText.trim());
                     }, 
                     () => {}
                 );

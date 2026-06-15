@@ -83,7 +83,7 @@
         function getTimeAgo(date) { const diff = (new Date()-new Date(date))/60000; if (diff<1) return 'Just now'; if (diff<60) return Math.floor(diff)+'m ago'; const hrs = Math.floor(diff/60); if (hrs<24) return hrs+'h ago'; const days = Math.floor(diff/1440); if (days===1) return 'Yesterday'; if (days<7) return days+'d ago'; return new Date(date).toLocaleDateString(); }
 
         initScanner();
-              async function startCamera() {
+                  async function startCamera() {
             try {
                 if (html5QrCode) { await html5QrCode.stop().catch(()=>{}); html5QrCode=null; }
                 document.getElementById('reader').innerHTML='';
@@ -91,18 +91,13 @@
                 
                 await html5QrCode.start(
                     { facingMode: "environment" }, 
-                    { 
-                        fps: 10, 
-                        qrbox: { width: 250, height: 250 },
-                        aspectRatio: 1,
-                        disableFlip: false
-                    },
+                    { fps: 15, qrbox: { width: 280, height: 280 }, aspectRatio: 1 },
                     (decodedText) => { 
-                        console.log('✅ QR DETECTED:', decodedText);
                         if(!isScanning) return; 
                         isScanning=false; 
                         vibrate(); 
                         playScanSound();
+                        console.log('✅ QR DETECTED:', decodedText);
                         document.getElementById('scanResult').classList.remove('hidden'); 
                         document.getElementById('scannedName').textContent='Found!';
                         try { 
@@ -111,32 +106,19 @@
                             else quickLookupByCode(decodedText); 
                         } catch(e) { quickLookupByCode(decodedText); } 
                     }, 
-                    (error) => {
-                        // Silently ignore
-                    }
+                    () => {}
                 );
                 
                 document.getElementById('loadingMessage').style.display='none'; 
                 document.getElementById('scannerWrapper').style.display='block'; 
                 isScanning=true;
-                console.log('✅ Camera ready - waiting for QR code');
+                console.log('✅ Camera ready');
                 
             } catch(err) {
-                console.error('Camera error:', err.message);
-                let errorMsg = '⚠️ Camera error. ';
-                if (err.message.includes('NotAllowed') || err.message.includes('Permission')) {
-                    errorMsg += 'Camera permission denied.';
-                } else if (err.message.includes('NotFound')) {
-                    errorMsg += 'No camera found.';
-                } else {
-                    errorMsg += 'Use manual entry below.';
-                }
                 document.getElementById('loadingMessage').innerHTML = 
-                    `<p style="color:red;">${errorMsg}</p>
-                     <p>Use manual entry below</p>
-                     <button onclick="retryCamera()" style="margin-top:0.5rem; padding:0.5rem 1rem; background:#6F4E37; color:white; border:none; border-radius:8px; cursor:pointer;">🔄 Try Again</button>`;
+                    '<p style="color:red;">⚠️ Camera error</p><p>Use manual entry</p>';
             }
-        }
+        } 
         function retryCamera() {
             document.getElementById('loadingMessage').innerHTML = '<p>📷 Starting camera...</p>';
             document.getElementById('loadingMessage').style.display = 'block';
